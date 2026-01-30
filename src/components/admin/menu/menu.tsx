@@ -76,7 +76,6 @@ export default function AdminMenu() {
                 },
             ],
         },
-
         {
             key: 'exam-bank',
             icon: <DatabaseOutlined />,

@@ -1,3 +1,6 @@
+import { AuthInit } from "@/components/provider/AuthInit";
+import QueryProvider from "@/components/provider/QueryClient";
+import { App } from "antd";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -27,7 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <QueryProvider>
+          <App>
+            <AuthInit />
+            {children}
+          </App>
+        </QueryProvider>
       </body>
     </html>
   );
