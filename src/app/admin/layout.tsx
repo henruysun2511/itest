@@ -1,12 +1,10 @@
 "use client";
+import AdminSidebar from '@/components/admin/sidebar/sidebar';
 import {
-    MenuFoldOutlined,
-    MenuUnfoldOutlined,
-    UploadOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme } from 'antd';
+import { Button, Layout, theme } from 'antd';
 import React, { useState } from 'react';
 
 const { Header, Sider, Content } = Layout;
@@ -24,19 +22,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="demo-logo-vertical" />
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={['1']}
-          items={[
-            { key: '1', icon: <UserOutlined />, label: 'nav 1' },
-            { key: '2', icon: <VideoCameraOutlined />, label: 'nav 2' },
-            { key: '3', icon: <UploadOutlined />, label: 'nav 3' },
-          ]}
-        />
-      </Sider>
+      <AdminSidebar collapsed={collapsed} />
 
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
