@@ -1,3 +1,4 @@
+import { AccountStatus } from "./enum";
 import { Pagination } from "./param";
 
 interface ApiResponse<T> {
@@ -5,7 +6,7 @@ interface ApiResponse<T> {
     statusCode: number;
     message: string;
     data: T;
-    pagination?: Pagination;
+    meta?: Pagination;
 }
 
 export type { ApiResponse };
@@ -31,4 +32,9 @@ interface LoginBody {
     password: string;
 };
 export type { LoginBody };
+
+interface ChangeAccountStatusBody {
+    status: AccountStatus;
+}
+export type { ChangeAccountStatusBody };
 

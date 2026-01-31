@@ -151,3 +151,50 @@ body {
   border-radius: 8px;
 }
 
+/*BUTTON PRIMARY*/
+.ant-btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: #24245f; /* primary đậm hơn */
+  border-color: #24245f;
+}
+
+/* ===== BUTTON DEFAULT ===== */
+.ant-btn-default {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.ant-btn-default:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ===== BUTTON DANGER ===== */
+.ant-btn-dangerous {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+
+.ant-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ===== TABLE HEADER ===== */
+/* .ant-table-thead > tr > th {
+  background: var(--color-primary) !important;
+  color: var(--color-text-light) !important;
+  font-weight: 600 !important;
+  border-bottom: none !important;
+} */
+
+
+

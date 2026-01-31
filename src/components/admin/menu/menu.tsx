@@ -33,7 +33,7 @@ export default function AdminMenu() {
             label: 'Quản lý người dùng',
             children: [
                 {
-                    key: '/admin/user',
+                    key: '/admin/account',
                     icon: <TeamOutlined />,
                     label: <Tooltip title="Danh sách người dùng" placement='right'>Danh sách người dùng</Tooltip>,
                 },
@@ -55,22 +55,22 @@ export default function AdminMenu() {
             label: 'Quản lý chung',
             children: [
                 {
-                    key: '/admin/user',
+                    key: '/admin/student',
                     icon: <UserOutlined />,
                     label: 'Sinh viên',
                 },
                 {
-                    key: '/admin/role',
+                    key: '/admin/teacher',
                     icon:  <SolutionOutlined />,
                     label: 'Giảng viên',
                 },
                 {
-                    key: '/admin/permission',
+                    key: '/admin/session',
                     icon: <ScheduleOutlined />,
                     label: 'Ca thi',
                 },
                 {
-                    key: '/admin/permission',
+                    key: '/admin/resut',
                     icon: <BarChartOutlined />,
                     label: 'Kết quả thi',
                 },
@@ -145,8 +145,8 @@ export default function AdminMenu() {
         <Menu
             theme="dark"
             mode="inline"
-            defaultSelectedKeys={['user-list']}
-            defaultOpenKeys={['user', 'exam']}
+            defaultSelectedKeys={['user']}
+            defaultOpenKeys={['1', '2']}
             items={items}
             className='bg-transparent'
             onClick={handleRouter}
