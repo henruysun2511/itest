@@ -25,4 +25,12 @@ export const RoleService = {
             `/${prefix}/${id}`
         );
     },
+    // put /roles/:id - Cập nhật role
+    update(data: { id: string } & Partial<Role>) {
+        const { id, ...payload } = data;
+        return http.put<ApiResponse<Role>>(
+            `/${prefix}/${id}`,
+            payload
+        );
+    },
 };

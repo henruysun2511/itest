@@ -46,4 +46,15 @@ export const useRoleDelete = () => {
             qc.invalidateQueries({ queryKey: ROLE_QUERY_KEY });
         },
     });
-};  
+};
+
+// update role
+export const useRoleUpdate = () => {
+  const qc = useQueryClient();
+    return useMutation({
+        mutationFn: RoleService.update,
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ROLE_QUERY_KEY });
+        },
+    });
+};

@@ -5,7 +5,8 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useRoleDelete } from "@/queries/useRoleQuery";
 import { useToast } from "@/hooks/useToast";
 import { handleError } from "@/utils/error";
-
+import { useState } from "react";
+import { RoleUpdateModal } from "./role-update-modal";
 interface Props {
     data: Role[];
     loading?: boolean;
@@ -15,6 +16,9 @@ interface Props {
 export default function RoleTable({ data, loading, pagination }: Props) {
     const { mutate: deleteRole } = useRoleDelete();
     const toast = useToast();
+    const [openUpdate, setOpenUpdate] = useState(false);
+    const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+
     // handle delete role
     const handleDelete = (id: string) => {
         deleteRole(id, {
@@ -56,26 +60,39 @@ export default function RoleTable({ data, loading, pagination }: Props) {
                         >
                             Xóa
                         </Button>
-                        <Button
-                            type="primary"
-                            icon={<EditOutlined />}
-                            // onClick={() => handleEdit(record.roleId)}
-                        >
-                            Sửa
-                        </Button>
                     </Popconfirm>
+                    <Button
+                        type="primary"
+                        icon={<EditOutlined />} 
+                        onClick={() => {
+                            setSelectedRole(record);
+                            setOpenUpdate(true);
+                        }}
+                    >
+                        Sửa
+                    </Button>
                 </Space>
             )
         }
     ];
 
     return (
+        <>
         <Table
-            rowKey="_id"
+            rowKey="roleId"
             columns={columns}
             dataSource={data}
             loading={loading}
             pagination={pagination}
         />
+        <RoleUpdateModal
+            open={openUpdate}
+            onCancel={() => {
+                setOpenUpdate(false);
+                setSelectedRole(null);
+            }}
+            data={selectedRole}
+        />
+        </>
     );
 }
