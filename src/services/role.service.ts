@@ -12,4 +12,17 @@ export const RoleService = {
             `/${prefix}`
         );
     },
+    // post /roles - Tạo role mới
+    create(data: Partial<Role>) {
+        return http.post<ApiResponse<Role>>(
+            `/${prefix}`,
+            data
+        );
+    },
+    // delete /roles/:id - Xóa role
+    delete(id: string) {
+        return http.delete<ApiResponse<Role>>(
+            `/${prefix}/${id}`
+        );
+    },
 };

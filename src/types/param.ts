@@ -8,5 +8,8 @@ export type { Pagination };
 
 interface AccountParam extends Pagination {
 }
-export type { AccountParam };
 
+interface RoleParam extends Pagination {
+}
+
+export type { AccountParam, RoleParam };
