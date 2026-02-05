@@ -6,10 +6,10 @@ interface Pagination {
 }
 export type { Pagination };
 
-interface AccountParam extends Pagination {
-}
+interface AccountParam extends Pagination {}
 
 interface RoleParam extends Pagination {
+  search?: string;
 }
 
 export type { AccountParam, RoleParam };
