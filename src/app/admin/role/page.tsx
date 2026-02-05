@@ -8,7 +8,7 @@ import { RoleCreateModal } from "./role-create-modal";
 import { useRoleListPagination } from "@/queries/useRoleQuery";
 
 export default function RolePage() {
-  const [params, setParams] = useState({ page: 1, size: 10, search: "" });
+  const [params, setParams] = useState({ page: 1, size: 10, sort: "" });
   const { data, isLoading, isError, error } = useRoleListPagination(params);
   const [openModal, setOpenModal] = useState(false);
   console.log("dataaaaaaaaaaaa:", data);
@@ -23,7 +23,7 @@ export default function RolePage() {
             size="large"
             style={{ width: 500 }}
             onSearch={(val) =>
-              setParams((p) => ({ ...p, search: val, page: 1 }))
+              setParams((p) => ({ ...p, sort: val, page: 1 }))
             }
           />
           <Button

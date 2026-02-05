@@ -9,7 +9,7 @@ export type { Pagination };
 interface AccountParam extends Pagination {}
 
 interface RoleParam extends Pagination {
-  search?: string;
+  sort?: string;
 }
 
 export type { AccountParam, RoleParam };
