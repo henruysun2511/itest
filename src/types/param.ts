@@ -6,7 +6,10 @@ interface Pagination {
 }
 export type { Pagination };
 
-interface AccountParam extends Pagination {
-}
-export type { AccountParam };
+interface AccountParam extends Pagination {}
 
+interface RoleParam extends Pagination {
+  sort?: string;
+}
+
+export type { AccountParam, RoleParam };
