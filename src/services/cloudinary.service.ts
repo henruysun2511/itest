@@ -1,4 +1,3 @@
-
 import { ApiResponse, DeleteFileCloudinaryBody } from "@/types/body";
 import { UploadCloudinary } from "@/types/object";
 import http from "@/utils/http";

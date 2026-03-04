@@ -65,10 +65,11 @@ export default function PartEditor({
                             placeholder="Tiêu đề phần (vd: Listening Section 1)"
                         />
                     </div>
-                    <Button 
-                        danger 
-                        type="text" 
-                        icon={<DeleteOutlined />} 
+                    <Button
+                        danger
+                        type="text"
+                        style={{ color: "white" }}
+                        icon={<DeleteOutlined />}
                         onClick={onDelete}
                         className="hover:bg-red-50"
                     >

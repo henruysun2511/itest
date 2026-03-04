@@ -109,7 +109,8 @@ export default function QuestionEditor({
                                 danger 
                                 icon={<DeleteOutlined />} 
                                 size="small" 
-                                className="flex items-center"
+                                style={{color: "white"}}
+                                className="flex items-cente"
                                 onClick={() => deleteQuestion(index)}
                             >
                                 Xóa
