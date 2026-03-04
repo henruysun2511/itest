@@ -11,5 +11,7 @@ interface AccountParam extends Pagination {}
 interface RoleParam extends Pagination {
   sort?: string;
 }
-
-export type { AccountParam, RoleParam };
+interface ExamSetParam extends Pagination {
+  search?: string;
+}
+export type { AccountParam, RoleParam, ExamSetParam };

@@ -26,3 +26,12 @@ interface Role {
 }
 export type { Role };
 
+interface ExamSet {
+    examSetId: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+}
+
+export type { ExamSet };
