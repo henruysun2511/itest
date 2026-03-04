@@ -1,73 +1,41 @@
-import { ExamData } from "@/types/object";
+import { ExamData, Part, Question, QuestionGroup } from "@/types/object";
 
-export function normalizeExamData(data: any): ExamData {
-  const rawParts = Array.isArray(data?.parts) ? data.parts : [];
-
-  const parts = rawParts.length
-    ? rawParts.map((part: any, pIndex: number) => {
-        const rawQuestions = Array.isArray(part?.questions)
-          ? part.questions
-          : [];
-
-        const questions = rawQuestions.map(
-          (q: any, qIndex: number) => ({
-            questionIndex: qIndex + 1,
-            questionText: q?.questionText ?? "",
-            questionType: q?.questionType ?? "essay",
-            options: Array.isArray(q?.options)
-              ? q.options.map((opt: any, oIndex: number) => ({
-                  label:
-                    opt?.label ??
-                    String.fromCharCode(65 + oIndex), // A, B, C...
-                  content: opt?.content ?? "",
-                }))
-              : null,
-            mediaPlaceholders: Array.isArray(
-              q?.mediaPlaceholders
-            )
-              ? q.mediaPlaceholders
-              : [],
-          })
-        );
-
-        const rawGroups = Array.isArray(part?.questionGroups)
-          ? part.questionGroups
-          : [];
-
-        const questionGroups = rawGroups.map((g: any) => ({
-          groupInstruction: g?.groupInstruction ?? "",
-          questionIndices: Array.isArray(g?.questionIndices)
-            ? g.questionIndices.filter((i: number) =>
-                questions.some(
-                  (q) => q.questionIndex === i
-                )
-              )
-            : [],
-          mediaPlaceholders: Array.isArray(
-            g?.mediaPlaceholders
-          )
-            ? g.mediaPlaceholders
-            : [],
-        }));
-
-        return {
-          partIndex: pIndex + 1,
-          partTitle: part?.partTitle ?? `Part ${pIndex + 1}`,
-          partDescription: part?.partDescription ?? null,
-          questionType: part?.questionType ?? "mixed",
-          mediaPlaceholders: Array.isArray(
-            part?.mediaPlaceholders
-          )
-            ? part.mediaPlaceholders
-            : [],
-          questionGroups,
-          questions,
-        };
-      })
-    : [];
+export const normalizeExamData = (raw: any): ExamData => {
+  if (!raw) return { hasParts: false, parts: [] };
 
   return {
-    hasParts: parts.length > 0,
-    parts,
+    hasParts: !!raw.hasParts,
+    parts: (raw.parts || []).map((part: any, pIdx: number): Part => ({
+      partIndex: part.partIndex || pIdx + 1,
+      partTitle: part.partTitle || part.title || "",
+      partDescription: part.partDescription || part.description || part.instruction || "",
+      questionType: part.questionType || "mixed",
+      mediaPlaceholders: part.mediaPlaceholders || [],
+      // Đảm bảo questionGroups luôn là mảng
+      questionGroups: (part.questionGroups || []).map((g: any): QuestionGroup => ({
+        groupInstruction: g.groupInstruction || "",
+        questionIndices: g.questionIndices || [],
+        mediaPlaceholders: g.mediaPlaceholders || []
+      })),
+      // Chuẩn hóa danh sách câu hỏi
+      questions: (part.questions || []).map((q: any, qIdx: number): Question => ({
+        questionIndex: q.questionIndex || qIdx + 1,
+        questionText: q.questionText || "",
+        questionType: q.questionType || "multiple_choice",
+        mediaPlaceholders: q.mediaPlaceholders || [],
+        // Chuyển đổi options từ AI sang định dạng Object {label, text}
+        options: Array.isArray(q.options)
+          ? q.options.map((opt: any, oIdx: number) => {
+            if (typeof opt === 'string') {
+              return { label: String.fromCharCode(65 + oIdx), text: opt };
+            }
+            return {
+              label: opt.label || String.fromCharCode(65 + oIdx),
+              text: opt.text || ""
+            };
+          })
+          : null
+      }))
+    }))
   };
-}
+};

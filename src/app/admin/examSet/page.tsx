@@ -1,11 +1,11 @@
 "use client";
 
-import { Button, Input, Space } from "antd";
+import { useExamSetList } from "@/queries/useExamSetQuery";
 import { PlusOutlined } from "@ant-design/icons";
+import { Button, Input, Space } from "antd";
 import { useState } from "react";
-import ExamSetTable from "./examSet-table";
 import { ExamSetCreateModal } from "./examSet-create-modal";
-import { useExamSetListPagination } from "@/queries/useExamSetQuery";
+import ExamSetTable from "./examSet-table";
 
 export default function ExamSetPage() {
   const [params, setParams] = useState({
@@ -14,7 +14,8 @@ export default function ExamSetPage() {
     search: "",
   });
 
-  const { data, isLoading } = useExamSetListPagination(params);
+  const { data, isLoading } = useExamSetList();
+  console.log(data)
 
   const [openModal, setOpenModal] = useState(false);
 

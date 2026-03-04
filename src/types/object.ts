@@ -1,41 +1,47 @@
 import { AccountStatus } from "./enum";
 
-interface Account {
-    accountId: string;
-    googleId: string | null;
-    username: string;
-    password: string;
-    type: string;
-    email: string | null;
-    status: AccountStatus;
-    roleId: string;
-    roleName?: string;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string | null;
+interface BaseObject {
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+interface Account extends BaseObject {
+  accountId: string;
+  googleId: string | null;
+  username: string;
+  password: string;
+  type: string;
+  email: string | null;
+  status: AccountStatus;
+  roleId: string;
+  roleName?: string;
 }
 export type { Account };
 
-interface Role {
-    roleId: string;
-    roleName: string;
-    description: string;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string | null;
+interface Role extends BaseObject{
+  roleId: string;
+  roleName: string;
+  description: string;
 }
 export type { Role };
 
-<<<<<<< HEAD
+interface ExamSet extends BaseObject {
+    examSetId: string;
+    name: string;
+}
+
+export type { ExamSet };
+
 interface UploadExamPdf {
-    objectKey: string;
-    signedUrl: string;
+  objectKey: string;
+  signedUrl: string;
 }
 export type { UploadExamPdf };
 
 interface UploadCloudinary {
-    public_id: string;
-    url: string;
+  public_id: string;
+  url: string;
+  resource_type: string;
 }
 export type { UploadCloudinary };
 
@@ -90,48 +96,47 @@ export type { UploadCloudinary };
 //   parts: Part[];
 // }
 
-export interface MediaItem {
-  mediaType: "image" | "audio" | "video";
-  publicId: string;
-  url: string;
+export type MediaType = "image" | "audio" | "video";
+
+export interface MediaPlaceholder {
+  mediaType: MediaType;
+  description: string;
+}
+
+export interface Option {
+  label: string;
+  text: string;
 }
 
 export interface Question {
-  id: string;
   questionIndex: number;
   questionText: string;
-  options?: { label: string; content: string }[];
-  media?: MediaItem[];
+  questionType: string;
+  options: Option[] | null;
+  mediaPlaceholders: MediaPlaceholder[] | null;
+  media?: any[]; // Dùng để lưu file thực tế sau khi upload
 }
 
 export interface QuestionGroup {
-  id: string;
   groupInstruction: string;
   questionIndices: number[];
-  media?: MediaItem[];
+  mediaPlaceholders: MediaPlaceholder[] | null;
+  media?: any[];
 }
 
 export interface Part {
-  id: string;
-  title?: string;
+  partIndex: number;
+  partTitle: string;
+  partDescription: string | null;
+  extraDescription?: string;
+  questionType?: string; 
+  mediaPlaceholders: MediaPlaceholder[];
+  questionGroups: QuestionGroup[];
   questions: Question[];
-  groups: QuestionGroup[];
-  media?: MediaItem[];
+  media?: any[]; 
 }
 
 export interface ExamData {
+  hasParts: boolean;
   parts: Part[];
 }
-
-
-=======
-interface ExamSet {
-    examSetId: string;
-    name: string;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string | null;
-}
-
-export type { ExamSet };
->>>>>>> ac962f8d4a77c77e7d1e21ecf9ac1659198a2776

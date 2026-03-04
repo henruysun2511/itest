@@ -1,10 +1,10 @@
+import { useToast } from "@/hooks/useToast";
+import { useExamSetDelete } from "@/queries/useExamSetQuery";
 import { ExamSet } from "@/types/object";
+import { handleError } from "@/utils/error";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Popconfirm, Space, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { useExamSetDelete } from "@/queries/useExamSetQuery";
-import { useToast } from "@/hooks/useToast";
-import { handleError } from "@/utils/error";
 import { useState } from "react";
 import { ExamSetUpdateModal } from "./examSet-update-modal";
 
@@ -25,10 +25,7 @@ export default function ExamSetTable({
   const [selectedExamSet, setSelectedExamSet] =
     useState<ExamSet | null>(null);
 
-  console.log("data examSet table:", data);
-  console.log("pagination examSet table:", pagination);
 
-  // handle delete exam set
   const handleDelete = (id: string) => {
     deleteExamSet(id, {
       onSuccess: () => {
@@ -41,7 +38,7 @@ export default function ExamSetTable({
 
   const columns: ColumnsType<ExamSet> = [
     {
-      title: "Exam Set ID",
+      title: "Mã bộ đề",
       dataIndex: "examSetId",
       key: "examSetId",
       render: (text: string) => (

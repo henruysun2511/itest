@@ -1,5 +1,4 @@
 import { AccountStatus } from "./enum";
-import { ExamData } from "./object";
 import { Pagination } from "./param";
 
 interface ApiResponse<T> {
@@ -58,14 +57,14 @@ export type { ParseExamBody };
 
 interface DeleteFileCloudinaryBody {
     publicId: string;
-    resourceType: string;
+    resourceType: string; //audio/image/video
 }
 export type { DeleteFileCloudinaryBody };
 
 interface ExamBody {
   title: string;
   objectKey: string;
-  parsedJson: ExamData;
+  parsedJson: any;
   examSetId: string;
   examCode: string;
   answers: Array<{

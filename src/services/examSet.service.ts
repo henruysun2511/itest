@@ -3,7 +3,7 @@ import { ExamSet } from "@/types/object";
 import { ExamSetParam } from "@/types/param";
 import http from "@/utils/http";
 
-const prefix = "examsets";
+const prefix = "exam-sets";
 
 export const ExamSetService = {
   // GET /exam-sets - Lấy toàn bộ danh sách exam sets

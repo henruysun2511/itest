@@ -8,6 +8,7 @@ import {
     FileTextOutlined,
     FormOutlined,
     IdcardOutlined,
+    PaperClipOutlined,
     SafetyOutlined,
     ScheduleOutlined,
     SettingOutlined,
@@ -82,6 +83,11 @@ export default function AdminMenu() {
             label: 'Ngân hàng đề thi',
             children: [
                 {
+                    key: '/admin/examSet',
+                    icon: <PaperClipOutlined />,
+                    label: 'Bộ đề thi',
+                },
+                {
                     key: '/admin/question-bank',
                     icon: <BookOutlined />,
                     label: 'Ngân hàng câu hỏi',
@@ -99,7 +105,7 @@ export default function AdminMenu() {
             label: 'Quản lý thi',
             children: [
                 {
-                    key: '/admin/student',
+                    key: '/admin/student-exam',
                     icon: <TeamOutlined />,
                     label: 'Thí sinh dự thi',
                 },
