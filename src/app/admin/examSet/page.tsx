@@ -53,7 +53,7 @@ export default function ExamSetPage() {
           pagination={{
             current: params.page,
             pageSize: params.size,
-            total: data?.meta?.totalElements, // nhớ check backend trả gì
+            total: data?.meta?.totalElements, //  backend trả gì
             onChange: (page: number, pageSize: number) =>
               setParams((p) => ({ ...p, page, size: pageSize })),
           }}
