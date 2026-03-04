@@ -11,8 +11,8 @@ export const RoleService = {
     return http.get<ApiResponse<Role[]>>(`/${prefix}`);
   },
   // filtered GET /roles with pagination and search
-  getListPagination(data: RoleParam) {
-    return http.post<ApiResponse<Role[]>>(`/${prefix}/filter`, data);
+  getListPagination(params: RoleParam) {
+    return http.post<ApiResponse<Role[]>>(`/${prefix}`, params);
   },
   // post /roles - Tạo role mới
   create(data: Partial<Role>) {

@@ -76,7 +76,6 @@ body {
   background: linear-gradient(180deg,
       var(--color-navy-main),
       var(--color-navy-deep)) !important;
-  height: 100vh;
 }
 
 .ant-layout-sider-children {
@@ -196,5 +195,80 @@ body {
   border-bottom: none !important;
 } */
 
+/* ============================= */
+/* ===== TABS - GENERAL ======== */
+/* ============================= */
 
+.ant-tabs {
+  font-weight: 500;
+}
 
+/* ===== TAB LABEL ===== */
+.ant-tabs-tab {
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.ant-tabs-tab:hover {
+  color: var(--color-accent);
+}
+
+/* ===== ACTIVE TAB TEXT ===== */
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-accent) !important;
+  font-weight: 600;
+}
+
+/* ===== INK BAR (gạch dưới) ===== */
+.ant-tabs-ink-bar {
+  background: var(--color-accent) !important;
+  height: 3px;
+  border-radius: 3px;
+}
+
+/* ============================= */
+/* ===== CARD TABS STYLE ======= */
+/* ============================= */
+
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+  background: var(--color-bg-sidebar);
+  border: 1px solid var(--color-bg-sidebar);
+  border-radius: 10px 10px 0 0;
+  margin-right: 6px;
+  transition: all 0.2s ease;
+
+  color: var(--color-accent-soft);
+}
+
+/* Hover */
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab:hover {
+  background: var(--color-navy-main);
+  color: var(--color-accent);
+}
+
+/* Active tab */
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Active text */
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-text-light) !important;
+  font-weight: 600;
+}
+
+/* Remove white divider line */
+.ant-tabs-card > .ant-tabs-nav::before {
+  border-bottom: none !important;
+}
+
+/* Content box */
+/* .ant-tabs-card > .ant-tabs-content-holder {
+  border: 1px solid var(--color-bg-sidebar);
+  border-top: none;
+  background: var(--color-bg-card);
+  padding: 20px;
+  border-radius: 0 12px 12px 12px;
+} */

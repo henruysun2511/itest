@@ -1,0 +1,41 @@
+
+import { ApiResponse, DeleteFilePdfBody, GetSignedUrlBody } from "@/types/body";
+import { UploadExamPdf } from "@/types/object";
+import http from "@/utils/http";
+
+
+const prefix = "storage";
+
+export const StorageService = {
+    // POST /storage/exam-pdf
+    uploadExamPdf(file: File) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        return http.post<ApiResponse<UploadExamPdf>>(
+            `/${prefix}/exam-pdf`,
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
+        );
+    },
+
+    // DELETE /storage/exam-pdf
+    deleteExamPdf(payload: DeleteFilePdfBody) {
+        return http.delete<ApiResponse<null>>(
+            `/${prefix}/exam-pdf`,
+            { data: payload }
+        );
+    },
+
+    // POST /storage/signed-url
+    getSignedUrl(payload: GetSignedUrlBody) {
+        return http.post<ApiResponse<{ signedUrl: string }>>(
+            `/${prefix}/signed-url`,
+            payload
+        );
+    },
+};

@@ -24,8 +24,8 @@ const http = {
     return api.put<T>(url, data, { params: options?.params, headers: options?.headers, ...options?.config });
   },
 
-  delete<T = any>(url: string, options?: HttpOptions) {
-    return api.delete<T>(url, { params: options?.params, headers: options?.headers, ...options?.config });
+  delete<T = any>(url: string, options?: HttpOptions & { data?: any }) {
+    return api.delete<T>(url, { params: options?.params, headers: options?.headers, data: options?.data, ...options?.config,});
   },
 };
 

@@ -11,7 +11,7 @@ export default function AdminSidebar({ collapsed }: { collapsed: boolean }) {
             collapsed={collapsed}
             width={230}
             collapsedWidth={75}
-            className="h-screen bg-primary"
+            className="bg-primary"
         >
             <div className="flex flex-col h-full">
                 {/* ===== LOGO ===== */}

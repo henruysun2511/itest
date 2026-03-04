@@ -1,4 +1,5 @@
 import { AccountStatus } from "./enum";
+import { ExamData } from "./object";
 import { Pagination } from "./param";
 
 interface ApiResponse<T> {
@@ -14,7 +15,7 @@ export type { ApiResponse };
 export interface UserJwtDecode {
     accountId: string;
     roleId: string;
-    sub?: string;      
+    sub?: string;
     isPremium?: boolean;
     exp?: number;
     iat?: number;
@@ -37,4 +38,41 @@ interface ChangeAccountStatusBody {
     status: AccountStatus;
 }
 export type { ChangeAccountStatusBody };
+
+interface DeleteFilePdfBody {
+    filePath: string;
+}
+export type { DeleteFilePdfBody };
+
+interface GetSignedUrlBody {
+    filePath: string;
+    bucket: string;
+    expiresIn?: number;
+}
+export type { GetSignedUrlBody };
+
+interface ParseExamBody {
+    signedUrl: string;
+}
+export type { ParseExamBody };
+
+interface DeleteFileCloudinaryBody {
+    publicId: string;
+    resourceType: string;
+}
+export type { DeleteFileCloudinaryBody };
+
+interface ExamBody {
+  title: string;
+  objectKey: string;
+  parsedJson: ExamData;
+  examSetId: string;
+  examCode: string;
+  answers: Array<{
+    questionNumber: number;
+    correctAnswer: string[];
+    points: number;
+  }>;
+}
+export type { ExamBody };
 

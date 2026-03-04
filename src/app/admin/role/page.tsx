@@ -1,15 +1,15 @@
 "use client";
 
-import { Button, Input, Space } from "antd";
+import { useRoleList } from "@/queries/useRoleQuery";
 import { PlusOutlined } from "@ant-design/icons";
+import { Button, Input, Space } from "antd";
 import { useState } from "react";
-import RoleTable from "./role-table";
 import { RoleCreateModal } from "./role-create-modal";
-import { useRoleListPagination } from "@/queries/useRoleQuery";
+import RoleTable from "./role-table";
 
 export default function RolePage() {
   const [params, setParams] = useState({ page: 1, size: 10, sort: "" });
-  const { data, isLoading, isError, error } = useRoleListPagination(params);
+  const { data, isLoading, isError, error } = useRoleList();
   const [openModal, setOpenModal] = useState(false);
   console.log("dataaaaaaaaaaaa:", data);
   return (

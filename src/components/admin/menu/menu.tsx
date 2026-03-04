@@ -50,7 +50,7 @@ export default function AdminMenu() {
             ],
         },
         {
-            key: 'user',
+            key: 'general-management',
             icon:  <ScheduleOutlined />,
             label: 'Quản lý chung',
             children: [

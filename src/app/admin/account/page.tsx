@@ -6,7 +6,7 @@ import { useState } from "react";
 import { AccountCreateModal } from "./account-create-modal";
 import AccountTable from "./account-table";
 
-export default function AccountManagementPage() {
+export default function AccountPage() {
     const [openModal, setOpenModal] = useState(false);
     const [params, setParams] = useState({ page: 1, size: 10, search: "" });
 
