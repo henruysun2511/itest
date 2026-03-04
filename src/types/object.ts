@@ -26,6 +26,7 @@ interface Role {
 }
 export type { Role };
 
+<<<<<<< HEAD
 interface UploadExamPdf {
     objectKey: string;
     signedUrl: string;
@@ -123,3 +124,14 @@ export interface ExamData {
 }
 
 
+=======
+interface ExamSet {
+    examSetId: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+}
+
+export type { ExamSet };
+>>>>>>> ac962f8d4a77c77e7d1e21ecf9ac1659198a2776
