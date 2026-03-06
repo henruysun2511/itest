@@ -8,13 +8,12 @@ import {
     FileTextOutlined,
     FormOutlined,
     IdcardOutlined,
-    PaperClipOutlined,
     SafetyOutlined,
     ScheduleOutlined,
     SettingOutlined,
     SolutionOutlined,
     TeamOutlined,
-    UserOutlined,
+    UserOutlined
 } from '@ant-design/icons';
 import { Menu, MenuProps, Tooltip } from 'antd';
 import { useRouter } from 'next/navigation';
@@ -84,13 +83,8 @@ export default function AdminMenu() {
             children: [
                 {
                     key: '/admin/examSet',
-                    icon: <PaperClipOutlined />,
-                    label: 'Bộ đề thi',
-                },
-                {
-                    key: '/admin/question-bank',
                     icon: <BookOutlined />,
-                    label: 'Ngân hàng câu hỏi',
+                    label: 'Bộ đề thi',
                 },
                 {
                     key: '/admin/exam',
@@ -132,7 +126,7 @@ export default function AdminMenu() {
             ],
         },
         {
-            key: '/admin/manual-grading',
+            key: '/admin/essayGrading',
             icon: <EditOutlined />,
             label: 'Chấm thi tự luận',
         },

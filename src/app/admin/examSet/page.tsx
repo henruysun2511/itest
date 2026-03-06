@@ -1,51 +1,60 @@
 "use client";
 
+import { ExamSetSortBy, SortOrder } from "@/constants/sort.enum";
 import { useExamSetList } from "@/queries/useExamSetQuery";
+import { ExamSetParam } from "@/types/param";
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Input, Space } from "antd";
+import { Button, Space } from "antd";
 import { useState } from "react";
 import { ExamSetCreateModal } from "./examSet-create-modal";
+import { ExamSetFilter } from "./examSet-filter";
 import ExamSetTable from "./examSet-table";
 
 export default function ExamSetPage() {
-  const [params, setParams] = useState({
+  const [params, setParams] = useState<ExamSetParam>({
     page: 1,
-    size: 10,
+    limit: 10,
     search: "",
+    sortBy: ExamSetSortBy.CREATED_AT,
+    sortOrder: SortOrder.DESC,
   });
 
-  const { data, isLoading } = useExamSetList();
-  console.log(data)
-
+  // Giả sử useExamSetList của bạn có nhận params
+  const { data, isLoading } = useExamSetList(params);
   const [openModal, setOpenModal] = useState(false);
 
-  console.log("data examSet:", data);
+  const handleSearch = (val: string) => {
+    setParams((p) => ({ ...p, search: val, page: 1 }));
+  };
+
+  const handleSort = (sortBy: ExamSetSortBy, sortOrder: SortOrder) => {
+    setParams((p) => ({ ...p, sortBy, sortOrder, page: 1 }));
+  };
 
   return (
     <>
-      <div className="mb-6"></div>
+      <div className="mb-6 text-2xl font-bold">Quản lý bộ đề</div>
 
       <Space direction="vertical" className="w-full" size="large">
-        <div className="flex justify-between">
-          <Input.Search
-            placeholder="Tìm kiếm tên bộ đề..."
-            allowClear
-            size="large"
-            style={{ width: 500 }}
-            onSearch={(val) =>
-              setParams((p) => ({ ...p, search: val, page: 1 }))
-            }
-          />
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-end">
+            <Button
+              type="primary"
+              size="large"
+              icon={<PlusOutlined />}
+              className="bg-primary"
+              onClick={() => setOpenModal(true)}
+            >
+              Thêm bộ đề
+            </Button>
+          </div>
 
-          <Button
-            type="primary"
-            size="middle"
-            icon={<PlusOutlined />}
-            className="bg-primary"
-            onClick={() => setOpenModal(true)}
-          >
-            Thêm bộ đề
-          </Button>
+          {/* Sử dụng Component Filter mới */}
+          <ExamSetFilter
+            params={params}
+            onSearch={handleSearch}
+            onSortChange={handleSort}
+          />
         </div>
 
         <ExamSetTable
@@ -53,10 +62,10 @@ export default function ExamSetPage() {
           loading={isLoading}
           pagination={{
             current: params.page,
-            pageSize: params.size,
-            total: data?.meta?.totalElements, //  backend trả gì
+            pageSize: params.limit,
+            total: data?.meta?.total,
             onChange: (page: number, pageSize: number) =>
-              setParams((p) => ({ ...p, page, size: pageSize })),
+              setParams((p) => ({ ...p, page, limit: pageSize })),
           }}
         />
       </Space>

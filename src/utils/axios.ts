@@ -20,17 +20,13 @@ const api = axios.create({
   },
   paramsSerializer: (params) =>
     qs.stringify(params, {
-      arrayFormat: "repeat", // ?ids=1&ids=2&ids=3
+      arrayFormat: "repeat", 
     }),
 });
 
 // ===== Request interceptor =====
 api.interceptors.request.use((config) => {
-  const { accessToken, isHydrated } = useAuthStore.getState();
-
-  if (!isHydrated) {
-    return config; // chờ hydrate xong
-  }
+  const { accessToken } = useAuthStore.getState();
 
   if (accessToken && config.headers) {
     config.headers.Authorization = `Bearer ${accessToken}`;

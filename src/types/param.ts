@@ -1,17 +1,21 @@
+import { ExamSetSortBy, SortOrder } from './../constants/sort.enum';
 interface Pagination {
   page?: number;
-  size?: number;
+  limit?: number;
+  total?: number;
   totalPages?: number;
-  totalElements?: number;
 }
 export type { Pagination };
 
-interface AccountParam extends Pagination {}
+interface AccountParam extends Pagination { }
 
 interface RoleParam extends Pagination {
   sort?: string;
 }
 interface ExamSetParam extends Pagination {
   search?: string;
+  sortBy?: ExamSetSortBy;
+  sortOrder?: SortOrder;
 }
-export type { AccountParam, RoleParam, ExamSetParam };
+export type { AccountParam, ExamSetParam, RoleParam };
+

@@ -6,28 +6,21 @@ import http from "@/utils/http";
 const prefix = "exam-sets";
 
 export const ExamSetService = {
-  // GET /exam-sets - Lấy toàn bộ danh sách exam sets
-  getList() {
+  getList(params: ExamSetParam) {
     return http.get<ApiResponse<ExamSet[]>>(
-        `/${prefix}`);
-  },
-
-  // POST /exam-sets/filter - Lấy danh sách có phân trang + search
-  getListPagination(data: ExamSetParam) {
-    return http.post<ApiResponse<ExamSet[]>>(
-        `/${prefix}/filter`, data);
+      `/${prefix}`, { params });
   },
 
   // POST /exam-sets - Tạo exam set mới
   create(data: Partial<ExamSet>) {
     return http.post<ApiResponse<ExamSet>>(
-        `/${prefix}`, data);
+      `/${prefix}`, data);
   },
 
   // DELETE /exam-sets/:id - Xóa exam set
   delete(id: string) {
     return http.delete<ApiResponse<ExamSet>>(
-        `/${prefix}/${id}`);
+      `/${prefix}/${id}`);
   },
 
   // PUT /examsets/:id - Cập nhật exam set

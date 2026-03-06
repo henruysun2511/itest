@@ -22,13 +22,11 @@ import {
     message,
     Select,
     Spin,
-    Typography,
     Upload
 } from "antd";
 import { useEffect, useState } from "react";
 import EditableExam from "./editors/exam-editor";
 
-const { Title, Text } = Typography;
 
 export default function CreateExam() {
     const [form] = Form.useForm();
@@ -80,7 +78,7 @@ export default function CreateExam() {
             const rawData = res.data.data;
             const normalized = normalizeExamData(rawData);
             setExamState(normalized);
-            localStorage.setItem("sampleData1", JSON.stringify(normalized));
+            sessionStorage.setItem("sampleData1", JSON.stringify(normalized));
             setAnswersState({});
             message.success("AI đã phân tích xong nội dung");
         } catch (error) {
@@ -139,7 +137,7 @@ export default function CreateExam() {
     };
 
     useEffect(() => {
-        const saved = localStorage.getItem("sampleData1");
+        const saved = sessionStorage.getItem("sampleData1");
         if (saved) {
             try {
                 setExamState(JSON.parse(saved));
@@ -152,7 +150,7 @@ export default function CreateExam() {
     return (
         <div className="min-h-screen bg-[var(--color-bg-main)] md:p-8">
             <div className="w-full space-y-8">
-                
+
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border-l-8 border-[var(--color-accent)]">
                     <div>
@@ -160,7 +158,7 @@ export default function CreateExam() {
                         <p className="text-slate-500 mt-1">Upload PDF và để AI hỗ trợ bạn phân tích câu hỏi</p>
                     </div>
                     {examState && (
-                         <Button
+                        <Button
                             type="primary"
                             size="large"
                             icon={<SaveOutlined />}
@@ -179,11 +177,11 @@ export default function CreateExam() {
                         <Card className="rounded-2xl shadow-sm border-none overflow-hidden">
                             <div className="bg-[var(--color-navy-main)] p-4 -m-6 mb-6">
                                 <h3 className="text-white m-0 flex items-center gap-2">
-                                    <EditOutlined className="text-[var(--color-accent)]" /> 
+                                    <EditOutlined className="text-[var(--color-accent)]" />
                                     Thông tin cơ bản
                                 </h3>
                             </div>
-                            
+
                             <Form form={form} layout="vertical" onFinish={handleParse} className="mt-4">
                                 <Form.Item
                                     label={<span className="font-semibold">Tiêu đề đề thi</span>}
@@ -287,7 +285,7 @@ export default function CreateExam() {
                     </div>
                 </div>
             </div>
-            
+
             {/* Floating Action Button for Mobile */}
             {examState && (
                 <div className="fixed bottom-6 right-6 lg:hidden">

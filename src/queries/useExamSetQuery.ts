@@ -4,23 +4,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAMSET_QUERY_KEY = ["examsets"];
 
-export const useExamSetList = () => {
-  return useQuery({
-    queryKey: [...EXAMSET_QUERY_KEY],
-    queryFn: async () => {
-      const res = await ExamSetService.getList();
-      return res.data;
-    },
-    staleTime: 10 * 60 * 1000,
-  });
-};
 
-// phân trang và tìm kiếm exam sets
-export const useExamSetListPagination = (param: ExamSetParam) => {
+
+export const useExamSetList = (param: ExamSetParam) => {
   return useQuery({
     queryKey: [...EXAMSET_QUERY_KEY, param],
     queryFn: async () => {
-      const res = await ExamSetService.getListPagination(param);
+      const res = await ExamSetService.getList(param);
       return res.data;
     },
     staleTime: 10 * 60 * 1000,
