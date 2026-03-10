@@ -33,6 +33,10 @@ export default function LoginPage() {
         });
     };
 
+    const handleGoogleLogin = () => {
+        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+    };
+
     return (
 
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
@@ -86,9 +90,9 @@ export default function LoginPage() {
 
                 <Form.Item
                     name="captcha"
-                    // rules={[
-                    //     { required: true, message: "Vui lòng nhập mã bảo mật" },
-                    // ]}
+                // rules={[
+                //     { required: true, message: "Vui lòng nhập mã bảo mật" },
+                // ]}
                 >
                     <div className="flex gap-3 items-center">
                         <Input
@@ -143,6 +147,7 @@ export default function LoginPage() {
             border border-gray-300
             hover:border-accent
           "
+                onClick={handleGoogleLogin}
             >
                 <Image
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/500px-Google_%22G%22_logo.svg.png"

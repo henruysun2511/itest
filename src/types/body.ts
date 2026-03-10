@@ -3,62 +3,60 @@ import { AccountStatus } from "./enum";
 import { Pagination } from "./param";
 
 interface ApiResponse<T> {
-    success: boolean;
-    statusCode: number;
-    message: string;
-    data: T;
-    meta?: Pagination;
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: T;
+  meta?: Pagination;
 }
 
 export type { ApiResponse };
 
-export interface UserJwtDecode {
-    accountId: string;
-    roleId: string;
-    sub?: string;
-    isPremium?: boolean;
-    exp?: number;
-    iat?: number;
-    jti?: string;
+interface UserJwtDecode {
+  sub: string;
+  roleName: string;
+  iat: number;
+  exp: number;
 }
+export type { UserJwtDecode };
 
 interface LoginResponse {
-    accessToken: string;
-    refreshToken: string;
+  accessToken: string;
+  refreshToken: string;
 }
 export type { LoginResponse };
 
 interface LoginBody {
-    username: string;
-    password: string;
+  username: string;
+  password: string;
 };
 export type { LoginBody };
 
 interface ChangeAccountStatusBody {
-    status: AccountStatus;
+  status: AccountStatus;
 }
 export type { ChangeAccountStatusBody };
 
 interface DeleteFilePdfBody {
-    filePath: string;
+  filePath: string;
 }
 export type { DeleteFilePdfBody };
 
 interface GetSignedUrlBody {
-    filePath: string;
-    bucket: string;
-    expiresIn?: number;
+  filePath: string;
+  bucket: string;
+  expiresIn?: number;
 }
 export type { GetSignedUrlBody };
 
 interface ParseExamBody {
-    signedUrl: string;
+  signedUrl: string;
 }
 export type { ParseExamBody };
 
 interface DeleteFileCloudinaryBody {
-    publicId: string;
-    resourceType: string; //audio/image/video
+  publicId: string;
+  resourceType: string; //audio/image/video
 }
 export type { DeleteFileCloudinaryBody };
 
@@ -105,13 +103,13 @@ export type { SetPauseStateBody };
 
 interface BulkAccountItem {
   username: string;
-  password?: string; 
+  password?: string;
   code: string;
 }
 export type { BulkAccountItem };
 
 interface BulkAccountBody {
-  roleName: string; 
+  roleName: string;
   accounts: BulkAccountItem[];
 }
 export type { BulkAccountBody };

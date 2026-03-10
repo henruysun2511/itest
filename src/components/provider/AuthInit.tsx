@@ -9,24 +9,29 @@ export function AuthInit() {
     const setAuth = useAuthStore((s) => s.setAuth);
     const setHydrated = useAuthStore((s) => s.setHydrated);
 
-    const { data: accessToken, error, isLoading } = useRefreshTokenQuery();
+    // res ở đây chính là chuỗi accessToken do hàm queryFn trả về
+    const { data: accessToken, isLoading } = useRefreshTokenQuery(); 
 
     useEffect(() => {
         if (isLoading) return;
 
+        // Không cần res?.data?.accessToken nữa vì accessToken đã là string
         if (accessToken) {
-            const decoded = jwtDecode(accessToken) as UserJwtDecode;
+            try {
+                const decoded = jwtDecode(accessToken) as UserJwtDecode;
 
-            setAuth(
-                {
-                    accountId: decoded.accountId,
-                    roleId: decoded.roleId,
-                },
-                accessToken
-            );
+                setAuth(
+                    {
+                        accountId: decoded.sub, 
+                        roleName: decoded.roleName,
+                    },
+                    accessToken
+                );
+            } catch (error) {
+                console.error("JWT Decode failed", error);
+            }
         }
 
-        // Dù success hay fail -> app biết auth đã check xong
         setHydrated();
     }, [isLoading, accessToken, setAuth, setHydrated]);
 
