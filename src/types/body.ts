@@ -1,3 +1,4 @@
+import { ExamSessionStatus } from "@/constants/status.enum";
 import { AccountStatus } from "./enum";
 import { Pagination } from "./param";
 
@@ -74,4 +75,44 @@ interface ExamBody {
   }>;
 }
 export type { ExamBody };
+
+interface CreateExamSessionBody {
+  examSessionCode: string;
+  examSetId: string;
+  date: string;
+  room: string;
+  courseId: string;
+  duration: number;
+  isCameraRequired: boolean;
+  teacherIds?: string[];
+}
+export type { CreateExamSessionBody };
+
+interface ChangeExamSessionStatusBody {
+  status: ExamSessionStatus;
+}
+export type { ChangeExamSessionStatusBody };
+
+interface LockStateBody {
+  isLocked: boolean;
+}
+export type { LockStateBody };
+
+interface SetPauseStateBody {
+  isPaused: boolean;
+}
+export type { SetPauseStateBody };
+
+interface BulkAccountItem {
+  username: string;
+  password?: string; 
+  code: string;
+}
+export type { BulkAccountItem };
+
+interface BulkAccountBody {
+  roleName: string; 
+  accounts: BulkAccountItem[];
+}
+export type { BulkAccountBody };
 

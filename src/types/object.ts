@@ -1,3 +1,4 @@
+import { ExamSessionStatus } from "@/constants/status.enum";
 import { AccountStatus } from "./enum";
 
 interface BaseObject {
@@ -45,56 +46,24 @@ interface UploadCloudinary {
 }
 export type { UploadCloudinary };
 
+interface ExamSession {
+  id: string;
+  examSessionCode: string;
+  examSetId: string;
+  date: string;
+  room: string;
+  courseId: string;
+  duration: number;
+  isCameraRequired: boolean;
+  isLocked: boolean;
+  isPaused: boolean;
+  status: ExamSessionStatus;
+  teacherIds?: string[];
+}
+export type { ExamSession };
 
 
 
-// export type MediaType = "image" | "audio" | "video";
-
-// export interface MediaPlaceholder {
-//   mediaType: MediaType;
-//   description: string;
-// }
-
-// export type QuestionType =
-//   | "multiple_choice"
-//   | "true_false"
-//   | "fill_in_blank"
-//   | "essay"
-//   | "mixed";
-
-// export interface Option {
-//   label: string;
-//   text: string;
-// }
-
-// export interface Question {
-//   questionIndex: number;
-//   questionText: string;
-//   questionType: Exclude<QuestionType, "mixed">;
-//   options: Option[] | null;
-//   mediaPlaceholders: MediaPlaceholder[] | null;
-// }
-
-// export interface QuestionGroup {
-//   groupInstruction: string;
-//   questionIndices: number[];
-//   mediaPlaceholders: MediaPlaceholder[] | null;
-// }
-
-// export interface Part {
-//   partIndex: number;
-//   partTitle: string;
-//   partDescription: string | null;
-//   questionType: QuestionType;
-//   mediaPlaceholders: MediaPlaceholder[];
-//   questionGroups: QuestionGroup[];
-//   questions: Question[];
-// }
-
-// export interface ExamData {
-//   hasParts: boolean;
-//   parts: Part[];
-// }
 
 export type MediaType = "image" | "audio" | "video";
 

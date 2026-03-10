@@ -56,8 +56,19 @@ export default function AccountTable({ data, loading, pagination }: Props) {
         { title: "Email", dataIndex: "email", key: "email" },
         {
             title: "Vai trò",
-            dataIndex: "role",
-            render: (role) => <Tag color="blue">{role?.name || "Thành viên"}</Tag>
+            dataIndex: "roleName",
+            render: (roleName) => <Tag color="blue">{roleName || "Thành viên"}</Tag>
+        },
+        {
+            title: "Loại",
+            dataIndex: "type",
+            key: "type",
+            align: "center",
+            render: (type: string) => {
+                let color = type === "GOOGLE" ? "orange" : "cyan";
+                let label = type === "GOOGLE" ? "Google" : "Local";
+                return <Tag color={color}>{label}</Tag>;
+            }
         },
         {
             title: "Trạng thái",

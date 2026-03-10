@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/types/body";
+import { ApiResponse, BulkAccountBody } from "@/types/body";
 import { AccountStatus } from "@/types/enum";
 import { Account } from "@/types/object";
 import { AccountParam } from "@/types/param";
@@ -19,6 +19,13 @@ export const AccountService = {
     create(payload: Partial<Account>) {
         return http.post<ApiResponse<Account>>(
             `/${prefix}`,
+            payload
+        );
+    },
+
+    createBulk(payload: BulkAccountBody) {
+        return http.post<ApiResponse<Account[]>>(
+            `/${prefix}/bulk`,
             payload
         );
     },

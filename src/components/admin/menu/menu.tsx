@@ -65,7 +65,7 @@ export default function AdminMenu() {
                     label: 'Giảng viên',
                 },
                 {
-                    key: '/admin/session',
+                    key: '/admin/examSession',
                     icon: <ScheduleOutlined />,
                     label: 'Ca thi',
                 },

@@ -33,7 +33,6 @@ export default function ExamSetPage() {
 
   return (
     <>
-      <div className="mb-6 text-2xl font-bold">Quản lý bộ đề</div>
 
       <Space direction="vertical" className="w-full" size="large">
         <div className="flex flex-col gap-4">

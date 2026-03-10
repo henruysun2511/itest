@@ -18,6 +18,16 @@ export const useAccountList = (params: AccountParam) => {
     });
 };
 
+export const useCreateAccountBulk = () => {
+    const qc = useQueryClient(); //
+    return useMutation({
+        mutationFn: AccountService.createBulk, //
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ACCOUNT_QUERY_KEY }); //
+        },
+    });
+};
+
 // Hook tạo tài khoản
 export const useCreateAccount = () => {
     const qc = useQueryClient();

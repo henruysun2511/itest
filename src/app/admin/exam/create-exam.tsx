@@ -37,7 +37,7 @@ export default function CreateExam() {
         Record<number, { correctAnswer: string[]; points: number }>
     >({});
 
-    const { data: examSetData } = useExamSetList();
+    const { data: examSetData } = useExamSetList({});
     const { mutateAsync: uploadPdf } = useUploadExamPdf();
     const { mutateAsync: deletePdf } = useDeleteExamPdf();
     const { mutateAsync: parseExam, isPending: isParsing } = useParseExam();
