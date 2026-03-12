@@ -1,157 +1,142 @@
 "use client";
 
 import {
-    BookOutlined,
-    ClockCircleOutlined,
-    EnvironmentOutlined,
-    InfoCircleOutlined,
+    ArrowRightOutlined,
     LoginOutlined,
-    SearchOutlined
+    ScanOutlined,
+    SettingOutlined,
+    TeamOutlined,
+    UserOutlined
 } from '@ant-design/icons';
-import { Badge, Button, Card, Col, Input, Row, Space, Typography } from 'antd';
+import { Card, Col, Row, Tag, Typography } from 'antd';
+import { useRouter } from 'next/navigation';
 
 const { Title, Text } = Typography;
 
-interface ExamSession {
-    id: string;
-    courseName: string;
-    examName: string;
-    startTime: string;
-    duration: number; // phút
-    room: string;
-    status: 'available' | 'upcoming' | 'closed';
+interface DemoPage {
+    title: string;
+    description: string;
+    path: string;
+    icon: React.ReactNode;
+    color: string;
+    tag: string;
 }
 
-export default function StudentExamHome() {
-    // Dữ liệu mẫu cho sinh viên
-    const sessions: ExamSession[] = [
+export default function DemoNavigationHub() {
+    const router = useRouter();
+
+    const pages: DemoPage[] = [
         {
-            id: '1',
-            courseName: 'Tiếng Anh chuyên ngành IT',
-            examName: 'Thi cuối kỳ - Học kỳ 2',
-            startTime: '2024-05-20 08:00',
-            duration: 90,
-            room: 'Phòng thi trực tuyến A1',
-            status: 'available', // Đã đến giờ, có thể bấm vào thi
+            title: "Trang Giáo viên",
+            description: "Quản lý ngân hàng câu hỏi, tạo đề thi và theo dõi kết quả học tập của lớp.",
+            path: "/teacher", 
+            icon: <UserOutlined />,
+            color: "from-blue-600 to-indigo-700",
+            tag: "Management"
         },
         {
-            id: '2',
-            courseName: 'Lập trình hướng đối tượng',
-            examName: 'Kiểm tra giữa kỳ',
-            startTime: '2024-05-22 14:00',
-            duration: 60,
-            room: 'Phòng thực hành PM2',
-            status: 'upcoming', // Chưa đến giờ
+            title: "Trang Sinh viên",
+            description: "Xem lịch thi, làm bài trắc nghiệm trực tuyến và xem lịch sử điểm số.",
+            path: "/student",
+            icon: <TeamOutlined />,
+            color: "from-emerald-500 to-teal-700",
+            tag: "Learning"
         },
         {
-            id: '3',
-            courseName: 'Cơ sở dữ liệu',
-            examName: 'Thi bù đợt 1',
-            startTime: '2024-05-18 09:00',
-            duration: 90,
-            room: 'Phòng 302 - Nhà C',
-            status: 'closed', // Đã kết thúc
+            title: "Trang Admin",
+            description: "Hệ thống quản trị tổng thể: Quản lý người dùng, phân quyền và cấu hình hệ thống.",
+            path: "/admin/overview",
+            icon: <SettingOutlined />,
+            color: "from-slate-700 to-slate-900",
+            tag: "System"
+        },
+        {
+            title: "Trang Đăng nhập",
+            description: "Giao diện xác thực người dùng với các hiệu ứng chuyển cảnh mượt mà.",
+            path: "/auth/login",
+            icon: <LoginOutlined />,
+            color: "from-orange-400 to-pink-600",
+            tag: "Auth"
+        },
+        {
+            title: "Xác thực Khuôn mặt",
+            description: "Demo công nghệ AI nhận diện khuôn mặt để chống gian lận trong phòng thi.",
+            path: "/examSession/verifyFace/1",
+            icon: <ScanOutlined />,
+            color: "from-violet-500 to-purple-800",
+            tag: "AI Tech"
         }
     ];
 
-    const getStatusConfig = (status: string) => {
-        switch (status) {
-            case 'available': return { color: '#16a34a', text: 'Đang diễn ra', label: 'Vào thi ngay' };
-            case 'upcoming': return { color: '#e6a943', text: 'Sắp diễn ra', label: 'Chưa mở' };
-            default: return { color: '#6b7280', text: 'Đã đóng', label: 'Đã kết thúc' };
-        }
-    };
-
     return (
-        <div className="min-h-screen bg-[var(--color-bg-main)] p-4 md:p-8">
-            <div className="max-w-6xl mx-auto">
-                {/* Header Profile Section */}
-                <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <Title level={2} className="!m-0 !text-[var(--color-navy-deep)]">
-                            Danh sách lịch thi
-                        </Title>
-                        <Text className="text-[var(--color-text-secondary)]">
-                            Sinh viên: <span className="font-bold text-[var(--color-navy-main)] text-lg">Nguyễn Văn A</span>
-                        </Text>
-                    </div>
-                    <Input 
-                        placeholder="Tìm môn thi..." 
-                        prefix={<SearchOutlined className="text-gray-300" />}
-                        className="max-w-xs rounded-full shadow-sm h-10"
-                    />
+        <div className="min-h-screen bg-[#F8FAFC] p-8 md:p-16">
+            <div className="max-w-7xl mx-auto">
+                {/* Header Section */}
+                <div className="mb-16 text-center">
+                    <Text className="text-[var(--color-accent)] font-bold uppercase tracking-[0.3em] mb-4 block">
+                        Main Portal
+                    </Text>
+                    <Title level={1} className="!text-[var(--color-navy-deep)] !font-black !m-0 md:text-5xl">
+                        Demo giao diện Hệ thống Quản lý Thi Trực tuyến
+                    </Title>
+                    <div className="h-1.5 w-24 bg-[var(--color-accent)] mx-auto mt-6 rounded-full"></div>
+                    <Text className="text-slate-500 mt-6 block text-lg max-w-2xl mx-auto">
+                        Chào mừng bạn đến với bản Demo. Vui lòng chọn một phân hệ bên dưới để trải nghiệm các tính năng của hệ thống.
+                    </Text>
                 </div>
 
-                {/* Grid Danh sách Card */}
-                <Row gutter={[24, 24]}>
-                    {sessions.map((session) => {
-                        const config = getStatusConfig(session.status);
-                        return (
-                            <Col xs={24} sm={12} lg={8} key={session.id}>
-                                <Badge.Ribbon text={config.text} color={config.color}>
-                                    <Card 
-                                        hoverable 
-                                        className="rounded-2xl border-none shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
-                                        bodyStyle={{ padding: '24px' }}
-                                    >
-                                        <div className="flex flex-col h-full">
-                                            {/* Course Icon & Name */}
-                                            <div className="mb-4">
-                                                <div className="bg-indigo-50 w-12 h-12 rounded-xl flex items-center justify-center mb-3">
-                                                    <BookOutlined className="text-2xl text-[var(--color-navy-main)]" />
-                                                </div>
-                                                <Title level={5} className="!m-0 line-clamp-1 text-[var(--color-navy-main)]">
-                                                    {session.courseName}
-                                                </Title>
-                                                <Text className="text-xs text-[var(--color-accent)] font-semibold uppercase tracking-wider">
-                                                    {session.examName}
-                                                </Text>
-                                            </div>
-
-                                            {/* Info Details */}
-                                            <Space direction="vertical" className="w-full mb-6 text-[var(--color-text-secondary)]">
-                                                <div className="flex items-center gap-2">
-                                                    <ClockCircleOutlined className="text-[var(--color-accent)]" />
-                                                    <span>Bắt đầu: <b>{session.startTime}</b></span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <InfoCircleOutlined className="text-blue-400" />
-                                                    <span>Thời gian làm bài: <b>{session.duration} phút</b></span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <EnvironmentOutlined className="text-red-400" />
-                                                    <span>Phòng thi: <b>{session.room}</b></span>
-                                                </div>
-                                            </Space>
-
-                                            {/* Action Button */}
-                                            <Button 
-                                                type={session.status === 'available' ? 'primary' : 'default'}
-                                                block 
-                                                size="large"
-                                                icon={<LoginOutlined />}
-                                                disabled={session.status !== 'available'}
-                                                className={`rounded-xl font-bold h-12 flex items-center justify-center transition-all ${
-                                                    session.status === 'available' 
-                                                    ? 'bg-[var(--color-navy-main)] hover:bg-[var(--color-navy-light)] border-none' 
-                                                    : 'bg-gray-100 text-gray-400'
-                                                }`}
-                                            >
-                                                {config.label}
-                                            </Button>
+                {/* Grid Cards */}
+                <Row gutter={[32, 32]}>
+                    {pages.map((page, index) => (
+                        <Col xs={24} md={12} lg={8} key={index}>
+                            <Card
+                                hoverable
+                                onClick={() => router.push(page.path)}
+                                className="h-full border-none rounded-[32px] overflow-hidden shadow-xl shadow-slate-200/60 group transition-all duration-500 hover:-translate-y-3"
+                                bodyStyle={{ padding: 0 }}
+                            >
+                                <div className="flex flex-col h-full">
+                                    {/* Top Gradient Section */}
+                                    <div className={`h-32 bg-gradient-to-br ${page.color} flex items-center justify-center relative overflow-hidden`}>
+                                        <div className="absolute inset-0 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                                            <div className="absolute top-0 left-0 w-24 h-24 bg-white rounded-full -translate-x-12 -translate-y-12"></div>
+                                            <div className="absolute bottom-0 right-0 w-32 h-32 bg-black rounded-full translate-x-16 translate-y-16"></div>
                                         </div>
-                                    </Card>
-                                </Badge.Ribbon>
-                            </Col>
-                        );
-                    })}
+                                        <div className="text-white text-5xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
+                                            {page.icon}
+                                        </div>
+                                    </div>
+
+                                    {/* Content Section */}
+                                    <div className="p-8 flex flex-col flex-grow">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <Tag className="m-0 border-none bg-slate-100 text-slate-500 font-bold rounded-full px-4 py-0.5">
+                                                {page.tag}
+                                            </Tag>
+                                            <ArrowRightOutlined className="text-slate-300 group-hover:text-[var(--color-accent)] group-hover:translate-x-2 transition-all" />
+                                        </div>
+                                        
+                                        <Title level={4} className="!mb-3 group-hover:text-indigo-600 transition-colors">
+                                            {page.title}
+                                        </Title>
+                                        
+                                        <Text className="text-slate-500 leading-relaxed mb-6 block">
+                                            {page.description}
+                                        </Text>
+
+                                        <div className="mt-auto pt-4 border-t border-slate-50 flex items-center gap-2 text-[var(--color-accent)] font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+                                            Truy cập ngay <ArrowRightOutlined />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    ))}
                 </Row>
 
-                {/* Footer Info */}
-                <div className="mt-12 p-6 bg-white rounded-2xl border border-dashed border-gray-200 text-center">
-                    <Text italic className="text-[var(--color-text-secondary)]">
-                        * Lưu ý: Thí sinh cần có mặt tại phòng thi trước ít nhất 15 phút để ổn định vị trí.
-                    </Text>
+                {/* Footer Section */}
+                <div className="mt-20 text-center text-slate-400 text-sm">
+                    © 2026 Examination System • Developed by <span className="font-bold text-slate-600">Gemini AI</span>
                 </div>
             </div>
         </div>

@@ -6,8 +6,6 @@ import { useState } from "react";
 import { ExamFilter } from "./exam-filter";
 import ExamTable from "./exam-table";
 
-
-
 export default function ExamList() {
     const [params, setParams] = useState<ExamParam>({
         page: 1,

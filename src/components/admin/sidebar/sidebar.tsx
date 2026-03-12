@@ -1,5 +1,4 @@
 import { LogoutOutlined } from "@ant-design/icons";
-import { Image } from "antd";
 import Sider from "antd/es/layout/Sider";
 import AdminMenu from '../menu/menu';
 
@@ -16,26 +15,26 @@ export default function AdminSidebar({ collapsed }: { collapsed: boolean }) {
             <div className="flex flex-col h-full">
                 {/* ===== LOGO ===== */}
                 <div className="flex items-center justify-center gap-3 h-20 px-2 shrink-0">
-                    <Image
+                    {/* <Image
                         preview={false}
                         src="/logo.png"
                         width={collapsed ? 48 : 60}
                         className="transition-all duration-300"
-                    />
+                    /> */}
+                    <div className="flex items-center gap-2">
+                        <div className="w-9 h-9 bg-[var(--color-accent)] rounded-lg flex items-center justify-center font-black text-[var(--color-navy-deep)] shadow-lg shadow-orange-500/20">i</div>
 
-                    {!collapsed && (
-                        <div className="text-light text-xs font-semibold leading-tight text-center">
-                            HỌC VIỆN<br />NGÂN HÀNG
-                        </div>
-                    )}
+                        {!collapsed && (
+                            <span className="text-white font-bold text-xl tracking-tighter">iTEST ADMIN</span>
+                        )}
+                    </div>
+
                 </div>
 
-                {/* ===== MENU (SCROLL ĐƯỢC) ===== */}
                 <div className="flex-1 overflow-y-auto px-0">
                     <AdminMenu />
                 </div>
 
-                {/* ===== LOGOUT (CỐ ĐỊNH DƯỚI) ===== */}
                 <div className="p-4 shrink-0">
                     <button
                         className="

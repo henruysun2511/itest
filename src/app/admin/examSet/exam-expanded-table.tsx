@@ -81,7 +81,6 @@ export function ExamExpandedTable({ examSetId }: { examSetId: string }) {
 
     return (
         <div className="mx-4 mb-4 mt-2 overflow-hidden rounded-xl ">
-            {/* Header của bảng lồng */}
             <div className="flex items-center gap-2 bg-gray-50/80 px-4 py-3 border-b border-gray-200">
                 <div className="h-5 w-1 bg-blue-500 rounded-full" />
                 <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
@@ -92,7 +91,6 @@ export function ExamExpandedTable({ examSetId }: { examSetId: string }) {
                 </Tooltip>
             </div>
 
-            {/* Table UI */}
             <div className="p-0">
                 <Table
                     rowKey="examId"
