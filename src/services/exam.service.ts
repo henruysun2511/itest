@@ -1,18 +1,25 @@
 import { ApiResponse, ExamBody } from "@/types/body";
+import { ExamPdf } from "@/types/object";
+import { ExamParam } from "@/types/param";
 import http from "@/utils/http";
 
 const prefix = "exams";
 
 export const ExamService = {
-  // Lấy toàn bộ danh sách exams
-  getList() {
-    return http.get<ApiResponse<any>>(`/${prefix}`);
+  // Lấy Exams theo ExamSet ID
+  getByExamSetId(examSetId: string, params?: ExamParam) {
+    const { examSetId: _, ...restParams } = params || {};
+
+    return http.get<ApiResponse<any>>(
+      `/${prefix}/exam-set/${examSetId}`,
+      { params: restParams }
+    );
   },
 
-  // Lấy danh sách có phân trang và tìm kiếm
-//   getListPagination(params: ExamParam) {
-//     return http.post<ApiResponse<Exam[]>>(`/${prefix}/search`, params);
-//   },
+  // Lấy URL PDF của Exam
+  getPdfUrl(examId: string) {
+    return http.get<ApiResponse<ExamPdf>>(`/${prefix}/${examId}/pdf`);
+  },
 
   // Tạo exam mới
   create(data: ExamBody) {
@@ -29,9 +36,9 @@ export const ExamService = {
     const { id, ...payload } = data;
     return http.put<ApiResponse<any>>(`/${prefix}/${id}`, payload);
   },
-  
+
   // Lấy chi tiết 1 exam (bổ sung thêm)
-//   getById(id: string) {
-//     return http.get<ApiResponse<Exam>>(`/${prefix}/${id}`);
-//   }
+  //   getById(id: string) {
+  //     return http.get<ApiResponse<Exam>>(`/${prefix}/${id}`);
+  //   }
 };

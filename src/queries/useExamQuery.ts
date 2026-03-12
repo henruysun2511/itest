@@ -1,31 +1,26 @@
 import { ExamService } from "@/services/exam.service";
+import { ExamSetParam } from "@/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAM_QUERY_KEY = ["exams"];
 
-// Hook lấy toàn bộ danh sách
-export const useExamList = () => {
+export const useExamByExamSet = (examSetId: string, params: ExamSetParam) => {
   return useQuery({
-    queryKey: [...EXAM_QUERY_KEY],
+    queryKey: [...EXAM_QUERY_KEY, "exam-set", examSetId, params],
     queryFn: async () => {
-      const res = await ExamService.getList();
+      const res = await ExamService.getByExamSetId(examSetId, params);
       return res.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 phút
+    enabled: !!examSetId, 
+    staleTime: 5 * 60 * 1000,
   });
 };
 
-// Hook phân trang và tìm kiếm
-// export const useExamListPagination = (param: ExamParam) => {
-//   return useQuery({
-//     queryKey: [...EXAM_QUERY_KEY, param],
-//     queryFn: async () => {
-//       const res = await ExamService.getListPagination(param);
-//       return res.data;
-//     },
-//     staleTime: 5 * 60 * 1000,
-//   });
-// };
+export const useGetExamPdf = () => {
+  return useMutation({
+    mutationFn: (examId: string) => ExamService.getPdfUrl(examId),
+  });
+};
 
 // Hook tạo mới Exam
 export const useCreateExam = () => {

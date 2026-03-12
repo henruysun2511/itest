@@ -1,7 +1,7 @@
 
 interface User {
-  accountId: string; // Lấy từ decoded.sub
-  roleName: string;  // Lấy từ decoded.roleName
+  accountId: string; 
+  roleName: string;  
 }
 
 export interface AuthState {

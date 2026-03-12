@@ -1,4 +1,5 @@
 import { ExamSetSortBy, SortOrder } from "@/constants/sort.enum";
+import { ExamSetParam } from "@/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Typography } from "antd";
 
@@ -7,11 +8,7 @@ const { Text } = Typography;
 interface ExamSetFilterProps {
     onSearch: (value: string) => void;
     onSortChange: (sortBy: ExamSetSortBy, sortOrder: SortOrder.ASC | SortOrder.DESC) => void;
-    params: {
-        search?: string;
-        sortBy?: string;
-        sortOrder?: string;
-    };
+    params: ExamSetParam;
 }
 
 export function ExamSetFilter({ onSearch, onSortChange, params }: ExamSetFilterProps) {
@@ -48,7 +45,7 @@ export function ExamSetFilter({ onSearch, onSortChange, params }: ExamSetFilterP
                 </div>
 
                 <Select
-                    defaultValue="desc"
+                    defaultValue={SortOrder.DESC}
                     style={{ width: 100 }}
                     onChange={(val) =>
                         onSortChange(

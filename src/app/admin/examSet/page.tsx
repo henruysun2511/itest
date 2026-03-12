@@ -19,7 +19,6 @@ export default function ExamSetPage() {
     sortOrder: SortOrder.DESC,
   });
 
-  // Giả sử useExamSetList của bạn có nhận params
   const { data, isLoading } = useExamSetList(params);
   const [openModal, setOpenModal] = useState(false);
 
@@ -33,10 +32,15 @@ export default function ExamSetPage() {
 
   return (
     <>
-
+      <div className="mb-6"></div>
       <Space direction="vertical" className="w-full" size="large">
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-end">
+        <div className="flex justify-between">
+          <ExamSetFilter
+            params={params}
+            onSearch={handleSearch}
+            onSortChange={handleSort}
+          />
+          <div className="">
             <Button
               type="primary"
               size="large"
@@ -47,13 +51,6 @@ export default function ExamSetPage() {
               Thêm bộ đề
             </Button>
           </div>
-
-          {/* Sử dụng Component Filter mới */}
-          <ExamSetFilter
-            params={params}
-            onSearch={handleSearch}
-            onSortChange={handleSort}
-          />
         </div>
 
         <ExamSetTable

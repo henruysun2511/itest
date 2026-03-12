@@ -62,6 +62,19 @@ interface ExamSession {
 }
 export type { ExamSession };
 
+interface ExamPdf{
+  pdfUrl: string;
+}
+export type { ExamPdf };
+
+interface Exam{
+  examCode: string;
+  title: string;
+  objectKey: string;
+  parsedJson?: ExamData;
+}
+export type { Exam };
+
 
 
 

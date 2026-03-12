@@ -1,18 +1,21 @@
 import {
+    AppstoreAddOutlined,
+    AuditOutlined,
+    BankOutlined,
     BarChartOutlined,
     BookOutlined,
     DashboardOutlined,
     DatabaseOutlined,
-    EditOutlined,
-    EyeOutlined,
     FileTextOutlined,
     FormOutlined,
     IdcardOutlined,
-    SafetyOutlined,
+    ReadOutlined,
+    SafetyCertificateOutlined,
     ScheduleOutlined,
     SettingOutlined,
     SolutionOutlined,
     TeamOutlined,
+    UsergroupAddOutlined,
     UserOutlined
 } from '@ant-design/icons';
 import { Menu, MenuProps, Tooltip } from 'antd';
@@ -42,16 +45,11 @@ export default function AdminMenu() {
                     icon: <IdcardOutlined />,
                     label: <Tooltip title="Vai trò người dùng" placement='right'>Vai trò người dùng</Tooltip>,
                 },
-                {
-                    key: '/admin/permission',
-                    icon: <SafetyOutlined />,
-                    label: 'Phân quyền',
-                },
             ],
         },
         {
             key: 'general-management',
-            icon:  <ScheduleOutlined />,
+            icon: <BankOutlined />, // Thay đổi icon tổng quát cho quản lý chung
             label: 'Quản lý chung',
             children: [
                 {
@@ -61,18 +59,18 @@ export default function AdminMenu() {
                 },
                 {
                     key: '/admin/teacher',
-                    icon:  <SolutionOutlined />,
+                    icon: <SolutionOutlined />,
                     label: 'Giảng viên',
                 },
                 {
-                    key: '/admin/examSession',
-                    icon: <ScheduleOutlined />,
-                    label: 'Ca thi',
+                    key: '/admin/department',
+                    icon: <BankOutlined />, 
+                    label: 'Phòng ban',
                 },
                 {
-                    key: '/admin/resut',
-                    icon: <BarChartOutlined />,
-                    label: 'Kết quả thi',
+                    key: '/admin/course',
+                    icon: <ReadOutlined />, 
+                    label: 'Bộ môn',
                 },
             ],
         },
@@ -91,6 +89,11 @@ export default function AdminMenu() {
                     icon: <FileTextOutlined />,
                     label: 'Đề thi',
                 },
+                {
+                    key: '/admin/examApprove', 
+                    icon: <AuditOutlined />,
+                    label: 'Duyệt đề thi',
+                },
             ],
         },
         {
@@ -99,43 +102,43 @@ export default function AdminMenu() {
             label: 'Quản lý thi',
             children: [
                 {
-                    key: '/admin/student-exam',
-                    icon: <TeamOutlined />,
-                    label: 'Thí sinh dự thi',
+                    key: '/admin/examSession',
+                    icon: <ScheduleOutlined />,
+                    label: 'Ca thi',
                 },
                 {
-                    key: '/admin/exam-room',
-                    icon: <SolutionOutlined />,
-                    label: 'Phòng / ca thi',
+                    key: '/admin/examRegistration',
+                    icon: <AppstoreAddOutlined />, 
+                    label: 'Đăng ký thi sinh viên',
                 },
                 {
-                    key: '/admin/invigilator',
-                    icon: <EyeOutlined />,
+                    key: '/admin/examSessionTeacher',
+                    icon: <UsergroupAddOutlined />, 
                     label: 'Phân công coi thi',
                 },
                 {
-                    key: '/admin/monitor',
-                    icon: <ScheduleOutlined />,
-                    label: 'Theo dõi ca thi',
+                    key: '/admin/result',
+                    icon: <BarChartOutlined />,
+                    label: 'Kết quả thi',
                 },
                 {
-                    key: '/admin/grading',
-                    icon: <FormOutlined />,
-                    label: <Tooltip title="Phân công chấm tự luận" placement='right'>Phân công chấm tự luận</Tooltip>,
+                    key: '/admin/fraud',
+                    icon: <SafetyCertificateOutlined />, 
+                    label: 'Báo cáo gian lận',
                 },
             ],
         },
         {
-            key: '/admin/essayGrading',
-            icon: <EditOutlined />,
-            label: 'Chấm thi tự luận',
+            key: '/admin/grading',
+            icon: <FormOutlined />, 
+            label: 'Phân công chấm tự luận',
         },
         {
             key: '/admin/settings',
             icon: <SettingOutlined />,
             label: 'Cài đặt chung',
         },
-    ]
+    ];
 
     const handleRouter: MenuProps['onClick'] = (e) => {
         router.push(e.key);

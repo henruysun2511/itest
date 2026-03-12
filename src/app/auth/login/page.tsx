@@ -110,7 +110,7 @@ export default function LoginPage() {
                         htmlType="submit"
                         size="large"
                         block
-                        className="bg-accent text-white font-semibold hover:opacity-90"
+                        className="bg-accent text-white font-semibold hover:opacity-90 border-none"
                         disabled={isPending}
                     >
                         {isPending ? "Đang tiến hành đăng nhập" : "Đăng nhập"}

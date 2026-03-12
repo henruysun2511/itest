@@ -6,6 +6,7 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Popconfirm, Space, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { useState } from "react";
+import { ExamExpandedTable } from "./exam-expanded-table";
 import { ExamSetUpdateModal } from "./examSet-update-modal";
 
 interface Props {
@@ -93,6 +94,12 @@ export default function ExamSetTable({
         dataSource={data}
         loading={loading}
         pagination={pagination}
+        expandable={{
+          expandedRowRender: (record) => (
+            <ExamExpandedTable examSetId={record.examSetId} />
+          ),
+          rowExpandable: (record) => true,
+        }}
       />
 
       <ExamSetUpdateModal

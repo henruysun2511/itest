@@ -20,3 +20,9 @@ export const ExamSessionSortBy = {
 } as const;
 
 export type ExamSessionSortBy = (typeof ExamSessionSortBy)[keyof typeof ExamSessionSortBy];
+
+export const ExamSortBy = {
+  ...BaseSortBy,
+  TITLE: 'title'
+} as const;
+export type ExamSortBy = (typeof ExamSortBy)[keyof typeof ExamSortBy];
