@@ -5,23 +5,18 @@ import { Spin } from "antd";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function AuthCallbackPage() {
+function AuthCallbackHandler() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const setAuth = useAuthStore((s) => s.setAuth);
 
     useEffect(() => {
-        // Lấy token từ URL: /auth/callback?token=...
         const token = searchParams.get("token");
-
         if (token) {
             try {
-                // 1. Giải mã token
                 const decoded = jwtDecode(token) as UserJwtDecode;
-
-                // 2. Thiết lập thời gian hết hạn cookie (30 phút như yêu cầu)
                 const expires = new Date(new Date().getTime() + 30 * 60 * 1000);
 
                 Cookies.set("accessToken", token, {
@@ -30,13 +25,11 @@ export default function AuthCallbackPage() {
                     sameSite: "strict"
                 });
 
-                // 3. Lưu vào Zustand Store (AccountId lấy từ sub)
                 setAuth({
                     accountId: decoded.sub,
                     roleName: decoded.roleName,
                 }, token);
 
-                // 4. Thành công -> Về trang chủ
                 router.push("/");
             } catch (error) {
                 console.error("Lỗi xác thực token Google:", error);
@@ -48,11 +41,24 @@ export default function AuthCallbackPage() {
     }, [searchParams, setAuth, router]);
 
     return (
-        <div className="h-screen w-screen flex flex-col items-center justify-center bg-gray-50">
-            <Spin size="large" />
-            <p className="mt-4 text-gray-500 font-medium">
-                Đang hoàn tất đăng nhập hệ thống...
+        <div className="flex flex-col items-center">
+            <Spin size="large" className="custom-spin" />
+            <p className="mt-6 text-[var(--color-navy-deep)] font-bold tracking-wide animate-pulse">
+                ĐANG HOÀN TẤT ĐĂNG NHẬP...
             </p>
+            <p className="text-slate-400 text-xs mt-2 uppercase tracking-[0.2em]">
+                Hệ thống thi trực tuyến BA
+            </p>
+        </div>
+    );
+}
+
+export default function AuthCallbackPage() {
+    return (
+        <div className="h-screen w-screen flex items-center justify-center bg-white">
+            <Suspense fallback={<Spin size="large" />}>
+                <AuthCallbackHandler />
+            </Suspense>
         </div>
     );
 }
