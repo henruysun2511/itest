@@ -1,10 +1,10 @@
 import { ExamService } from "@/services/exam.service";
-import { ExamSetParam } from "@/types/param";
+import { ExamParam } from "@/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAM_QUERY_KEY = ["exams"];
 
-export const useExamByExamSet = (examSetId: string, params: ExamSetParam) => {
+export const useExamByExamSet = (examSetId: string, params: ExamParam) => {
   return useQuery({
     queryKey: [...EXAM_QUERY_KEY, "exam-set", examSetId, params],
     queryFn: async () => {

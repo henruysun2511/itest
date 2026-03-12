@@ -1,5 +1,5 @@
 import { ApiResponse, ParseExamBody } from "@/types/body";
-import { ParseExam } from "@/types/object";
+import { ExamData } from "@/types/object";
 import http from "@/utils/http";
 
 
@@ -8,7 +8,7 @@ const prefix = "gemini";
 export const GeminiService = {
     // POST /gemini/parse-exam
     parseExam(payload: ParseExamBody) {
-        return http.post<ApiResponse<ParseExam>>(
+        return http.post<ApiResponse<ExamData>>(
             `/${prefix}/parse-exam`,
             payload
         );

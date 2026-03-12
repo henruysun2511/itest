@@ -20,7 +20,7 @@ export default function ExamList() {
         page: params.page,
         limit: params.limit,
         search: params.search,
-        sortBy: params.sortBy,
+        sortBy: params.sortBy as any,
         sortOrder: params.sortOrder,
         examSetId: params.examSetId, 
     });
