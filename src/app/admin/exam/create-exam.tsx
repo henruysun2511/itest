@@ -17,6 +17,7 @@ import {
 import {
     Button,
     Card,
+    Checkbox,
     Form,
     Input,
     message,
@@ -36,6 +37,7 @@ export default function CreateExam() {
     const [answersState, setAnswersState] = useState<
         Record<number, { correctAnswer: string[]; points: number }>
     >({});
+    const [hasEssay, setHasEssay] = useState(false);
 
     const { data: examSetData } = useExamSetList({});
     const { mutateAsync: uploadPdf } = useUploadExamPdf();
@@ -88,11 +90,27 @@ export default function CreateExam() {
 
     const validateBeforeSave = () => {
         if (!examState) return false;
+
         for (const part of examState.parts) {
             for (const q of part.questions) {
                 const ans = answersState[q.questionIndex];
-                if (!ans || !ans.correctAnswer?.length) {
-                    message.error(`Chưa nhập đáp án câu ${q.questionIndex}`);
+
+                // 1. Kiểm tra sự tồn tại của object câu trả lời
+                if (!ans) {
+                    message.error(`Câu ${q.questionIndex} chưa có thông tin đáp án và điểm`);
+                    return false;
+                }
+
+                // 2. Kiểm tra đáp án (Cho cả TN và Tự luận)
+                // Nếu là tự luận, bạn có thể quy định correctAnswer[0] là nội dung đáp án mẫu
+                if (!ans.correctAnswer || ans.correctAnswer.length === 0 || !ans.correctAnswer[0]?.trim()) {
+                    message.error(`Chưa nhập đáp án (hoặc hướng dẫn chấm) cho câu ${q.questionIndex}`);
+                    return false;
+                }
+
+                // 3. Kiểm tra điểm
+                if (ans.points === undefined || ans.points === null || ans.points <= 0) {
+                    message.error(`Câu ${q.questionIndex} chưa nhập điểm hoặc điểm không hợp lệ`);
                     return false;
                 }
             }
@@ -113,6 +131,7 @@ export default function CreateExam() {
                 correctAnswer: value.correctAnswer,
                 points: value.points || 0,
             })),
+            hasEssay: values.hasEssay || false,
         };
     };
 
@@ -124,6 +143,7 @@ export default function CreateExam() {
                 return;
             }
             const payload = buildPayload(objectKey);
+            console.log(payload)
             await createExam(payload);
             message.success("Tạo đề thi thành công");
             form.resetFields();
@@ -213,6 +233,13 @@ export default function CreateExam() {
                                     </Select>
                                 </Form.Item>
 
+                                <Form.Item name="hasEssay" valuePropName="checked">
+                                    <Checkbox onChange={(e) => setHasEssay(e.target.checked)}>
+                                        Đề thi có phần tự luận (Essay)
+                                    </Checkbox>
+                                </Form.Item>
+
+
                                 <div className="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 mb-6">
                                     <label className="block mb-2 font-semibold text-sm">File đề thi (PDF)</label>
                                     <Upload
@@ -271,6 +298,7 @@ export default function CreateExam() {
                                     answersState={answersState}
                                     setAnswersState={setAnswersState}
                                     uploadHook={uploadMedia}
+                                    hasEssay={hasEssay}
                                 />
                             </div>
                         ) : (

@@ -8,6 +8,7 @@ interface Props {
   answersState: Record<number, { correctAnswer: string[]; points: number }>;
   setAnswersState: (state: any) => void;
   uploadHook: any;
+  hasEssay: any;
 }
 
 export default function EditableExam({
@@ -16,6 +17,7 @@ export default function EditableExam({
   answersState,
   setAnswersState,
   uploadHook,
+  hasEssay
 }: Props) {
   const updatePart = (index: number, updatedPart: any) => {
     const newParts = [...value.parts];
@@ -60,6 +62,7 @@ export default function EditableExam({
           setAnswersState={setAnswersState}
           uploadHook={uploadHook}
           onDelete={() => deletePart(index)}
+          hasEssay={hasEssay}
         />
       ))}
 

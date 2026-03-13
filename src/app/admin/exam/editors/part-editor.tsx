@@ -15,6 +15,7 @@ interface Props {
     setAnswersState: any;
     uploadHook: any;
     onDelete: any;
+    hasEssay: any
 }
 
 export default function PartEditor({
@@ -24,7 +25,8 @@ export default function PartEditor({
     answersState,
     setAnswersState,
     uploadHook,
-    onDelete
+    onDelete,
+    hasEssay
 }: Props) {
     const deleteMedia = useDeleteFileCloudinary();
 
@@ -134,6 +136,7 @@ export default function PartEditor({
                         answersState={answersState}
                         setAnswersState={setAnswersState}
                         uploadHook={uploadHook}
+                        hasEssay={hasEssay}
                     />
                 </div>
             </div>

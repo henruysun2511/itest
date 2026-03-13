@@ -27,7 +27,7 @@ export function ExamSessionFilter({ onSearch, onFilterChange, params }: Props) {
 
                 <div className="flex items-center gap-2">
                     <Text strong>Ngày thi:</Text>
-                    <DatePicker 
+                    <DatePicker
                         placeholder="Chọn ngày"
                         onChange={(date) => onFilterChange("date", date ? date.format("YYYY-MM-DD") : undefined)}
                     />
@@ -42,7 +42,9 @@ export function ExamSessionFilter({ onSearch, onFilterChange, params }: Props) {
                         value={params.status}
                         onChange={(val) => onFilterChange("status", val)}
                         options={[
+                            { value: ExamSessionStatus.NOT_STARTED, label: "Chưa bắt đầu" },
                             { value: ExamSessionStatus.IN_PROGRESS, label: "Đang diễn ra" },
+                            { value: ExamSessionStatus.PAUSE, label: "Tạm dừng" },
                             { value: ExamSessionStatus.FINISHED, label: "Đã kết thúc" },
                         ]}
                     />
@@ -58,7 +60,6 @@ export function ExamSessionFilter({ onSearch, onFilterChange, params }: Props) {
                         onChange={(val) => onFilterChange("sortBy", val)}
                         options={[
                             { value: ExamSessionSortBy.DATE, label: "Ngày thi" },
-                            { value: "examSessionCode", label: "Mã ca thi" },
                         ]}
                     />
                 </div>

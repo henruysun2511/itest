@@ -3,15 +3,16 @@ import { ExamSessionSortBy, SortOrder } from "@/constants/sort.enum";
 import { useExamSessionList } from "@/queries/useExamSessionQuery";
 import { ExamSessionParam } from "@/types/param";
 import { FileExcelOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Typography } from "antd";
+import { Button } from "antd";
 import { useState } from "react";
 import { ExamSessionBulkModal } from "./examSession-bulk-modal";
+import { ExamSessionCreateModal } from "./examSession-create-modal";
 import { ExamSessionFilter } from "./examSession-filter";
 import ExamSessionTable from "./examSession-table";
 
-const { Title } = Typography;
 
 export default function ExamSessionPage() {
+    const [openModal, setOpenModal] = useState(false);
     const [openBulk, setOpenBulk] = useState(false);
     const [params, setParams] = useState<ExamSessionParam>({
         page: 1,
@@ -21,6 +22,7 @@ export default function ExamSessionPage() {
     });
 
     const { data, isLoading } = useExamSessionList(params);
+    console.log(data)
 
     const handleFilterChange = (key: keyof ExamSessionParam, value: any) => {
         setParams(p => ({ ...p, [key]: value, page: 1 }));
@@ -36,10 +38,10 @@ export default function ExamSessionPage() {
                 />
                 <div className="flex gap-5">
                     <Button
-                    type="primary"
+                        type="primary"
                         icon={<FileExcelOutlined />}
                         onClick={() => setOpenBulk(true)}
-                         className="bg-primary"
+                        className="bg-primary"
                     >
                         Nhập Excel
                     </Button>
@@ -47,6 +49,7 @@ export default function ExamSessionPage() {
                         type="primary"
                         icon={<PlusOutlined />}
                         className="bg-primary"
+                        onClick={() => setOpenModal(true)}
                     >
                         Tạo ca thi mới
                     </Button>
@@ -67,6 +70,8 @@ export default function ExamSessionPage() {
                 }}
             />
 
+
+            <ExamSessionCreateModal open={openModal} onCancel={() => setOpenModal(false)} />
             <ExamSessionBulkModal open={openBulk} onCancel={() => setOpenBulk(false)} />
         </div>
     );

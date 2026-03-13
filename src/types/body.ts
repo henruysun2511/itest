@@ -71,6 +71,7 @@ interface ExamBody {
     correctAnswer: string[];
     points: number;
   }>;
+  hasEssay?: boolean;
 }
 export type { ExamBody };
 
@@ -79,10 +80,8 @@ interface CreateExamSessionBody {
   examSetId: string;
   date: string;
   room: string;
-  courseId: string;
   duration: number;
   isCameraRequired: boolean;
-  teacherIds?: string[];
 }
 export type { CreateExamSessionBody };
 

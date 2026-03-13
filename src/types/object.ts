@@ -122,3 +122,4 @@ export interface ExamData {
   hasParts: boolean;
   parts: Part[];
 }
+
