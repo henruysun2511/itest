@@ -74,20 +74,20 @@ export default function ExamSessionTable({ data, loading, pagination }: any) {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <Button 
+                 <Button 
                         type="primary" 
                         size="small"
                         icon={<UserAddOutlined />}
-                        onClick={() => router.push(`/admin/examRegistration?examSessionId=${record.examSessionId}&code=${record.examSessionCode}`)}
+                        onClick={() => router.push(`/admin/examRegistration?examSessionId=${record.examSessionId}&code=${record.examSessionCode}&room=${record.room}`)}
                     >
                         Đăng ký sinh viên
                     </Button>
                     <Button 
-                        size="small"
+                        size="small" 
                         icon={<TeamOutlined />}
-                        // Logic phân công coi thi tương tự nếu có trang riêng
+                        onClick={() => router.push(`/admin/examSessionTeacher?examSessionId=${record.examSessionId}&code=${record.examSessionCode}&room=${record.room}`)}
                     >
-                        Phân công
+                        Phân công coi thi
                     </Button>
                 </Space>
             )

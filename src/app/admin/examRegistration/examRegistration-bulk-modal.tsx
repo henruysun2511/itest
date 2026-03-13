@@ -1,26 +1,32 @@
 import { useToast } from "@/hooks/useToast";
 import { useRegisterStudents } from "@/queries/useExamRegistrationQuery";
-import { useExamSessionList } from "@/queries/useExamSessionQuery";
 import { useFilterInvalidStudents } from "@/queries/useStudentQuery";
 import { handleError } from "@/utils/error";
-import { DeleteOutlined, InboxOutlined, InfoCircleOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import { Alert, Button, Card, Modal, Space, Table, Tag, Typography, Upload } from "antd";
+import { DeleteOutlined, FileExcelOutlined, InboxOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { Button, Card, Modal, Space, Table, Tag, Typography, Upload } from "antd";
 import { useState } from "react";
 import * as XLSX from "xlsx";
 
 const { Dragger } = Upload;
 const { Text, Title } = Typography;
 
-export function RegistrationBulkModal({ open, onCancel, sessionId }: { open: boolean; onCancel: () => void; sessionId: string }) {
+interface BulkModalProps {
+    open: boolean;
+    onCancel: () => void;
+    sessionId: string;
+    sessionInfo: { code: string; room: string };
+}
+
+
+export function RegistrationBulkModal({ open, onCancel, sessionId, sessionInfo }: BulkModalProps) {
     // State lưu dữ liệu hiển thị trên Table
     const [processedData, setProcessedData] = useState<any[]>([]);
     const toast = useToast();
 
-    const { data: sessions } = useExamSessionList({ page: 1, limit: 100 });
-    const currentSession = sessions?.data.find(s => s.id === sessionId);
 
     const filterMutation = useFilterInvalidStudents();
     const registerMutation = useRegisterStudents(sessionId);
+
 
     const handleFileUpload = (file: File) => {
         const reader = new FileReader();
@@ -46,20 +52,27 @@ export function RegistrationBulkModal({ open, onCancel, sessionId }: { open: boo
                 setProcessedData(excelRows);
 
                 // Bước 2: Gọi API kiểm tra tài khoản
+                // Bước 2: Gọi API kiểm tra tài khoản
                 const studentCodes = excelRows.map(i => i.studentCode);
                 filterMutation.mutate(studentCodes, {
                     onSuccess: (res) => {
-                        // res.data là danh sách các SV hợp lệ (có studentId)
-                        const validatedStudents = res.data;
+                        // Lưu ý: Kiểm tra kỹ cấu trúc res.data của bạn
+                        // Nếu res.data đã là mảng thì dùng res.data, nếu bọc trong .data nữa thì dùng res.data.data
+                        const validatedStudents = res.data?.data || res.data || [];
 
                         // Cập nhật lại processedData: Gộp studentId vào đúng hàng
                         const updatedData = excelRows.map(row => {
                             const match = validatedStudents.find((s: any) => s.studentCode === row.studentCode);
+
                             return {
                                 ...row,
-                                studentId: match ? match.studentId : null,
-                                // Nếu API trả về fullName chuẩn hơn thì cập nhật luôn
-                                fullName: match ? match.fullName : row.fullName 
+                                // Gán studentId nếu tìm thấy
+                                studentId: match ? (match.studentId) : null,
+
+                                // Logic FullName: 
+                                // 1. Nếu match và có fullName từ backend -> Lấy backend
+                                // 2. Nếu không có từ backend -> Giữ nguyên row.fullName (từ Excel)
+                                fullName: (match && match.fullName) ? match.fullName : row.fullName
                             };
                         });
 
@@ -104,28 +117,23 @@ export function RegistrationBulkModal({ open, onCancel, sessionId }: { open: boo
 
     return (
         <Modal
-            title="Đăng ký thí sinh từ Excel"
+            title={<Space><FileExcelOutlined /> Đăng ký thí sinh hàng loạt</Space>}
             open={open}
             onCancel={onCancel}
-            width={800}
+            width={850}
             onOk={handleSave}
             confirmLoading={registerMutation.isPending}
             okText="Xác nhận đăng ký"
+            destroyOnClose
         >
             <Space direction="vertical" className="w-full" size="middle">
-                {currentSession && (
-                    <Alert
-                        icon={<InfoCircleOutlined />}
-                        showIcon
-                        message={<Text>Ca thi: <Text strong>{currentSession.examSessionCode}</Text></Text>}
-                        type="info"
-                    />
-                )}
-                
-                <Dragger beforeUpload={handleFileUpload} showUploadList={false}>
-                    <p className="ant-upload-drag-icon"><InboxOutlined /></p>
-                    <p className="ant-upload-text">Nhấp hoặc kéo file Excel vào đây</p>
-                </Dragger>
+                {/* Hiển thị trực tiếp từ sessionInfo nhận được qua props */}
+                <div className="p-3 bg-blue-50 border border-blue-100 rounded-md">
+                    <Text>Đang thêm thí sinh vào: </Text>
+                    <Text strong className="text-blue-700">
+                        {sessionInfo.code} {sessionInfo.room ? `- Phòng: ${sessionInfo.room}` : ""}
+                    </Text>
+                </div>
 
                 <Card size="small" className="bg-gray-50 border-dashed">
                     <Title level={5} style={{ fontSize: '14px', marginTop: 0 }}>
@@ -138,13 +146,21 @@ export function RegistrationBulkModal({ open, onCancel, sessionId }: { open: boo
                     </ul>
                 </Card>
 
+
+                <Dragger beforeUpload={handleFileUpload} showUploadList={false}>
+                    <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+                    <p className="ant-upload-text">Nhấp hoặc kéo file Excel vào đây</p>
+                </Dragger>
+
+
+
                 {processedData.length > 0 && (
                     <>
                         <div className="flex justify-between items-center">
                             <Text strong>Danh sách sinh viên ({processedData.length}):</Text>
-                            <Button 
-                                danger 
-                                size="small" 
+                            <Button
+                                danger
+                                size="small"
                                 icon={<DeleteOutlined />}
                                 onClick={removeInvalid}
                             >
@@ -164,8 +180,8 @@ export function RegistrationBulkModal({ open, onCancel, sessionId }: { open: boo
                                 {
                                     title: "Trạng thái",
                                     dataIndex: "studentId",
-                                    render: (id) => id 
-                                        ? <Tag color="green">Hợp lệ</Tag> 
+                                    render: (id) => id
+                                        ? <Tag color="green">Hợp lệ</Tag>
                                         : <Tag color="error">Chưa có tài khoản</Tag>
                                 }
                             ]}
