@@ -123,3 +123,8 @@ interface AccessStateBody {
 }
 export type { AccessStateBody };
 
+interface CreateExamSessionTeacherBody {
+  examSessionId: string;
+  teacherIds: string[];
+}
+export type { CreateExamSessionTeacherBody };
