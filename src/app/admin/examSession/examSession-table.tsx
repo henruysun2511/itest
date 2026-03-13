@@ -1,12 +1,15 @@
 import { ExamSessionStatus } from "@/constants/status.enum";
 import { useExamSessionChangeStatus } from "@/queries/useExamSessionQuery";
 import { ChangeExamSessionStatusBody } from "@/types/body";
-import { Table, Tag } from "antd";
+import { TeamOutlined, UserAddOutlined } from "@ant-design/icons";
+import { Button, Space, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
 
 export default function ExamSessionTable({ data, loading, pagination }: any) {
     const { mutate: changeStatus } = useExamSessionChangeStatus();
+    const router = useRouter();
 
     const handleStatusUpdate = (id: string, newStatus: ChangeExamSessionStatusBody) => {
         changeStatus({ id, data: { status: newStatus } });
@@ -21,9 +24,9 @@ export default function ExamSessionTable({ data, loading, pagination }: any) {
         },
         {
             title: "Bộ đề",
-            dataIndex: "examSetName", // Cần map từ ID sang Name ở tầng API hoặc Frontend
+            dataIndex: "examSetName", 
             key: "examSetName",
-            render: (name, record) => name || record.examSetId.slice(0, 8) // Fallback nếu chưa có name
+            render: (name, record) => name || record.examSetId.slice(0, 8) 
         },
         {
             title: "Phòng",
@@ -49,7 +52,6 @@ export default function ExamSessionTable({ data, loading, pagination }: any) {
         {
             title: "Trạng thái",
             dataIndex: "status",
-            width: 150,
             render: (status: ExamSessionStatus) => {
                 switch (status) {
                     case ExamSessionStatus.IN_PROGRESS:
@@ -65,37 +67,31 @@ export default function ExamSessionTable({ data, loading, pagination }: any) {
                 }
             }
         },
-        // {
-        //     title: "Trạng thái",
-        //     dataIndex: "status",
-        //     width: 180,
-        //     render: (status: ChangeExamSessionStatusBody, record) => (
-        //         <Select
-        //             value={status}
-        //             style={{ width: "100%" }}
-        //             onChange={(val) => handleStatusUpdate(record.examSessionId, val)}
-        //             options={[
-        //                 { 
-        //                     value: ExamSessionStatus.IN_PROGRESS, 
-        //                     label: <Tag color="processing">ĐANG DIỄN RA</Tag> 
-        //                 },
-        //                 { 
-        //                     value: ExamSessionStatus.FINISHED, 
-        //                     label: <Tag color="default">ĐÃ KẾT THÚC</Tag> 
-        //                 },
-        //             ]}
-        //         />
-        //     )
-        // },
-        // {
-        //     title: "Hành động",
-        //     align: "center",
-        //     render: (_, record) => (
-        //         <Space>
-        //             <Button type="link" size="small">Chi tiết</Button>
-        //         </Space>
-        //     )
-        // }
+        {
+            title: "Quản lý",
+            key: "management",
+            align: "center",
+            width: 120,
+            render: (_, record) => (
+                <Space>
+                    <Button 
+                        type="primary" 
+                        size="small"
+                        icon={<UserAddOutlined />}
+                        onClick={() => router.push(`/admin/examRegistration?examSessionId=${record.examSessionId}&code=${record.examSessionCode}`)}
+                    >
+                        Đăng ký sinh viên
+                    </Button>
+                    <Button 
+                        size="small"
+                        icon={<TeamOutlined />}
+                        // Logic phân công coi thi tương tự nếu có trang riêng
+                    >
+                        Phân công
+                    </Button>
+                </Space>
+            )
+        }
     ];
 
     return (

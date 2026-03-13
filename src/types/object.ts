@@ -1,4 +1,5 @@
 import { ExamSessionStatus } from "@/constants/status.enum";
+import { ExamRegistrationStatusType, GenderType } from "@/constants/type.enum";
 import { AccountStatus } from "./enum";
 
 interface BaseObject {
@@ -19,7 +20,7 @@ interface Account extends BaseObject {
 }
 export type { Account };
 
-interface Role extends BaseObject{
+interface Role extends BaseObject {
   roleId: string;
   roleName: string;
   description: string;
@@ -27,8 +28,8 @@ interface Role extends BaseObject{
 export type { Role };
 
 interface ExamSet extends BaseObject {
-    examSetId: string;
-    name: string;
+  examSetId: string;
+  name: string;
 }
 
 export type { ExamSet };
@@ -62,18 +63,42 @@ interface ExamSession {
 }
 export type { ExamSession };
 
-interface ExamPdf{
+interface ExamPdf {
   pdfUrl: string;
 }
 export type { ExamPdf };
 
-interface Exam{
+interface Exam {
   examCode: string;
   title: string;
   objectKey: string;
   parsedJson?: ExamData;
 }
 export type { Exam };
+
+interface Student {
+  studentId: string;
+  studentCode: string;
+  fullName: string;
+  dateOfBirth: string | null;
+  gender: GenderType;
+}
+export type { Student };
+
+interface ExamRegistration {
+  registrationId: string;
+  studentId: string;
+  candidateNumber: string;
+  status: ExamRegistrationStatusType;
+  fullName: string | null;
+  dateOfBirth: string | null;
+  studentCode: string;
+  isAccessGranted: boolean;
+}
+export type { ExamRegistration };
+
+
+
 
 
 
@@ -111,11 +136,11 @@ export interface Part {
   partTitle: string;
   partDescription: string | null;
   extraDescription?: string;
-  questionType?: string; 
+  questionType?: string;
   mediaPlaceholders: MediaPlaceholder[];
   questionGroups: QuestionGroup[];
   questions: Question[];
-  media?: any[]; 
+  media?: any[];
 }
 
 export interface ExamData {

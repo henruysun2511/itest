@@ -22,8 +22,7 @@ export default function AccountPage() {
     });
 
     const { data, isLoading } = useAccountList(params);
-    console.log(data);
-
+    
     const handleSearch = (val: string) => {
         setParams(p => ({ ...p, search: val, page: 1 }));
     };

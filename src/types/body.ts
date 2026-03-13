@@ -113,3 +113,13 @@ interface BulkAccountBody {
 }
 export type { BulkAccountBody };
 
+interface CreateExamRegistrationBody {
+  studentId: string;
+  candidateNumber: string;
+}
+export type { CreateExamRegistrationBody };
+interface AccessStateBody {
+  isAccessGranted: boolean;
+}
+export type { AccessStateBody };
+

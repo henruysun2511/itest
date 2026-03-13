@@ -1,4 +1,5 @@
 import { ExamSessionStatus } from '@/constants/status.enum';
+import { ExamRegistrationStatusType, GenderType } from '@/constants/type.enum';
 import { BaseSortBy, ExamSessionSortBy, ExamSetSortBy, ExamSortBy, SortOrder } from './../constants/sort.enum';
 import { AccountType } from './enum';
 interface Pagination {
@@ -42,5 +43,17 @@ interface ExamSessionParam extends Pagination {
   sortBy?: ExamSessionSortBy;
 }
 
-export type { AccountParam, ExamParam, ExamSessionParam, ExamSetParam, RoleParam };
+interface StudentParam extends Pagination {
+  search?: string;
+  sortOrder?: SortOrder;
+  gender?: GenderType;
+}
+
+interface ExamRegistrationParam extends Pagination {
+  search?: string;
+  sortOrder?: SortOrder;
+  status?: ExamRegistrationStatusType;
+}
+
+export type { AccountParam, ExamParam, ExamRegistrationParam, ExamSessionParam, ExamSetParam, RoleParam, StudentParam };
 
