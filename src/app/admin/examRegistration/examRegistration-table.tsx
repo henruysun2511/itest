@@ -28,16 +28,27 @@ export default function RegistrationTable({ data, loading, pagination, sessionId
 
     const columns: ColumnsType<ExamRegistration> = [
         {
+            title: "Mã sinh viên",
+            key: "studentCode",
+            render: (_, record) => (
+                <div>{record.studentCode}</div>
+            ),
+        },
+        {
             title: "Sinh viên",
             key: "student",
             render: (_, record) => (
                 <Space>
                     <Avatar icon={<UserOutlined />} />
-                    <div>
-                        <div className="font-bold">{record.fullName}</div>
-                        <Text type="secondary" className="text-xs">{record.studentCode}</Text>
-                    </div>
+                    <div className="font-bold">{record.fullName}</div>
                 </Space>
+            ),
+        },
+        {
+            title: "Số báo danh",
+            key: "candidateNumber",
+            render: (_, record) => (
+                <div>{record.candidateNumber}</div>
             ),
         },
         {
@@ -76,7 +87,8 @@ export default function RegistrationTable({ data, loading, pagination, sessionId
                     cancelText="Hủy"
                 >
                     <Tooltip title="Xóa khỏi ca thi">
-                        <Button type="text" danger icon={<DeleteOutlined />} loading={isDeleting} />
+                        <Button type="primary"
+                            danger icon={<DeleteOutlined />} loading={isDeleting} />
                     </Tooltip>
                 </Popconfirm>
             ),
