@@ -85,6 +85,19 @@ interface Student {
 }
 export type { Student };
 
+interface Teacher {
+  teacherId: string;
+  accountId: string;
+  teacherCode: string;
+  departmentId: string | null;
+  account?: {
+    profile?: {
+      fullName: string | null;
+    };
+  };
+}
+export type { Teacher };
+
 interface ExamRegistration {
   registrationId: string;
   studentId: string;
@@ -97,6 +110,27 @@ interface ExamRegistration {
 }
 export type { ExamRegistration };
 
+interface ExamSessionTeacher {
+  examSessionTeacherId: string;
+  examSessionId: string;
+  teacherId: string;
+  assignedAt: string;
+  examSession: {
+    examSessionCode: string;
+    date: string;
+    room: string;
+  };
+  teacher: {
+    teacherId: string;
+    teacherCode: string;
+    account: {
+      profile: {
+        fullName: string | null;
+      };
+    };
+  };
+}
+export type { ExamSessionTeacher };
 
 
 
