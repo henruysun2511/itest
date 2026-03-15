@@ -49,6 +49,7 @@ export type { UploadCloudinary };
 
 interface ExamSession {
   id: string;
+  examSessionId: string;
   examSessionCode: string;
   examSetId: string;
   date: string;
@@ -132,6 +133,26 @@ interface ExamSessionTeacher {
 }
 export type { ExamSessionTeacher };
 
+interface Profile {
+  profileId: string;
+  fullName: string;
+  phoneNumber: string;
+  dateOfBirth: string; 
+  avatar: string | null;
+  gender: GenderType;
+}
+export type { Profile };
+
+interface Setting {
+    settingId: string | null;
+    logo: string | null;
+    backgroundImage: string | null;
+    audioTest: string | null;
+    logoUrl: string | null;
+    backgroundImageUrl: string | null;
+    audioTestUrl: string | null;
+}
+export type { Setting };
 
 
 

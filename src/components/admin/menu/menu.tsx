@@ -134,7 +134,7 @@ export default function AdminMenu() {
             label: 'Phân công chấm tự luận',
         },
         {
-            key: '/admin/settings',
+            key: '/admin/setting',
             icon: <SettingOutlined />,
             label: 'Cài đặt chung',
         },

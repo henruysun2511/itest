@@ -1,4 +1,5 @@
 import { ExamSessionStatus } from "@/constants/status.enum";
+import { GenderType } from "@/constants/type.enum";
 import { AccountStatus } from "./enum";
 import { Pagination } from "./param";
 
@@ -128,3 +129,12 @@ interface CreateExamSessionTeacherBody {
   teacherIds: string[];
 }
 export type { CreateExamSessionTeacherBody };
+
+interface UpdateProfileBody {
+  fullName?: string;
+  phoneNumber?: string;
+  dateOfBirth?: string;
+  avatar?: string;
+  gender?: GenderType;
+}
+export type { UpdateProfileBody };

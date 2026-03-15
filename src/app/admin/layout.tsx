@@ -41,7 +41,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             margin: "24px 16px",
             padding: 24,
             background: "#fff",
-            flex: 1, // 👈 QUAN TRỌNG
+            flex: 1, 
           }}
         >
           {children}

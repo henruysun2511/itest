@@ -4,12 +4,12 @@ import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Space, Typography } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { ExamTeacherAddModal } from "./examTeacher-add-modal";
-import ExamTeacherTable from "./examTeacher-table";
+import { ExamSessionTeacherCreateModal } from "./examTeacher-create-modal";
+import ExamSessionTeacherTable from "./examTeacher-table";
 
 const { Text } = Typography;
 
-export default function ExamTeacherPage() {
+export default function ExamSessionTeacherPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -44,13 +44,13 @@ export default function ExamTeacherPage() {
                 </div>
             </Card>
 
-            <ExamTeacherTable
+            <ExamSessionTeacherTable
                 data={data?.data ?? []}
                 loading={isLoading}
                 sessionId={sessionId}
             />
 
-            <ExamTeacherAddModal
+            <ExamSessionTeacherCreateModal
                 open={openAdd}
                 onCancel={() => setOpenAdd(false)}
                 sessionId={sessionId}

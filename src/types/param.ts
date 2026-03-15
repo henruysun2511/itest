@@ -41,6 +41,7 @@ interface ExamSessionParam extends Pagination {
   status?: ExamSessionStatus;
   sortOrder?: SortOrder;
   sortBy?: ExamSessionSortBy;
+  search?: string;
 }
 
 interface StudentParam extends Pagination {

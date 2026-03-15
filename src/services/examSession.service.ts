@@ -10,6 +10,10 @@ export const ExamSessionService = {
     return http.get<ApiResponse<ExamSession[]>>(`/${prefix}`, { params });
   },
 
+  getMySessions(params?: ExamSessionParam) {
+    return http.get<ApiResponse<ExamSession[]>>(`/${prefix}/my-sessions`, { params });
+  },
+
   create(data: CreateExamSessionBody) {
     return http.post<ApiResponse<ExamSession>>(`/${prefix}`, data);
   },

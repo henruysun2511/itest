@@ -33,17 +33,17 @@ export function useLogin() {
         onSuccess: (res) => {
             const { accessToken } = res.data.data;
             const decoded = jwtDecode(accessToken) as UserJwtDecode;
-
+            console.log(decoded)
             const expires = new Date(new Date().getTime() + 30 * 60 * 1000);
 
-            Cookies.set("accessToken", accessToken, { 
-                expires: expires, 
-                path: "/", 
-                sameSite: "strict" 
+            Cookies.set("accessToken", accessToken, {
+                expires: expires,
+                path: "/",
+                sameSite: "strict"
             });
 
-            setAuth({ 
-                accountId: decoded.sub, 
+            setAuth({
+                accountId: decoded.sub,
                 roleName: decoded.roleName,
             }, accessToken);
         },
@@ -57,7 +57,7 @@ export function useLogout() {
         mutationFn: authService.logout,
         onSuccess: () => {
             Cookies.remove("accessToken");
-            
+
             logoutStore();
             window.location.href = "/";
         },

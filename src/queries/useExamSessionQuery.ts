@@ -3,6 +3,7 @@ import { ExamSessionParam } from "@/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAM_SESSION_QUERY_KEY = ["exam-sessions"];
+export const MY_EXAM_SESSION_QUERY_KEY = ["exam-sessions", "my-sessions"];
 
 // Lấy danh sách ca thi
 export const useExamSessionList = (param: ExamSessionParam) => {
@@ -13,6 +14,17 @@ export const useExamSessionList = (param: ExamSessionParam) => {
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useMyExamSessions = (param?: ExamSessionParam) => {
+  return useQuery({
+    queryKey: [...MY_EXAM_SESSION_QUERY_KEY, param],
+    queryFn: async () => {
+      const res = await ExamSessionService.getMySessions(param);
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000, // Dữ liệu tươi trong 5 phút
   });
 };
 

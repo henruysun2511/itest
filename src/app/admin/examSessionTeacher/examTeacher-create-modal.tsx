@@ -11,12 +11,13 @@ interface Props {
     sessionId: string;
 }
 
-export function ExamTeacherAddModal({ open, onCancel, sessionId }: Props) {
+export function ExamSessionTeacherCreateModal({ open, onCancel, sessionId }: Props) {
     const [form] = Form.useForm();
     const toast = useToast();
 
     const { mutate, isPending } = useCreateExamTeacher(sessionId);
     const { data: teachersData, isLoading: isLoadingTeachers } = useTeacherList();
+    console.log(teachersData);
 
     const teacherOptions = useMemo(() => {
         if (!teachersData?.data) return [];

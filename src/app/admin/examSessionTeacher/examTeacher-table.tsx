@@ -15,7 +15,7 @@ interface Props {
     sessionId: string;
 }
 
-export default function ExamTeacherTable({ data, loading, pagination, sessionId }: Props) {
+export default function ExamSessionTeacherTable({ data, loading, pagination, sessionId }: Props) {
     const toast = useToast();
     const { mutate: removeTeacher, isPending: isDeleting } = useRemoveExamTeacher(sessionId);
 
