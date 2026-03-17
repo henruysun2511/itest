@@ -4,9 +4,72 @@ export enum AccountStatus {
 }
 
 
-export const AccountType = {
-  GOOGLE: 'GOOGLE',
-  LOCAL: 'LOCAL'
-} as const
+export enum AccountType {
+  GOOGLE = 'GOOGLE',
+  LOCAL = 'LOCAL'
+} 
 
-export type AccountType = (typeof AccountType)[keyof typeof AccountType]
+
+
+export enum ExamSessionStatus  {
+  NOT_STARTED = 'NOT_STARTED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  PAUSE = 'PAUSE',
+  FINISHED ='FINISHED'
+} 
+
+
+export enum ExamAttemptStatus {
+  IN_PROGRESS = 'IN_PROGRESS',
+  PAUSE = 'PAUSE',
+  COMPLETED = 'COMPLETED',
+  DISCONNECTED ='DISCONNECTED'
+} 
+
+
+
+export enum FraudLevel {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH'
+} 
+
+
+export enum FraudType {
+  FACE_MISMATCH = 'FACE_MISMATCH',
+  MULTIPLE_FACES_DETECTED = 'MULTIPLE_FACES_DETECTED',
+  NO_FACE_DETECTED = 'NO_FACE_DETECTED',
+  TAB_SWITCHING = 'TAB_SWITCHING',
+  WINDOW_BLUR = 'WINDOW_BLUR',
+  IP_CHANGED = 'IP_CHANGED',
+  NETWORK_DISRUPTION = 'NETWORK_DISRUPTION'
+} 
+
+
+
+export enum ResultGradingRole {
+  REVIEWER = 'REVIEWER',
+  FINAL_APPROVER ='FINAL_APPROVER'
+} 
+
+
+export enum ResultStatus {
+  NOT_GRADED = 'NOT_GRADED',
+  PUBLISHED = 'PUBLISHED'
+} 
+
+
+export enum GradingStatus {
+  ASSIGNED = 'ASSIGNED',
+  GRADING ='GRADING',
+  COMPLETED = 'COMPLETED'
+} 
+
+
+export enum QuestionType {
+  SINGLE_CHOICE = 'SINGLE_CHOICE',
+  TRUE_FALSE = 'TRUE_FALSE',
+  MULTIPLE_ANSWER = 'MULTIPLE_ANSWER',
+  FILL_IN_THE_BLANK = 'FILL_IN_THE_BLANK',
+  ESSAY = 'ESSAY'
+} 

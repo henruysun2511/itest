@@ -154,6 +154,42 @@ interface Setting {
 }
 export type { Setting };
 
+interface ExamAttempt {
+  examAttemptId: string;
+  studentId: string;
+  examSessionId: string;
+  examId: string;
+  status: string;
+  warningCount: number;
+  ip: string;
+  startTime: string;
+  endTime: string;
+  fraudLevel: string;
+  lastResumedAt: string | null;
+  consumedTime: number;
+  candidateNumber: string;
+  studentCode: string;
+  fullName: string;
+}
+export type { ExamAttempt };
+
+interface Course {
+  courseId: string;
+  name: string;
+}
+export type { Course };
+
+interface TeacherCourse {
+  teacherId: string;
+  courseId: string;
+  course: {
+    courseId: string;
+    name: string;
+    departmentId: string;
+  };
+}
+export type { TeacherCourse };
+
 
 
 

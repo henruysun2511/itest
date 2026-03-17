@@ -1,5 +1,5 @@
 import { ExamSessionService } from "@/services/examSession.service";
-import { ExamSessionParam } from "@/types/param";
+import { ExamSessionParam, TeacherExamSessionParam } from "@/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAM_SESSION_QUERY_KEY = ["exam-sessions"];
@@ -25,6 +25,21 @@ export const useMyExamSessions = (param?: ExamSessionParam) => {
       return res.data;
     },
     staleTime: 5 * 60 * 1000, // Dữ liệu tươi trong 5 phút
+  });
+};
+
+export const useTeacherExamSessions = (params: TeacherExamSessionParam) => {
+  return useQuery({
+    queryKey: [...EXAM_SESSION_QUERY_KEY, "teacher-sessions", params],
+    queryFn: async () => {
+      const res = await ExamSessionService.getTeacherSessions(params);
+      // Trả về ApiResponse chứa cả data (mảng) và meta (phân trang)
+      return res.data;
+    },
+    // Chỉ kích hoạt query khi đã có courseId (vì Backend đánh dấu required)
+    enabled: !!params.courseId,
+    placeholderData: (previousData) => previousData,
+    staleTime: 2 * 60 * 1000, // Dữ liệu tươi trong 2 phút
   });
 };
 

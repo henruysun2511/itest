@@ -1,6 +1,6 @@
 import { ApiResponse, ChangeExamSessionStatusBody, CreateExamSessionBody, LockStateBody, SetPauseStateBody } from "@/types/body";
 import { ExamSession } from "@/types/object";
-import { ExamSessionParam } from "@/types/param";
+import { ExamSessionParam, TeacherExamSessionParam } from "@/types/param";
 import http from "@/utils/http";
 
 const prefix = "exam-sessions";
@@ -12,6 +12,13 @@ export const ExamSessionService = {
 
   getMySessions(params?: ExamSessionParam) {
     return http.get<ApiResponse<ExamSession[]>>(`/${prefix}/my-sessions`, { params });
+  },
+
+  // GET: /exam-sessions/teacher-sessions
+  getTeacherSessions(params: TeacherExamSessionParam) {
+    return http.get<ApiResponse<ExamSession[]>>(`/${prefix}/teacher-sessions`, { 
+      params 
+    });
   },
 
   create(data: CreateExamSessionBody) {
@@ -32,10 +39,13 @@ export const ExamSessionService = {
 
   join(id: string, faceFile?: File) {
     const formData = new FormData();
-    if (faceFile) formData.append('file', faceFile);
-    
+    if (faceFile) formData.append('face', faceFile);
+    console.log(faceFile)
+
     return http.post<ApiResponse<any>>(`/${prefix}/${id}/join`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
   },
 
