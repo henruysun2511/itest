@@ -194,6 +194,8 @@ export type { TeacherCourse };
 
 
 
+
+
 export type MediaType = "image" | "audio" | "video";
 
 export interface MediaPlaceholder {

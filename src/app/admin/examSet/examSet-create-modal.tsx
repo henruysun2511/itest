@@ -17,17 +17,14 @@ export function ExamSetCreateModal({
     const { mutate, isPending } = useExamSetCreate();
     const toast = useToast();
 
-    // 1. Quản lý trạng thái search
     const [searchValue, setSearchValue] = useState("");
     
-    // 2. Debounce giá trị search để giảm số lần gọi API (ví dụ 500ms)
     const debouncedSearch = useDebounce(searchValue, 500);
 
-    // 3. Truyền debouncedSearch vào params của query
     const { data: courseData, isLoading: isLoadingCourses } = useCourseList({
         page: 1,
         limit: 100, 
-        search: debouncedSearch, // Truyền từ khóa tìm kiếm vào đây
+        search: debouncedSearch, 
     });
 
     const handleCreateExamSet = (values: any) => {
@@ -40,7 +37,7 @@ export function ExamSetCreateModal({
             onSuccess: () => {
                 toast.success("Thêm bộ đề thành công");
                 form.resetFields();
-                setSearchValue(""); // Reset search
+                setSearchValue(""); 
                 onCancel();
             },
             onError: (err: any) =>
