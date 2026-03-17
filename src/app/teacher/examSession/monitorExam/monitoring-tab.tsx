@@ -1,6 +1,7 @@
 "use client";
 
 import { useExamAttemptList, useForceSubmitSelected, useGrantRetake, usePauseStudentAttempt } from "@/queries/useExamAttempt"; // Đường dẫn hook của bạn
+import { ExamAttemptStatus } from "@/types/enum";
 import { ExamAttempt } from "@/types/object";
 import {
     CheckCircleOutlined,
@@ -37,9 +38,9 @@ export default function MonitoringTab({ examSessionId }: Props) {
     // 2. Tính toán thống kê từ dữ liệu thực
     const stats = {
         total: attempts.length,
-        examining: attempts.filter(a => a.status === 'IN_PROGRESS').length,
+        examining: attempts.filter(a => a.status === ExamAttemptStatus.IN_PROGRESS).length,
         violation: attempts.filter(a => a.warningCount > 0).length,
-        submitted: attempts.filter(a => a.status === 'FINISHED').length,
+        submitted: attempts.filter(a => a.status === ExamAttemptStatus.COMPLETED).length,
     };
 
     if (isLoading) return <div className="text-center p-10"><Spin size="large" /></div>;
