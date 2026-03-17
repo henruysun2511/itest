@@ -17,6 +17,17 @@ export const useExamSessionList = (param: ExamSessionParam) => {
   });
 };
 
+export const useExamSessionSearch = (param: ExamSessionParam) => {
+  return useQuery({
+    queryKey: [...EXAM_SESSION_QUERY_KEY, "search", param],
+    queryFn: async () => {
+      const res = await ExamSessionService.search(param);
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
 export const useMyExamSessions = (param?: ExamSessionParam) => {
   return useQuery({
     queryKey: [...MY_EXAM_SESSION_QUERY_KEY, param],
