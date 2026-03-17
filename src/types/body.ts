@@ -1,6 +1,6 @@
 import { ExamSessionStatus } from "@/constants/status.enum";
 import { GenderType } from "@/constants/type.enum";
-import { AccountStatus } from "./enum";
+import { AccountStatus, FraudType } from "./enum";
 import { Pagination } from "./param";
 
 interface ApiResponse<T> {
@@ -115,10 +115,13 @@ interface BulkAccountBody {
 export type { BulkAccountBody };
 
 interface CreateExamRegistrationBody {
-  studentId: string;
+  studentCode: string;
+  dateOfBirth: string;
+  fullName: string;
   candidateNumber: string;
 }
 export type { CreateExamRegistrationBody };
+
 interface AccessStateBody {
   isAccessGranted: boolean;
 }
@@ -138,3 +141,46 @@ interface UpdateProfileBody {
   gender?: GenderType;
 }
 export type { UpdateProfileBody };
+
+interface SaveAnswersBody {
+  studentId: string;
+  studentCode: string;
+}
+
+interface PauseAttemptBody {
+  isPaused: boolean;
+}
+
+interface ForceSubmitBody {
+  studentIds: string[];
+  studentCodes: string[];
+}
+
+interface DraftAnswer {
+  questionId: string;
+  answer: string | string[];
+}
+
+interface SaveDraftBody {
+  examSessionId: string;
+  changes: DraftAnswer[];
+}
+
+interface SubmitExamBody {
+  answers: DraftAnswer[];
+}
+
+interface RetakePermissionBody {
+  studentId: string;
+  studentCode: string;
+  examSessionId: string;
+}
+
+interface ReportFraudBody {
+  face?: string; 
+  fraudType: FraudType;
+  examAttemptId: string;
+  occurredAt: string;
+} 
+export type { DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody, SaveAnswersBody, SaveDraftBody, SubmitExamBody };
+

@@ -9,7 +9,8 @@ import {
     ClockCircleOutlined,
     InfoCircleOutlined,
     LoginOutlined,
-    SearchOutlined
+    SearchOutlined,
+    VideoCameraOutlined
 } from '@ant-design/icons';
 import { Badge, Button, Card, Col, Empty, Input, Row, Select, Skeleton, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
@@ -157,6 +158,19 @@ export default function StudentExamHome() {
                                                         <InfoCircleOutlined className="text-blue-400" />
                                                         <span>Thời gian: <b>{session.duration} phút</b></span>
                                                     </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <VideoCameraOutlined className={session.isCameraRequired ? "text-red-500" : "text-gray-400"} />
+                                                        <span>Yêu cầu mở cam: </span>
+                                                        {session.isCameraRequired ? (
+                                                            <div className="color-red font-medium font-semibold">
+                                                                Bắt buộc Camera
+                                                            </div>
+                                                        ) : (
+                                                            <div className="font-medium">
+                                                                Không yêu cầu
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </Space>
 
                                                 <Button
@@ -167,8 +181,8 @@ export default function StudentExamHome() {
                                                     disabled={!isAvailable || session.isLocked}
                                                     onClick={() => handleJoinSession(session)}
                                                     className={`rounded-xl font-bold h-12 flex items-center justify-center transition-all ${isAvailable
-                                                            ? 'bg-[var(--color-navy-main)] hover:bg-[var(--color-navy-light)] border-none shadow-lg'
-                                                            : 'bg-slate-100 text-slate-400'
+                                                        ? 'bg-[var(--color-navy-main)] hover:bg-[var(--color-navy-light)] border-none shadow-lg'
+                                                        : 'bg-slate-100 text-slate-400'
                                                         }`}
                                                 >
                                                     {session.isLocked ? "Đã khóa" : config.label}

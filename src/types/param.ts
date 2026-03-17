@@ -1,7 +1,7 @@
 import { ExamSessionStatus } from '@/constants/status.enum';
 import { ExamRegistrationStatusType, GenderType } from '@/constants/type.enum';
-import { BaseSortBy, ExamSessionSortBy, ExamSetSortBy, ExamSortBy, SortOrder } from './../constants/sort.enum';
-import { AccountType } from './enum';
+import { BaseSortBy, CourseSortBy, ExamSessionSortBy, ExamSetSortBy, ExamSortBy, SortOrder } from './../constants/sort.enum';
+import { AccountType, ExamAttemptStatus, FraudLevel } from './enum';
 interface Pagination {
   page?: number;
   limit?: number;
@@ -61,4 +61,30 @@ interface FraudParam extends Pagination {
   studentCode?: string;
 }
 
-export type { AccountParam, ExamParam, ExamRegistrationParam, ExamSessionParam, ExamSetParam, RoleParam, StudentParam, FraudParam };
+interface ExamAttemptParam extends Pagination {
+  status?: ExamAttemptStatus;
+  fraudLevel?: FraudLevel;
+  search?: string;
+}
+
+interface CourseParam extends Pagination {
+  search?: string;
+  sortOrder?: SortOrder;
+  sortBy?: CourseSortBy;
+}
+
+interface TeacherExamSessionParam extends Pagination{
+  courseId: string; 
+  examSessionCode?: string;
+  date?: string;
+  status?: string;
+  sortBy?: ExamSessionSortBy;
+  sortOrder?: SortOrder;
+}
+
+
+export type {
+  AccountParam, CourseParam, ExamAttemptParam, ExamParam, ExamRegistrationParam, ExamSessionParam,
+  ExamSetParam, RoleParam,TeacherExamSessionParam, StudentParam, FraudParam
+};
+

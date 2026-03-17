@@ -54,12 +54,19 @@ export function useLogout() {
     const logoutStore = useAuthStore((s) => s.logout);
 
     return useMutation({
-        mutationFn: authService.logout,
+        mutationFn: authService.logout, 
         onSuccess: () => {
             Cookies.remove("accessToken");
-
+            localStorage.clear(); // Xóa sạch dữ liệu nếu cần
+            
             logoutStore();
-            window.location.href = "/";
+            
+            window.location.href = "/auth/login"; 
         },
+        onError: (error) => {
+            console.error("Lỗi đăng xuất:", error);
+            Cookies.remove("accessToken");
+            window.location.href = "/auth/login";
+        }
     });
 }

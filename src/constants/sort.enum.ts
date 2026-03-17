@@ -26,3 +26,10 @@ export const ExamSortBy = {
   TITLE: 'title'
 } as const;
 export type ExamSortBy = (typeof ExamSortBy)[keyof typeof ExamSortBy];
+
+export const CourseSortBy = {
+  NAME: 'name'
+} as const;
+
+export type CourseSortBy = (typeof CourseSortBy)[keyof typeof CourseSortBy];
+
