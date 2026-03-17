@@ -24,62 +24,118 @@ import {
     Typography,
     message
 } from 'antd';
-import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import MonitoringTab from '../monitoring-tab';
+
+// Import Hooks của bạn
+import { ExamSessionStatus } from '@/constants/status.enum';
+import {
+    useExamSessionChangeStatus,
+    useExamSessionClose,
+    useExamSessionDetail,
+    useExamSessionLock,
+    useExamSessionPause
+} from "@/queries/useExamSessionQuery";
+import StudentListTab from '../student-list-tab';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
-// Giả lập trạng thái ca thi (Bạn sẽ thay bằng Enum thực tế)
-type SessionStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'PAUSED' | 'FINISHED';
+export default function ProctorDashboardPage() {
+    const { id } = useParams<{ id: string }>();
+    const examSessionId = id as string;
 
-export default function ProctorDashboardPage({ params }: { params: { id: string } }) {
-    const [sessionStatus, setSessionStatus] = useState<SessionStatus>('IN_PROGRESS');
-    const [isLocked, setIsLocked] = useState(false);
+    // 1. Lấy thông tin ca thi hiện tại từ cache/API
+    // Giả sử bạn dùng hook này để lấy data chi tiết (hoặc dùng useQuery riêng cho 1 session)
+   const { data: currentSessionRes, isLoading } = useExamSessionDetail(examSessionId);
+   console.log(currentSessionRes)
+   const currentSession = currentSessionRes?.data;
+
+    // 2. Khai báo các Mutation Hooks
+    const lockMutation = useExamSessionLock();
+    const pauseMutation = useExamSessionPause();
+    const closeMutation = useExamSessionClose();
+    const changeStatusMutation = useExamSessionChangeStatus();
+
+    // Lấy trạng thái từ database (nếu không có thì dùng mặc định)
+    const isLocked = currentSession?.isLocked ?? false;
+    const sessionStatus = currentSession?.status ?? ExamSessionStatus.NOT_STARTED;
+    const isPaused = sessionStatus === ExamSessionStatus.PAUSE;
 
 
-
-    // --- Handlers cho API ca thi ---
+    // --- Các hàm xử lý tương tác ---
     const handleToggleLock = () => {
-        setIsLocked(!isLocked);
-        message.success(isLocked ? "Đã mở khóa ca thi" : "Đã khóa ca thi");
+        lockMutation.mutate(
+            { id: examSessionId, isLocked: !isLocked },
+            {
+                onSuccess: () => message.success(!isLocked ? "Đã khóa ca thi" : "Đã mở khóa ca thi"),
+                onError: () => message.error("Không thể thay đổi trạng thái khóa")
+            }
+        );
     };
 
     const handleTogglePause = () => {
-        const nextStatus = sessionStatus === 'PAUSED' ? 'IN_PROGRESS' : 'PAUSED';
-        setSessionStatus(nextStatus);
-        message.warning(nextStatus === 'PAUSED' ? "Đã tạm dừng toàn bộ ca thi" : "Ca thi đã tiếp tục");
+        pauseMutation.mutate(
+            { id: examSessionId, isPaused: !isPaused },
+            {
+                onSuccess: () => {
+                    const msg = !isPaused ? "Đã tạm dừng ca thi" : "Ca thi đã tiếp tục";
+                    message.warning(msg);
+                },
+                onError: (err) => message.error("Lỗi: " + err.message)
+            }
+        );
     };
 
     const handleFinishSession = () => {
         Modal.confirm({
             title: 'Kết thúc ca thi?',
             content: 'Tất cả bài làm của thí sinh sẽ được thu hồi và không thể sửa đổi.',
-            onOk: () => setSessionStatus('FINISHED'),
+            okText: 'Xác nhận kết thúc',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk: () => {
+                closeMutation.mutate(examSessionId, {
+                    onSuccess: () => message.success("Đã kết thúc ca thi và thu bài thành công"),
+                    onError: () => message.error("Lỗi khi kết thúc ca thi")
+                });
+            },
+        });
+    };
+
+    const handleStartSession = () => {
+        Modal.confirm({
+            title: 'Bắt đầu ca thi?',
+            content: 'Thí sinh sẽ có thể bắt đầu làm bài sau khi ca thi được kích hoạt.',
+            okText: 'Bắt đầu ngay',
+            onOk: () => {
+                changeStatusMutation.mutate(
+                    {
+                        id: examSessionId,
+                        data: { status: ExamSessionStatus.IN_PROGRESS }
+                    },
+                    {
+                        onSuccess: () => message.success("Ca thi đã chính thức bắt đầu!"),
+                        onError: () => message.error("Không thể bắt đầu ca thi.")
+                    }
+                );
+            },
         });
     };
 
     const ExamContentTab = () => (
         <Card className="rounded-xl shadow-sm">
             <Empty description="Tính năng hiển thị nội dung đề thi đang được cập nhật..." />
-            {/* Bạn có thể render danh sách câu hỏi hoặc PDF đề thi ở đây */}
         </Card>
     );
 
-    // Tab 3: Danh sách sinh viên (Dạng bảng/List đầy đủ)
-    const StudentListTab = () => (
-        <Card className="rounded-xl shadow-sm">
-            <Title level={4}>Danh sách thí sinh đăng ký trong ca</Title>
-            <Text type="secondary">Tổng số: 100 thí sinh</Text>
-            {/* Render Table Antd ở đây sẽ rất chuyên nghiệp */}
-        </Card>
-    );
+
 
     const tabItems = [
         {
             key: '1',
             label: <span><ThunderboltOutlined />Theo dõi trực tuyến</span>,
-            children: <MonitoringTab />,
+            children: <MonitoringTab examSessionId={examSessionId} />,
         },
         {
             key: '2',
@@ -89,58 +145,80 @@ export default function ProctorDashboardPage({ params }: { params: { id: string 
         {
             key: '3',
             label: <span><UserOutlined />Danh sách thí sinh</span>,
-            children: <StudentListTab />,
+            children: <StudentListTab examSessionId={examSessionId} />,
         },
     ];
 
     return (
         <Layout className="min-h-screen bg-[#f0f2f5]">
-            {/* 1. Master Control Header */}
             <Header className="bg-[var(--color-navy-deep)] h-auto py-4 px-6 sticky top-0 z-10 shadow-lg">
                 <Row justify="space-between" align="middle">
                     <Col span={8}>
                         <Title level={4} className="!text-white !m-0">
-                            <TeamOutlined className="mr-2" /> Ca thi: ES0001
+                            <TeamOutlined className="mr-2" /> Ca thi: {currentSession?.examSessionCode || "..."}
                         </Title>
-                        <Text className="text-blue-200">Phòng: Lab 05 • Giám thị: GV. Nguyễn Triết</Text>
+                        <Text className="text-blue-200">Phòng: {currentSession?.room} • Giám thị: {currentSession?.teacherNames?.join(', ') || "Chưa phân công"}</Text>
                     </Col>
 
                     <Col span={16} className="text-right">
                         <Space size="middle">
-                            <Badge status={sessionStatus === 'IN_PROGRESS' ? 'processing' : 'default'} />
-                            <Tag color={sessionStatus === 'IN_PROGRESS' ? 'green' : 'orange'} className="mr-4">
-                                {sessionStatus === 'IN_PROGRESS' ? 'ĐANG DIỄN RA' : 'TẠM DỪNG'}
+                            <Badge status={sessionStatus === ExamSessionStatus.IN_PROGRESS ? 'processing' : 'default'} />
+                            <Tag color={
+                                sessionStatus === ExamSessionStatus.IN_PROGRESS ? 'green' :
+                                    sessionStatus === ExamSessionStatus.NOT_STARTED ? 'blue' : 'orange'
+                            } className="mr-4">
+                                {sessionStatus}
                             </Tag>
 
-                            <Button
-                                icon={isLocked ? <UnlockOutlined /> : <LockOutlined />}
-                                onClick={handleToggleLock}
-                                className={isLocked ? "bg-amber-500 text-white" : ""}
-                            >
-                                {isLocked ? "Mở khóa" : "Khóa ca thi"}
-                            </Button>
+                            {/* NÚT BẮT ĐẦU: Chỉ hiển thị khi trạng thái là NOT_STARTED */}
+                            {sessionStatus === ExamSessionStatus.NOT_STARTED && (
+                                <Button
+                                    type="primary"
+                                    icon={<PlayCircleOutlined />}
+                                    onClick={handleStartSession}
+                                    loading={changeStatusMutation.isPending}
+                                    className="bg-blue-600"
+                                >
+                                    Bắt đầu ca thi
+                                </Button>
+                            )}
 
-                            <Button
-                                icon={sessionStatus === 'PAUSED' ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
-                                onClick={handleTogglePause}
-                                danger={sessionStatus === 'IN_PROGRESS'}
-                            >
-                                {sessionStatus === 'PAUSED' ? "Tiếp tục" : "Tạm dừng"}
-                            </Button>
+                            {/* CÁC NÚT ĐIỀU KHIỂN KHÁC: Chỉ hiện khi đã bắt đầu hoặc đang tạm dừng */}
+                            {sessionStatus !== ExamSessionStatus.NOT_STARTED && sessionStatus !== ExamSessionStatus.FINISHED && (
+                                <>
+                                    <Button
+                                        icon={isLocked ? <UnlockOutlined /> : <LockOutlined />}
+                                        onClick={handleToggleLock}
+                                        loading={lockMutation.isPending}
+                                        className={isLocked ? "bg-amber-500 text-white" : ""}
+                                    >
+                                        {isLocked ? "Mở khóa" : "Khóa ca thi"}
+                                    </Button>
 
-                            <Button
-                                type="primary"
-                                danger
-                                icon={<StopOutlined />}
-                                onClick={handleFinishSession}
-                            >
-                                Kết thúc & Thu bài
-                            </Button>
+                                    <Button
+                                        icon={isPaused ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
+                                        onClick={handleTogglePause}
+                                        loading={pauseMutation.isPending}
+                                        danger={!isPaused}
+                                    >
+                                        {isPaused ? "Tiếp tục" : "Tạm dừng"}
+                                    </Button>
+
+                                    <Button
+                                        type="primary"
+                                        danger
+                                        icon={<StopOutlined />}
+                                        onClick={handleFinishSession}
+                                        loading={closeMutation.isPending}
+                                    >
+                                        Kết thúc & Thu bài
+                                    </Button>
+                                </>
+                            )}
                         </Space>
                     </Col>
                 </Row>
             </Header>
-
 
             <Content className="py-6 px-12">
                 <div className="max-w-7xl mx-auto">
@@ -153,7 +231,6 @@ export default function ProctorDashboardPage({ params }: { params: { id: string 
                     />
                 </div>
             </Content>
-
         </Layout>
     );
 }

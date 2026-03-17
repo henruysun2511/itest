@@ -25,6 +25,10 @@ export const ExamSessionService = {
     });
   },
 
+  getDetail(id: string) {
+    return http.get<ApiResponse<ExamSession>>(`/${prefix}/${id}`);
+  },
+
   create(data: CreateExamSessionBody) {
     return http.post<ApiResponse<ExamSession>>(`/${prefix}`, data);
   },
@@ -34,7 +38,7 @@ export const ExamSessionService = {
   },
 
   changeStatus(id: string, data: ChangeExamSessionStatusBody) {
-    return http.patch<ApiResponse<any>>(`/${prefix}/${id}/change-status`, data);
+    return http.patch<ApiResponse<any>>(`/${prefix}/${id}/status`, data);
   },
 
   close(id: string) {

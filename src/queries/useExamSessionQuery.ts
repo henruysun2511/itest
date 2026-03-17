@@ -1,3 +1,4 @@
+import { ExamSessionStatus } from "@/constants/status.enum";
 import { ExamSessionService } from "@/services/examSession.service";
 import { ExamSessionParam, TeacherExamSessionParam } from "@/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +18,7 @@ export const useExamSessionList = (param: ExamSessionParam) => {
   });
 };
 
+<<<<<<< huytran
 export const useExamSessionSearch = (param: ExamSessionParam) => {
   return useQuery({
     queryKey: [...EXAM_SESSION_QUERY_KEY, "search", param],
@@ -25,6 +27,17 @@ export const useExamSessionSearch = (param: ExamSessionParam) => {
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
+=======
+export const useExamSessionDetail = (id: string) => {
+  return useQuery({
+    queryKey: [...EXAM_SESSION_QUERY_KEY, "detail", id],
+    queryFn: async () => {
+      const res = await ExamSessionService.getDetail(id);
+      return res.data; 
+    },
+    enabled: !!id, 
+    staleTime: 1 * 60 * 1000, 
+>>>>>>> main
   });
 };
 
@@ -35,7 +48,7 @@ export const useMyExamSessions = (param?: ExamSessionParam) => {
       const res = await ExamSessionService.getMySessions(param);
       return res.data;
     },
-    staleTime: 5 * 60 * 1000, // Dữ liệu tươi trong 5 phút
+    staleTime: 5 * 60 * 1000, 
   });
 };
 
@@ -44,13 +57,11 @@ export const useTeacherExamSessions = (params: TeacherExamSessionParam) => {
     queryKey: [...EXAM_SESSION_QUERY_KEY, "teacher-sessions", params],
     queryFn: async () => {
       const res = await ExamSessionService.getTeacherSessions(params);
-      // Trả về ApiResponse chứa cả data (mảng) và meta (phân trang)
       return res.data;
     },
-    // Chỉ kích hoạt query khi đã có courseId (vì Backend đánh dấu required)
     enabled: !!params.courseId,
     placeholderData: (previousData) => previousData,
-    staleTime: 2 * 60 * 1000, // Dữ liệu tươi trong 2 phút
+    staleTime: 2 * 60 * 1000, 
   });
 };
 
@@ -80,7 +91,7 @@ export const useExamSessionCreateMany = () => {
 export const useExamSessionChangeStatus = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { status: any } }) => 
+    mutationFn: ({ id, data }: { id: string; data: { status: ExamSessionStatus } }) => 
       ExamSessionService.changeStatus(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
@@ -106,6 +117,16 @@ export const useExamSessionPause = () => {
   return useMutation({
     mutationFn: ({ id, isPaused }: { id: string; isPaused: boolean }) => 
       ExamSessionService.setPauseState(id, { isPaused }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
+    },
+  });
+};
+
+export const useExamSessionClose = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => ExamSessionService.close(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
     },

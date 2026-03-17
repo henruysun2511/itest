@@ -1,9 +1,9 @@
 import { ExamAttemptService } from "@/services/examAttempt.service";
 import {
-    ForceSubmitBody,
-    PauseAttemptBody,
-    ReportFraudBody,
-    SubmitExamBody
+  ForceSubmitBody,
+  PauseAttemptBody,
+  ReportFraudBody,
+  SubmitExamBody
 } from "@/types/body";
 import { ExamAttemptParam } from "@/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,9 +13,11 @@ export const EXAM_ATTEMPT_KEY = ["exam-attempts"];
 export const useExamAttemptList = (examSessionId: string, params?: ExamAttemptParam) => {
   return useQuery({
     queryKey: [...EXAM_ATTEMPT_KEY, "session", examSessionId, params],
-    queryFn: () => ExamAttemptService.getListBySession(examSessionId, params),
+    queryFn: async () => {
+      const res = await ExamAttemptService.getListBySession(examSessionId, params);
+      return res.data; 
+    },
     enabled: !!examSessionId,
-    refetchInterval: 10000, 
   });
 };
 
