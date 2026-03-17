@@ -18,6 +18,16 @@ export const useExamSessionList = (param: ExamSessionParam) => {
   });
 };
 
+<<<<<<< huytran
+export const useExamSessionSearch = (param: ExamSessionParam) => {
+  return useQuery({
+    queryKey: [...EXAM_SESSION_QUERY_KEY, "search", param],
+    queryFn: async () => {
+      const res = await ExamSessionService.search(param);
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+=======
 export const useExamSessionDetail = (id: string) => {
   return useQuery({
     queryKey: [...EXAM_SESSION_QUERY_KEY, "detail", id],
@@ -27,6 +37,7 @@ export const useExamSessionDetail = (id: string) => {
     },
     enabled: !!id, 
     staleTime: 1 * 60 * 1000, 
+>>>>>>> main
   });
 };
 

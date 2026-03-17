@@ -10,6 +10,10 @@ export const ExamSessionService = {
     return http.get<ApiResponse<ExamSession[]>>(`/${prefix}`, { params });
   },
 
+  search(params: ExamSessionParam) {
+    return http.get<ApiResponse<ExamSession[]>>(`/${prefix}/search`, { params });
+  },
+
   getMySessions(params?: ExamSessionParam) {
     return http.get<ApiResponse<ExamSession[]>>(`/${prefix}/my-sessions`, { params });
   },
