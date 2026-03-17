@@ -1,6 +1,6 @@
 "use client";
 
-import { useExamAttemptList, useForceSubmitSelected, useGrantRetake, usePauseStudentAttempt } from "@/queries/useExamAttempt"; // Đường dẫn hook của bạn
+import { useExamAttemptList, useForceSubmitSelected, useGrantRetake, usePauseStudentAttempt } from "@/queries/useExamAttemptQuery";
 import { ExamAttemptStatus, FraudLevel } from "@/types/enum";
 import { ExamAttempt } from "@/types/object";
 import {

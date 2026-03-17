@@ -25,7 +25,7 @@ import {
     message
 } from 'antd';
 import { useParams } from 'next/navigation';
-import MonitoringTab from '../monitoring-tab';
+import MonitoringTab from '../../(tabs)/monitoring-tab';
 
 // Import Hooks của bạn
 import { ExamSessionStatus } from '@/constants/status.enum';
@@ -36,17 +36,16 @@ import {
     useExamSessionLock,
     useExamSessionPause
 } from "@/queries/useExamSessionQuery";
-import StudentListTab from '../student-list-tab';
+import StudentListTab from '../../(tabs)/student-list-tab';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
 export default function ProctorDashboardPage() {
-    const { id } = useParams<{ id: string }>();
-    const examSessionId = id as string;
+    const { id: examSessionId } = useParams<{ id: string }>();
+
 
     // 1. Lấy thông tin ca thi hiện tại từ cache/API
-    // Giả sử bạn dùng hook này để lấy data chi tiết (hoặc dùng useQuery riêng cho 1 session)
    const { data: currentSessionRes, isLoading } = useExamSessionDetail(examSessionId);
    console.log(currentSessionRes)
    const currentSession = currentSessionRes?.data;

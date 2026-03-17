@@ -1,8 +1,14 @@
 import { useDeleteFileCloudinary } from "@/queries/useCloudinaryQuery";
-import { DeleteFileCloudinaryBody } from "@/types/body";
+import { QuestionType } from "@/types/enum"; // Đảm bảo bạn đã export enum này
 import { Part, Question } from "@/types/object";
-import { DeleteOutlined, FileTextOutlined, PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import { Button, Input, message, Tag } from "antd";
+import {
+    DeleteOutlined,
+    FileTextOutlined,
+    PlusOutlined,
+    QuestionCircleOutlined,
+    SettingOutlined
+} from "@ant-design/icons";
+import { Button, Input, message, Select, Space, Tag } from "antd";
 import { renderMediaContent } from "./media-render";
 import MediaUploader from "./media-uploader";
 
@@ -29,178 +35,126 @@ export default function QuestionEditor({
 
     const deleteMedia = useDeleteFileCloudinary();
 
+    // Hàm cập nhật câu hỏi
     const updateQuestion = (index: number, updated: any) => {
         const newQuestions = [...part.questions];
         newQuestions[index] = updated;
         updatePart(partIndex, { ...part, questions: newQuestions });
     };
 
-    const handleRemoveMedia = async (qIndex: number, mediaItem: DeleteFileCloudinaryBody) => {
+    // Hàm thêm câu hỏi mới
+    const addQuestion = (index: number, type: string) => {
+        const newQuestion: Question = {
+            questionIndex: index + 1,
+            questionText: "Nội dung câu hỏi mới...",
+            questionType: type.toUpperCase(), // Luôn lưu in hoa
+            options: type === 'essay' ? null : [
+                { label: "A", text: "Lựa chọn 1" },
+                { label: "B", text: "Lựa chọn 2" }
+            ],
+            mediaPlaceholders: [],
+            media: []
+        };
+        const newQuestions = [...part.questions, newQuestion];
+        updatePart(partIndex, { ...part, questions: reindex(newQuestions) });
+    };
+
+    const handleRemoveMedia = async (qIndex: number, mIndex: number, mediaItem: any) => {
         try {
             await deleteMedia.mutateAsync({
                 publicId: mediaItem.publicId,
                 resourceType: mediaItem.resourceType,
             });
-
             const q = part.questions[qIndex];
-            const newMedia = q.media?.filter(m => m.publicId !== mediaItem.publicId);
-            updateQuestion(qIndex, { ...q, media: newMedia });
-
-            message.success("Xóa file thành công");
+            const updatedMedia = q.media?.filter((_, i) => i !== mIndex);
+            updateQuestion(qIndex, { ...q, media: updatedMedia });
+            message.success("Xóa media thành công");
         } catch (error) {
-            message.error("Lỗi khi xóa file trên Cloudinary");
+            message.error("Lỗi khi xóa file");
         }
-    };
-
-    const addQuestion = (position: number, type: "multiple_choice" | "essay" = "multiple_choice") => {
-        const newQ: Question = {
-            questionIndex: 0,
-            questionText: "",
-            questionType: type,
-            options: type === "multiple_choice" ? [
-                { label: "A", text: "" },
-                { label: "B", text: "" },
-                { label: "C", text: "" },
-                { label: "D", text: "" },
-            ] : null,
-            media: [],
-            mediaPlaceholders: [],
-        };
-
-        let newQuestions = [...part.questions];
-        newQuestions.splice(position, 0, newQ);
-        newQuestions = reindex(newQuestions);
-        updatePart(partIndex, { ...part, questions: newQuestions });
     };
 
     return (
         <div className="space-y-6">
             {part.questions.map((q, index) => (
-                <div 
-                    key={`${partIndex}-${q.questionIndex}`} 
-                    className="relative group bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300"
-                >
-                    {/* Header */}
-                    <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-                        <div className="flex items-center gap-3">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--color-navy-main)] text-white font-bold text-sm">
-                                {q.questionIndex}
-                            </span>
-                            <h3 className="text-lg font-semibold text-[var(--color-navy-deep)] m-0">
-                                Câu hỏi {q.questionIndex}
-                            </h3>
-                            {q.questionType === "essay" && (
-                                <Tag color="orange" icon={<FileTextOutlined />}>TỰ LUẬN</Tag>
-                            )}
-                        </div>
-                        
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button 
-                                icon={<PlusOutlined />} 
-                                size="small" 
-                                onClick={() => addQuestion(index)}
-                            >
-                                Thêm TN phía trên
-                            </Button>
-                            <Button 
-                                danger 
-                                icon={<DeleteOutlined />} 
-                                size="small" 
-                                onClick={() => {
-                                    const newQuestions = reindex(part.questions.filter((_, i) => i !== index));
-                                    updatePart(partIndex, { ...part, questions: newQuestions });
-                                }}
-                            >
-                                Xóa
-                            </Button>
-                        </div>
-                    </div>
+                <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 relative group">
+                    <div className="flex justify-between items-start mb-4">
+                        <Space className="flex-wrap">
+                            <Tag color="blue" className="rounded-lg font-bold px-3 py-1">
+                                CÂU {q.questionIndex}
+                            </Tag>
+                            
+                            {/* Thẻ Select để đổi loại câu hỏi */}
+                            <Select
+                                value={q.questionType?.toUpperCase()} // Hiển thị in hoa
+                                onChange={(value) => updateQuestion(index, { ...q, questionType: value })}
+                                className="w-48"
+                                size="small"
+                                suffixIcon={<SettingOutlined />}
+                                options={[
+                                    { value: QuestionType.SINGLE_CHOICE, label: 'Trắc nghiệm 1 đáp án' },
+                                    { value: QuestionType.MULTIPLE_CHOICE, label: 'Trắc nghiệm nhiều đáp án' },
+                                    { value: QuestionType.TRUE_FALSE, label: 'Đúng / Sai' },
+                                    { value: QuestionType.FILL_IN_THE_BLANK, label: 'Điền vào chỗ trống' },
+                                    { value: QuestionType.ESSAY, label: 'Tự luận' },
+                                ]}
+                            />
+                        </Space>
 
-                    {/* Nội dung câu hỏi */}
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wider">
-                            Nội dung {q.questionType === "essay" ? "đề bài tự luận" : "câu hỏi"}
-                        </label>
-                        <Input.TextArea
-                            className="rounded-lg border-slate-200"
-                            value={q.questionText}
-                            onChange={(e) => updateQuestion(index, { ...q, questionText: e.target.value })}
-                            placeholder="Nhập nội dung câu hỏi tại đây..."
-                            autoSize={{ minRows: 2 }}
+                        <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => {
+                                const newQuestions = part.questions.filter((_, i) => i !== index);
+                                updatePart(partIndex, { ...part, questions: reindex(newQuestions) });
+                            }}
                         />
                     </div>
 
-                    {/* Options Grid (Chỉ hiện nếu là trắc nghiệm) */}
-                    {q.questionType === "multiple_choice" && q.options && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {/* Question Text Editor */}
+                    <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-2 text-slate-500 text-xs font-bold uppercase">
+                            <QuestionCircleOutlined /> Nội dung câu hỏi
+                        </div>
+                        <Input.TextArea
+                            value={q.questionText}
+                            onChange={(e) => updateQuestion(index, { ...q, questionText: e.target.value })}
+                            placeholder="Nhập nội dung câu hỏi..."
+                            autoSize={{ minRows: 2 }}
+                            className="rounded-lg border-slate-200"
+                        />
+                    </div>
+
+                    {/* Options (Chỉ hiện nếu không phải Essay) */}
+                    {q.questionType?.toUpperCase() !== 'ESSAY' && q.options && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                             {q.options.map((opt, optIndex) => (
-                                <div key={optIndex} className="flex items-center">
+                                <div key={optIndex} className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <Tag className="m-0 w-8 text-center font-bold bg-white">{opt.label}</Tag>
                                     <Input
-                                        addonBefore={<span className="font-bold text-[var(--color-navy-main)]">{opt.label}</span>}
                                         value={opt.text}
                                         onChange={(e) => {
                                             const newOptions = [...(q.options || [])];
-                                            newOptions[optIndex] = { ...newOptions[optIndex], text: e.target.value };
+                                            newOptions[optIndex].text = e.target.value;
                                             updateQuestion(index, { ...q, options: newOptions });
                                         }}
+                                        variant="borderless"
+                                        className="p-0"
                                     />
                                 </div>
                             ))}
                         </div>
                     )}
 
-                    {/* Meta Info: Đáp án & Điểm */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg mb-6">
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">
-                                {q.questionType === "essay" ? "Gợi ý đáp án (nếu có)" : "Đáp án đúng"}
-                            </label>
-                            <Input
-                                placeholder={q.questionType === "essay" ? "Nhập từ khóa hoặc gợi ý" : "Ví dụ: A"}
-                                value={answersState[q.questionIndex]?.correctAnswer?.join(",")}
-                                onChange={(e) =>
-                                    setAnswersState({
-                                        ...answersState,
-                                        [q.questionIndex]: {
-                                            ...answersState[q.questionIndex],
-                                            correctAnswer: e.target.value.split(",").map(s => s.trim().toUpperCase()),
-                                        },
-                                    })
-                                }
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Điểm số</label>
-                            <Input
-                                type="number"
-                                step={0.25}
-                                value={answersState[q.questionIndex]?.points}
-                                onChange={(e) =>
-                                    setAnswersState({
-                                        ...answersState,
-                                        [q.questionIndex]: {
-                                            ...answersState[q.questionIndex],
-                                            points: Number(e.target.value),
-                                        },
-                                    })
-                                }
-                            />
-                        </div>
-                    </div>
-
-                    {/* Media Section (Dùng chung cho cả TN và Tự luận) */}
-                    <div className="mt-4 pt-4 border-t border-dashed border-slate-200">
-                        <div className="flex items-center gap-2 mb-3 text-slate-500 italic text-sm">
-                            <QuestionCircleOutlined /> Tài liệu đính kèm cho câu {q.questionIndex} (Ảnh/Audio)
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-3 mb-3">
-                            {q.media?.map((m) =>
-                                renderMediaContent(m, () => handleRemoveMedia(index, m))
+                    {/* Media Section */}
+                    <div className="pt-4 border-t border-slate-50 flex flex-col gap-3">
+                        <div className="flex flex-wrap gap-2">
+                            {q.media?.map((m, mIndex) =>
+                                renderMediaContent(m, () => handleRemoveMedia(index, mIndex, m))
                             )}
                         </div>
-
-                        <div className="max-w-xs">
+                        <div className="max-w-[150px]">
                             <MediaUploader
                                 uploadMutation={uploadHook}
                                 onUploadSuccess={(mediaData) =>
@@ -223,7 +177,7 @@ export default function QuestionEditor({
                     size="large"
                     icon={<PlusOutlined />}
                     className="h-16 rounded-xl border-2 border-dashed flex-1"
-                    onClick={() => addQuestion(part.questions.length, "multiple_choice")}
+                    onClick={() => addQuestion(part.questions.length, QuestionType.SINGLE_CHOICE)}
                 >
                     Thêm câu hỏi Trắc nghiệm
                 </Button>
@@ -233,7 +187,7 @@ export default function QuestionEditor({
                     size="large"
                     icon={<FileTextOutlined />}
                     className="h-16 rounded-xl border-2 border-dashed flex-1 border-orange-200 text-orange-600 hover:text-orange-700 hover:border-orange-400"
-                    onClick={() => addQuestion(part.questions.length, "essay")}
+                    onClick={() => addQuestion(part.questions.length, QuestionType.ESSAY)}
                 >
                     Thêm câu hỏi Tự luận
                 </Button>

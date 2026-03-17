@@ -2,7 +2,7 @@
 
 import { ExamSessionSortBy, SortOrder } from "@/constants/sort.enum";
 import { ExamSessionStatus } from "@/constants/status.enum";
-import { useMyExamSessions } from "@/queries/useExamSessionQuery";
+import { useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
 import { ExamSessionParam } from "@/types/param";
 import {
     BookOutlined,
@@ -12,7 +12,7 @@ import {
     SearchOutlined,
     VideoCameraOutlined
 } from '@ant-design/icons';
-import { Badge, Button, Card, Col, Empty, Input, Row, Select, Skeleton, Space, Typography } from 'antd';
+import { Badge, Button, Card, Col, Empty, Input, message, Pagination, Row, Select, Skeleton, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { useRouter } from "next/navigation";
 import { useState } from 'react';
@@ -23,13 +23,18 @@ export default function StudentExamHome() {
     const router = useRouter();
     const [params, setParams] = useState<ExamSessionParam>({
         page: 1,
-        limit: 10,
+        limit: 9,
         search: "",
         sortBy: ExamSessionSortBy.DATE,
         sortOrder: SortOrder.DESC
     });
 
     const { data, isLoading } = useMyExamSessions(params);
+
+    const handlePageChange = (page: number, pageSize: number) => {
+        setParams(prev => ({ ...prev, page, limit: pageSize }));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
     console.log(data)
 
     const getStatusConfig = (status: ExamSessionStatus) => {
@@ -57,13 +62,32 @@ export default function StudentExamHome() {
         setParams(prev => ({ ...prev, sortOrder: value, page: 1 }));
     };
 
+    const { mutate: joinSession, isPending: isJoining } = useExamSessionJoin();
+
     const handleJoinSession = (session: any) => {
         if (session.isCameraRequired === true) {
             // Nếu yêu cầu camera -> Đi tới trang xác thực khuôn mặt
             router.push(`/student/examSession/verifyFace/${session.examSessionId}`);
         } else {
-            // Nếu không yêu cầu -> Đi thẳng tới trang làm bài (giả định route là /take-exam)
-            router.push(`/student/examSession/take-exam/${session.examSessionId}`);
+            // Nếu không yêu cầu -> Gọi API Join trước khi điều hướng
+            joinSession(
+                { id: session.examSessionId },
+                {
+                    onSuccess: (res) => {
+                        message.success("Vào phòng thi thành công!");
+                        // Chuyển hướng sau khi API đã đăng ký tham gia thành công
+                        const examId = res.data.data.randomExamId;
+                        console.log(res.data.data);
+
+                        // Truyền examId lên URL để trang take-exam có thể lấy được
+                        router.push(`/student/examSession/takeExam/${session.examSessionId}?examId=${examId}`);
+                    },
+                    onError: (error: any) => {
+                        // Xử lý lỗi (ví dụ: ca thi đã kết thúc, hoặc sinh viên bị cấm)
+                        message.error(error?.response?.data?.message || "Không thể tham gia ca thi lúc này");
+                    }
+                }
+            );
         }
     };
 
@@ -123,77 +147,93 @@ export default function StudentExamHome() {
                         ))}
                     </Row>
                 ) : data?.data?.length ? (
-                    <Row gutter={[24, 24]}>
-                        {data.data.map((session) => {
-                            const config = getStatusConfig(session.status as ExamSessionStatus);
-                            const isAvailable = session.status === ExamSessionStatus.IN_PROGRESS;
+                    <>
+                        <Row gutter={[24, 24]}>
+                            {data.data.map((session) => {
+                                const config = getStatusConfig(session.status as ExamSessionStatus);
+                                const isAvailable = session.status === ExamSessionStatus.IN_PROGRESS;
 
-                            return (
-                                <Col xs={24} sm={12} lg={8} key={session.examSessionId}>
-                                    <Badge.Ribbon text={config.text} color={config.color}>
-                                        <Card
-                                            hoverable
-                                            className="rounded-2xl border-none shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
-                                            bodyStyle={{ padding: '24px' }}
-                                        >
-                                            <div className="flex flex-col h-full">
-                                                <div className="mb-4">
-                                                    <div className="bg-slate-100 w-12 h-12 rounded-xl flex items-center justify-center mb-3">
-                                                        <BookOutlined className="text-2xl text-[var(--color-navy-main)]" />
+                                return (
+                                    <Col xs={24} sm={12} lg={8} key={session.examSessionId}>
+                                        <Badge.Ribbon text={config.text} color={config.color}>
+                                            <Card
+                                                hoverable
+                                                className="rounded-2xl border-none shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+                                                bodyStyle={{ padding: '24px' }}
+                                            >
+                                                <div className="flex flex-col h-full">
+                                                    <div className="mb-4">
+                                                        <div className="bg-slate-100 w-12 h-12 rounded-xl flex items-center justify-center mb-3">
+                                                            <BookOutlined className="text-2xl text-[var(--color-navy-main)]" />
+                                                        </div>
+                                                        <Title level={5} className="!m-0 line-clamp-1">
+                                                            {session.examSessionCode}
+                                                        </Title>
+                                                        <Text className="text-xs text-[var(--color-accent)] font-bold uppercase tracking-widest">
+                                                            Phòng: {session.room}
+                                                        </Text>
                                                     </div>
-                                                    <Title level={5} className="!m-0 line-clamp-1">
-                                                        {session.examSessionCode}
-                                                    </Title>
-                                                    <Text className="text-xs text-[var(--color-accent)] font-bold uppercase tracking-widest">
-                                                        Phòng: {session.room}
-                                                    </Text>
+
+                                                    <Space direction="vertical" className="w-full mb-6 text-slate-500">
+                                                        <div className="flex items-center gap-3">
+                                                            <ClockCircleOutlined className="text-[var(--color-accent)]" />
+                                                            <span>{dayjs(session.date).format("HH:mm - DD/MM/YYYY")}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <InfoCircleOutlined className="text-blue-400" />
+                                                            <span>Thời gian: <b>{session.duration} phút</b></span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <VideoCameraOutlined className={session.isCameraRequired ? "text-red-500" : "text-gray-400"} />
+                                                            <span>Yêu cầu mở cam: </span>
+                                                            {session.isCameraRequired ? (
+                                                                <div className="color-red font-medium font-semibold">
+                                                                    Bắt buộc Camera
+                                                                </div>
+                                                            ) : (
+                                                                <div className="font-medium">
+                                                                    Không yêu cầu
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Space>
+
+                                                    <Button
+                                                        type={isAvailable ? 'primary' : 'default'}
+                                                        block
+                                                        size="large"
+                                                        icon={<LoginOutlined />}
+                                                        disabled={!isAvailable || session.isLocked}
+                                                        onClick={() => handleJoinSession(session)}
+                                                        className={`rounded-xl font-bold h-12 flex items-center justify-center transition-all ${isAvailable
+                                                            ? 'bg-[var(--color-navy-main)] hover:bg-[var(--color-navy-light)] border-none shadow-lg'
+                                                            : 'bg-slate-100 text-slate-400'
+                                                            }`}
+                                                    >
+                                                        {session.isLocked ? "Đã khóa" : config.label}
+                                                    </Button>
                                                 </div>
+                                            </Card>
+                                        </Badge.Ribbon>
+                                    </Col>
 
-                                                <Space direction="vertical" className="w-full mb-6 text-slate-500">
-                                                    <div className="flex items-center gap-3">
-                                                        <ClockCircleOutlined className="text-[var(--color-accent)]" />
-                                                        <span>{dayjs(session.date).format("HH:mm - DD/MM/YYYY")}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <InfoCircleOutlined className="text-blue-400" />
-                                                        <span>Thời gian: <b>{session.duration} phút</b></span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <VideoCameraOutlined className={session.isCameraRequired ? "text-red-500" : "text-gray-400"} />
-                                                        <span>Yêu cầu mở cam: </span>
-                                                        {session.isCameraRequired ? (
-                                                            <div className="color-red font-medium font-semibold">
-                                                                Bắt buộc Camera
-                                                            </div>
-                                                        ) : (
-                                                            <div className="font-medium">
-                                                                Không yêu cầu
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </Space>
+                                );
+                            })}
+                        </Row>
+                        <div className="mt-12 flex justify-center">
+                            <Card className="rounded-2xl border-none inline-block px-6 py-2">
+                                <Pagination
+                                    current={params.page}
+                                    pageSize={params.limit}
+                                    total={data?.meta?.total || 0} // Giả định API trả về meta.total
+                                    onChange={handlePageChange}
+                                    showSizeChanger={false} // Ẩn chọn limit nếu không cần thiết
+                                    className="custom-pagination"
+                                />
+                            </Card>
+                        </div>
+                    </>
 
-                                                <Button
-                                                    type={isAvailable ? 'primary' : 'default'}
-                                                    block
-                                                    size="large"
-                                                    icon={<LoginOutlined />}
-                                                    disabled={!isAvailable || session.isLocked}
-                                                    onClick={() => handleJoinSession(session)}
-                                                    className={`rounded-xl font-bold h-12 flex items-center justify-center transition-all ${isAvailable
-                                                        ? 'bg-[var(--color-navy-main)] hover:bg-[var(--color-navy-light)] border-none shadow-lg'
-                                                        : 'bg-slate-100 text-slate-400'
-                                                        }`}
-                                                >
-                                                    {session.isLocked ? "Đã khóa" : config.label}
-                                                </Button>
-                                            </div>
-                                        </Card>
-                                    </Badge.Ribbon>
-                                </Col>
-                            );
-                        })}
-                    </Row>
                 ) : (
                     <Card className="rounded-3xl border-none shadow-sm p-12 text-center">
                         <Empty description="Không tìm thấy ca thi nào phù hợp" />

@@ -1,8 +1,8 @@
+import { useExamSessionList } from "@/queries/useExamSessionQuery";
 import { FraudParam } from "@/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Typography } from "antd";
-import { useExamSessionSearch } from "@/queries/useExamSessionQuery";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const { Text } = Typography;
 
@@ -23,7 +23,7 @@ export function FraudFilter({ onSearch, onFilterChange, params }: FraudFilterPro
         return () => clearTimeout(handler);
     }, [examSessionSearchTerm]);
 
-    const { data: examSessions, isLoading: isLoadingExamSessions } = useExamSessionSearch({ 
+    const { data: examSessions, isLoading: isLoadingExamSessions } = useExamSessionList({ 
         page: 1, 
         limit: 100, 
         ...(debouncedExamSessionCode ? { examSessionCode: debouncedExamSessionCode } : {}) 

@@ -3,6 +3,7 @@ import {
   ForceSubmitBody,
   PauseAttemptBody,
   ReportFraudBody,
+  SaveAnswersBody,
   SubmitExamBody
 } from "@/types/body";
 import { ExamAttemptParam } from "@/types/param";
@@ -83,5 +84,19 @@ export const useReportFraud = () => {
 export const useVerifyFaceAttempt = () => {
   return useMutation({
     mutationFn: ExamAttemptService.verifyFace,
+  });
+};
+
+export const useSaveAnswers = () => {
+  return useMutation({
+    mutationFn: ({ examSessionId, data }: { examSessionId: string, data: SaveAnswersBody }) =>
+      ExamAttemptService.saveAnswers(examSessionId, data),
+  });
+};
+
+export const useHeartbeat = () => {
+  return useMutation({
+    mutationFn: (examAttemptId: string) => 
+      ExamAttemptService.heartbeat(examAttemptId),
   });
 };

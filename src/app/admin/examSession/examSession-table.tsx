@@ -1,6 +1,5 @@
 import { ExamSessionStatus } from "@/constants/status.enum";
 import { useExamSessionChangeStatus } from "@/queries/useExamSessionQuery";
-import { ChangeExamSessionStatusBody } from "@/types/body";
 import { TeamOutlined, UserAddOutlined } from "@ant-design/icons";
 import { Button, Space, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -11,9 +10,9 @@ export default function ExamSessionTable({ data, loading, pagination }: any) {
     const { mutate: changeStatus } = useExamSessionChangeStatus();
     const router = useRouter();
 
-    const handleStatusUpdate = (id: string, newStatus: ChangeExamSessionStatusBody) => {
-        changeStatus({ id, data: { status: newStatus } });
-    };
+    // const handleStatusUpdate = (id: string, newStatus: ChangeExamSessionStatusBody) => {
+    //     changeStatus({ id, data: { status: newStatus } });
+    // };
 
     const columns: ColumnsType<any> = [
         {

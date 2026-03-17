@@ -39,14 +39,6 @@ export default function ExamSetTable({
 
   const columns: ColumnsType<ExamSet> = [
     {
-      title: "Mã bộ đề",
-      dataIndex: "examSetId",
-      key: "examSetId",
-      render: (text: string) => (
-        <span className="font-medium">{text}</span>
-      ),
-    },
-    {
       title: "Tên bộ đề",
       dataIndex: "name",
       key: "name",
@@ -58,6 +50,7 @@ export default function ExamSetTable({
       title: "Tên bộ môn",
       dataIndex: ["course", "name"],
       key: "courseName",
+      width: 650,
       render: (text: string) => (
         <span className="font-medium">{text || "Không xác định"}</span>
       ),
@@ -65,6 +58,7 @@ export default function ExamSetTable({
     {
       title: "Hành động",
       key: "action",
+      width: 300,
       render: (_, record) => (
         <Space>
           <Popconfirm

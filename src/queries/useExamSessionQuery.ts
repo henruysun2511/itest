@@ -18,26 +18,15 @@ export const useExamSessionList = (param: ExamSessionParam) => {
   });
 };
 
-<<<<<<< huytran
-export const useExamSessionSearch = (param: ExamSessionParam) => {
-  return useQuery({
-    queryKey: [...EXAM_SESSION_QUERY_KEY, "search", param],
-    queryFn: async () => {
-      const res = await ExamSessionService.search(param);
-      return res.data;
-    },
-    staleTime: 5 * 60 * 1000,
-=======
 export const useExamSessionDetail = (id: string) => {
   return useQuery({
     queryKey: [...EXAM_SESSION_QUERY_KEY, "detail", id],
     queryFn: async () => {
       const res = await ExamSessionService.getDetail(id);
-      return res.data; 
+      return res.data;
     },
-    enabled: !!id, 
-    staleTime: 1 * 60 * 1000, 
->>>>>>> main
+    enabled: !!id,
+    staleTime: 1 * 60 * 1000,
   });
 };
 
@@ -48,7 +37,7 @@ export const useMyExamSessions = (param?: ExamSessionParam) => {
       const res = await ExamSessionService.getMySessions(param);
       return res.data;
     },
-    staleTime: 5 * 60 * 1000, 
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -61,7 +50,7 @@ export const useTeacherExamSessions = (params: TeacherExamSessionParam) => {
     },
     enabled: !!params.courseId,
     placeholderData: (previousData) => previousData,
-    staleTime: 2 * 60 * 1000, 
+    staleTime: 2 * 60 * 1000,
   });
 };
 
@@ -91,7 +80,7 @@ export const useExamSessionCreateMany = () => {
 export const useExamSessionChangeStatus = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { status: ExamSessionStatus } }) => 
+    mutationFn: ({ id, data }: { id: string; data: { status: ExamSessionStatus } }) =>
       ExamSessionService.changeStatus(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
@@ -103,7 +92,7 @@ export const useExamSessionChangeStatus = () => {
 export const useExamSessionLock = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, isLocked }: { id: string; isLocked: boolean }) => 
+    mutationFn: ({ id, isLocked }: { id: string; isLocked: boolean }) =>
       ExamSessionService.setLockState(id, { isLocked }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
@@ -115,7 +104,7 @@ export const useExamSessionLock = () => {
 export const useExamSessionPause = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, isPaused }: { id: string; isPaused: boolean }) => 
+    mutationFn: ({ id, isPaused }: { id: string; isPaused: boolean }) =>
       ExamSessionService.setPauseState(id, { isPaused }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
@@ -136,7 +125,7 @@ export const useExamSessionClose = () => {
 // Vào phòng thi (Join)
 export const useExamSessionJoin = () => {
   return useMutation({
-    mutationFn: ({ id, file }: { id: string; file?: File }) => 
+    mutationFn: ({ id, file }: { id: string; file?: File }) =>
       ExamSessionService.join(id, file),
   });
 };

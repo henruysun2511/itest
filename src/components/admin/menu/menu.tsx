@@ -1,5 +1,4 @@
 import {
-    AppstoreAddOutlined,
     AuditOutlined,
     BankOutlined,
     BarChartOutlined,
@@ -15,7 +14,6 @@ import {
     SettingOutlined,
     SolutionOutlined,
     TeamOutlined,
-    UsergroupAddOutlined,
     UserOutlined
 } from '@ant-design/icons';
 import { Menu, MenuProps, Tooltip } from 'antd';
@@ -106,16 +104,16 @@ export default function AdminMenu() {
                     icon: <ScheduleOutlined />,
                     label: 'Ca thi',
                 },
-                {
-                    key: '/admin/examRegistration',
-                    icon: <AppstoreAddOutlined />, 
-                    label: 'Đăng ký thi sinh viên',
-                },
-                {
-                    key: '/admin/examSessionTeacher',
-                    icon: <UsergroupAddOutlined />, 
-                    label: 'Phân công coi thi',
-                },
+                // {
+                //     key: '/admin/examRegistration',
+                //     icon: <AppstoreAddOutlined />, 
+                //     label: 'Đăng ký thi sinh viên',
+                // },
+                // {
+                //     key: '/admin/examSessionTeacher',
+                //     icon: <UsergroupAddOutlined />, 
+                //     label: 'Phân công coi thi',
+                // },
                 {
                     key: '/admin/result',
                     icon: <BarChartOutlined />,

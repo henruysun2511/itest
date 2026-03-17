@@ -37,8 +37,7 @@ export const ExamService = {
     return http.put<ApiResponse<any>>(`/${prefix}/${id}`, payload);
   },
 
-  // Lấy chi tiết 1 exam (bổ sung thêm)
-  //   getById(id: string) {
-  //     return http.get<ApiResponse<Exam>>(`/${prefix}/${id}`);
-  //   }
+  getDetail(examId: string) {
+    return http.get<ApiResponse<Exam>>(`/${prefix}/${examId}/detail`);
+  },
 };

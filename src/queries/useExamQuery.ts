@@ -16,6 +16,19 @@ export const useExamByExamSet = (examSetId: string, params: ExamParam) => {
   });
 };
 
+export const useExamDetail = (examId: string) => {
+  return useQuery({
+    queryKey: [...EXAM_QUERY_KEY, "detail", examId],
+    queryFn: async () => {
+      const res = await ExamService.getDetail(examId);
+      return res.data;
+    },
+    enabled: !!examId,
+    staleTime: Infinity,
+    gcTime: 60 * 60 * 1000, 
+  });
+};
+
 export const useGetExamPdf = () => {
   return useMutation({
     mutationFn: (examId: string) => ExamService.getPdfUrl(examId),
