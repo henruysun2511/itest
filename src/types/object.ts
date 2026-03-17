@@ -61,6 +61,7 @@ interface ExamSession {
   isPaused: boolean;
   status: ExamSessionStatus;
   teacherIds?: string[];
+  teacherNames?: string[];
 }
 export type { ExamSession };
 

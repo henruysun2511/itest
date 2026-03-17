@@ -36,6 +36,7 @@ import {
     useExamSessionLock,
     useExamSessionPause
 } from "@/queries/useExamSessionQuery";
+import StudentListTab from '../student-list-tab';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -47,6 +48,7 @@ export default function ProctorDashboardPage() {
     // 1. Lấy thông tin ca thi hiện tại từ cache/API
     // Giả sử bạn dùng hook này để lấy data chi tiết (hoặc dùng useQuery riêng cho 1 session)
    const { data: currentSessionRes, isLoading } = useExamSessionDetail(examSessionId);
+   console.log(currentSessionRes)
    const currentSession = currentSessionRes?.data;
 
     // 2. Khai báo các Mutation Hooks
@@ -127,12 +129,7 @@ export default function ProctorDashboardPage() {
         </Card>
     );
 
-    const StudentListTab = () => (
-        <Card className="rounded-xl shadow-sm">
-            <Title level={4}>Danh sách thí sinh đăng ký trong ca</Title>
-            <Text type="secondary">Mã ca: {currentSession?.examSessionCode}</Text>
-        </Card>
-    );
+
 
     const tabItems = [
         {
@@ -148,7 +145,7 @@ export default function ProctorDashboardPage() {
         {
             key: '3',
             label: <span><UserOutlined />Danh sách thí sinh</span>,
-            children: <StudentListTab />,
+            children: <StudentListTab examSessionId={examSessionId} />,
         },
     ];
 
@@ -160,7 +157,7 @@ export default function ProctorDashboardPage() {
                         <Title level={4} className="!text-white !m-0">
                             <TeamOutlined className="mr-2" /> Ca thi: {currentSession?.examSessionCode || "..."}
                         </Title>
-                        <Text className="text-blue-200">Phòng: {currentSession?.room} • Giám thị: Quản trị viên</Text>
+                        <Text className="text-blue-200">Phòng: {currentSession?.room} • Giám thị: {currentSession?.teacherNames?.join(', ') || "Chưa phân công"}</Text>
                     </Col>
 
                     <Col span={16} className="text-right">

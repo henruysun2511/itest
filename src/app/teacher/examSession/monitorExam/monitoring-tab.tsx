@@ -1,7 +1,7 @@
 "use client";
 
 import { useExamAttemptList, useForceSubmitSelected, useGrantRetake, usePauseStudentAttempt } from "@/queries/useExamAttempt"; // Đường dẫn hook của bạn
-import { ExamAttemptStatus } from "@/types/enum";
+import { ExamAttemptStatus, FraudLevel } from "@/types/enum";
 import { ExamAttempt } from "@/types/object";
 import {
     CheckCircleOutlined,
@@ -101,7 +101,7 @@ export default function MonitoringTab({ examSessionId }: Props) {
 
 // Component con để render Card Thí sinh
 function StudentCard({ student, isWarning, actions }: { student: ExamAttempt, isWarning?: boolean, actions: any }) {
-    const isVio = student.warningCount > 3 || student.fraudLevel === 'HIGH';
+    const isVio = student.warningCount > 3 || student.fraudLevel === FraudLevel.HIGH;
 
     return (
         <Col xs={24} sm={12} md={8} lg={6}>
