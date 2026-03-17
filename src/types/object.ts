@@ -30,6 +30,7 @@ export type { Role };
 interface ExamSet extends BaseObject {
   examSetId: string;
   name: string;
+  course?: { name: string };
 }
 
 export type { ExamSet };
@@ -201,5 +202,14 @@ export interface Part {
 export interface ExamData {
   hasParts: boolean;
   parts: Part[];
+}
+
+export interface Fraud {
+  fraudDetailId: string;
+  examSessionCode: string;
+  fullName: string;
+  studentCode: string;
+  fraudType: string;
+  occurredAt: string;
 }
 

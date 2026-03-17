@@ -55,6 +55,14 @@ export default function ExamSetTable({
       ),
     },
     {
+      title: "Tên bộ môn",
+      dataIndex: ["course", "name"],
+      key: "courseName",
+      render: (text: string) => (
+        <span className="font-medium">{text || "Không xác định"}</span>
+      ),
+    },
+    {
       title: "Hành động",
       key: "action",
       render: (_, record) => (
