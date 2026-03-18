@@ -263,3 +263,24 @@ export interface Result {
   totalScore?: number;
 }
 
+export interface ScorePart {
+  score: number;
+  correct: number;
+  partIndex: number;
+  totalQuestions: number;
+}
+
+export interface ScoreDetail {
+  parts: ScorePart[];
+  percent: number;
+  maxScore: number;
+  totalScore: number;
+  totalCorrect: number;
+  totalQuestions: number;
+}
+
+export interface ResultDetail extends Result {
+  scoreDetail?: ScoreDetail;
+}
+
+

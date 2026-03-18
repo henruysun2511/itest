@@ -6,9 +6,10 @@ interface Props {
     data: Result[];
     loading?: boolean;
     pagination?: any;
+    onRowClick?: (record: Result) => void;
 }
 
-export default function ResultTable({ data, loading, pagination }: Props) {
+export default function ResultTable({ data, loading, pagination, onRowClick }: Props) {
     const columns: ColumnsType<Result> = [
         {
             title: "Mã phiên thi",
@@ -55,6 +56,12 @@ export default function ResultTable({ data, loading, pagination }: Props) {
             dataSource={data}
             loading={loading}
             pagination={pagination}
+            onRow={onRowClick ? (record) => {
+                return {
+                    onClick: () => onRowClick(record)
+                };
+            } : undefined}
+            rowClassName={onRowClick ? "cursor-pointer hover:bg-gray-50 transition-colors" : ""}
         />
     );
 }

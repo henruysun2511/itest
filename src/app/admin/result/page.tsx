@@ -5,6 +5,8 @@ import { Space } from "antd";
 import { useState } from "react";
 import { ResultFilter } from "./result-filter";
 import ResultTable from "./result-table";
+import { ResultDetailModal } from "./result-detail-modal";
+import { Result } from "@/types/object";
 
 export default function ResultPage() {
     const [params, setParams] = useState<ResultParam>({
@@ -16,6 +18,9 @@ export default function ResultPage() {
         maxTotalScore: undefined
     });
 
+    const [selectedResultId, setSelectedResultId] = useState<string>();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const { data, isLoading } = useResultList(params);
     
     const handleSearch = (val: string) => {
@@ -24,6 +29,11 @@ export default function ResultPage() {
 
     const handleFilterChange = (key: keyof ResultParam, value: any) => {
         setParams(p => ({ ...p, [key]: value, page: 1 }));
+    };
+
+    const handleRowClick = (record: Result) => {
+        setSelectedResultId(record.resultId);
+        setIsModalOpen(true);
     };
 
     return (
@@ -48,8 +58,15 @@ export default function ResultPage() {
                         onChange: (page: number, pageSize: number) =>
                             setParams((p) => ({ ...p, page, limit: pageSize })),
                     }}
+                    onRowClick={handleRowClick}
                 />
             </Space>
+
+            <ResultDetailModal
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                resultId={selectedResultId}
+            />
         </>
     );
 }

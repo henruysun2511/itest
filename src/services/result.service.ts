@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/types/body";
-import { Result } from "@/types/object";
+import { Result, ResultDetail } from "@/types/object";
 import { ResultParam } from "@/types/param";
 import http from "@/utils/http";
 
@@ -11,5 +11,8 @@ export const ResultService = {
             `/${prefix}/search`,
             { params }
         );
+    },
+    getDetail(id: string) {
+        return http.get<ApiResponse<ResultDetail>>(`/${prefix}/${id}`);
     },
 };
