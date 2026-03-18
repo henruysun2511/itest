@@ -33,7 +33,6 @@ export default function EditableExam({
       mediaPlaceholders: [],
       questionGroups: [],
       questions: [],
-      media: [],
       questionType: "mixed",
     };
 

@@ -14,6 +14,13 @@ export const ExamAttemptService = {
     );
   },
 
+  // GET: Lấy chi tiết lượt thi của chính tôi trong 1 ca thi
+  getMyAttempt(examSessionId: string) {
+    return http.get<ApiResponse<ExamAttempt>>(
+      `/${prefix}/exam-sessions/${examSessionId}/me`
+    );
+  },
+
   // POST: Lưu đáp án (trigger từ sv)
   saveAnswers(examSessionId: string, data: SaveAnswersBody) {
     return http.post<ApiResponse<any>>(`/${prefix}/save-answers/${examSessionId}`, data);

@@ -1,9 +1,9 @@
 import { useToast } from "@/hooks/useToast";
-import { useCreateExamTeacher } from "@/queries/useExamTeacherQuery";
+import { useCreateExamTeacher } from "@/queries/useExamSessionTeacherQuery";
 import { useTeacherList } from "@/queries/useTeacherQuery";
+import { Teacher } from "@/types/object";
 import { handleError } from "@/utils/error";
 import { Button, Form, Modal, Select } from "antd";
-import { useMemo } from "react";
 
 interface Props {
     open: boolean;
@@ -19,15 +19,6 @@ export function ExamSessionTeacherCreateModal({ open, onCancel, sessionId }: Pro
     const { data: teachersData, isLoading: isLoadingTeachers } = useTeacherList();
     console.log(teachersData);
 
-    const teacherOptions = useMemo(() => {
-        if (!teachersData?.data) return [];
-        return teachersData.data.map(teacher => ({
-            label: teacher.account?.profile?.fullName 
-                ? `${teacher.account.profile.fullName} (${teacher.teacherCode})`
-                : teacher.teacherCode,
-            value: teacher.teacherId,
-        }));
-    }, [teachersData]);
 
     const handleSubmit = (values: { teacherIds: string[] }) => {
         if (!values.teacherIds || values.teacherIds.length === 0) {
@@ -69,7 +60,10 @@ export function ExamSessionTeacherCreateModal({ open, onCancel, sessionId }: Pro
                         mode="multiple"
                         placeholder="Có thể chọn nhiều giám thị..."
                         style={{ width: '100%' }}
-                        options={teacherOptions}
+                        options={teachersData?.data?.map((teacher: Teacher) => ({
+                            value: teacher.teacherId,
+                            label: teacher.fullName,
+                        }))}
                         loading={isLoadingTeachers}
                         showSearch
                         optionFilterProp="label"

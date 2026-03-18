@@ -1,6 +1,6 @@
 import { ExamSessionStatus } from "@/constants/status.enum";
 import { ExamRegistrationStatusType, GenderType } from "@/constants/type.enum";
-import { AccountStatus } from "./enum";
+import { AccountStatus, FraudType, ProctoringHandleType } from "./enum";
 
 interface BaseObject {
   createdAt: string;
@@ -93,11 +93,7 @@ interface Teacher {
   accountId: string;
   teacherCode: string;
   departmentId: string | null;
-  account?: {
-    profile?: {
-      fullName: string | null;
-    };
-  };
+  fullName: string;
 }
 export type { Teacher };
 
@@ -192,9 +188,34 @@ interface TeacherCourse {
 }
 export type { TeacherCourse };
 
+interface ExamSessionHandling {
+  id: string;
+  studentId: string;
+  examSessionId: string;
+  examAttemptId: string;
+  reason: string;
+  type: ProctoringHandleType;
+  createdAt: string;
+  student: {
+    studentCode: string;
+  };
+  examSession: {
+    examSessionCode: string;
+  };
+}
+export type { ExamSessionHandling };
 
-
-
+interface FraudDetail {
+    fraudDetailId: string;
+    examAttemptId: string;
+    examSessionId: string;
+    examSessionCode: string;
+    fraudType: FraudType; 
+    occurredAt: string;
+    fullName: string;
+    studentCode: string;
+}
+export type { FraudDetail };
 
 
 
@@ -203,6 +224,8 @@ export type MediaType = "image" | "audio" | "video";
 export interface MediaPlaceholder {
   mediaType: MediaType;
   description: string;
+  url: string;       
+  publicId: string;
 }
 
 export interface Option {
@@ -216,14 +239,12 @@ export interface Question {
   questionType: string;
   options: Option[] | null;
   mediaPlaceholders: MediaPlaceholder[] | null;
-  media?: any[]; // Dùng để lưu file thực tế sau khi upload
 }
 
 export interface QuestionGroup {
   groupInstruction: string;
   questionIndices: number[];
   mediaPlaceholders: MediaPlaceholder[] | null;
-  media?: any[];
 }
 
 export interface Part {
@@ -235,7 +256,6 @@ export interface Part {
   mediaPlaceholders: MediaPlaceholder[];
   questionGroups: QuestionGroup[];
   questions: Question[];
-  media?: any[];
 }
 
 export interface ExamData {

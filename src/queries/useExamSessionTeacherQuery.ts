@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExamTeacherService } from "@/services/examTeacher.service";
+import { ExamTeacherService } from "@/services/examSesionTeacher.service";
 import { CreateExamSessionTeacherBody } from "@/types/body";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAM_TEACHER_QUERY_KEY = ["examTeachers"];
 

@@ -90,13 +90,13 @@ export default function VerifyFacePage() {
                         lastStepTimeRef.current = now;
                         setStep(1);
                         message.success("Đã nhận diện xoay trái ✓");
-                    } 
+                    }
                     // Step 1: Xoay PHẢI người dùng -> Mũi lệch về bên trái camera (diff âm)
                     else if (step === 1 && diff < -0.05) {
                         lastStepTimeRef.current = now;
                         setStep(2);
                         message.success("Đã nhận diện xoay phải ✓");
-                    } 
+                    }
                     // Step 2: Nhìn THẲNG
                     else if (step === 2 && Math.abs(diff) < 0.02) {
                         capturePhoto();
@@ -107,7 +107,7 @@ export default function VerifyFacePage() {
                 if (videoRef.current && active) {
                     videoRef.current.srcObject = stream;
                     setLoadingCamera(false);
-                    
+
                     const detect = async () => {
                         if (videoRef.current && faceMeshRef.current && active) {
                             await faceMeshRef.current.send({ image: videoRef.current });
@@ -172,7 +172,14 @@ export default function VerifyFacePage() {
         joinExam({ id: examSessionId, file: capturedFile }, {
             onSuccess: (res) => {
                 message.success("Tham gia ca thi thành công");
-                router.push(`/examSession/${examSessionId}`);
+                const examData = res.data.data;
+                const examId = examData.randomExamId;
+                const examAttemptId = examData.examAttemptId;
+                console.log(res.data.data);
+
+                router.push(
+                    `/student/examSession/takeExam/${examSessionId}?examId=${examId}&examAttemptId=${examAttemptId}`
+                );
             },
             onError: (error: any) => message.error(error?.response?.data?.message || "Lỗi tham gia ca thi")
         });
@@ -197,7 +204,7 @@ export default function VerifyFacePage() {
                         </div>
                     )}
                     <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
-                    
+
                     {!capturedFile && !loadingCamera && (
                         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                             <div className="w-[70%] h-[80%] border-2 border-dashed border-white/40 rounded-[120px] relative">

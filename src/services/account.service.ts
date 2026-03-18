@@ -56,7 +56,7 @@ export const AccountService = {
     // PATCH /accounts/change-status/{accountId} - Thay đổi trạng thái 
     changeStatus(id: string, status: AccountStatus) {
         return http.patch<ApiResponse<Account>>(
-            `/${prefix}/change-status/${id}`,
+            `/${prefix}/${id}/status`,
             { status } 
         );
     },

@@ -1,6 +1,6 @@
 import { ExamSessionStatus } from "@/constants/status.enum";
 import { GenderType } from "@/constants/type.enum";
-import { AccountStatus, FraudType } from "./enum";
+import { AccountStatus, FraudType, ProctoringHandleType } from "./enum";
 import { Pagination } from "./param";
 
 interface ApiResponse<T> {
@@ -177,10 +177,17 @@ interface RetakePermissionBody {
 }
 
 interface ReportFraudBody {
-  face?: string; 
   fraudType: FraudType;
-  examAttemptId: string;
-  occurredAt: string;
 } 
-export type { DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody, SaveAnswersBody, SaveDraftBody, SubmitExamBody };
+
+interface CreateProctoringHandleBody {
+  studentId: string;
+  examSessionId: string;
+  reason: string;
+  type: ProctoringHandleType;
+}
+export type {
+  CreateProctoringHandleBody, DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
+  SaveAnswersBody, SaveDraftBody, SubmitExamBody
+};
 

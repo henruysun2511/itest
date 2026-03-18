@@ -73,3 +73,10 @@ export enum QuestionType {
   FILL_IN_THE_BLANK = 'FILL_IN_THE_BLANK',
   ESSAY = 'ESSAY'
 } 
+
+export enum ProctoringHandleType {
+  WARNING = 'WARNING',
+  STOP_FOR_SESSION_TRANSFER = 'STOP_FOR_SESSION_TRANSFER',
+  REPRIMAND = 'REPRIMAND',
+  SUSPENSION = 'SUSPENSION'
+}

@@ -2,8 +2,10 @@
 
 import { ExamSessionSortBy, SortOrder } from "@/constants/sort.enum";
 import { ExamSessionStatus } from "@/constants/status.enum";
+import { useToast } from "@/hooks/useToast";
 import { useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
 import { ExamSessionParam } from "@/types/param";
+import { handleError } from "@/utils/error";
 import {
     BookOutlined,
     ClockCircleOutlined,
@@ -21,6 +23,7 @@ const { Title, Text } = Typography;
 
 export default function StudentExamHome() {
     const router = useRouter();
+    const toast = useToast();
     const [params, setParams] = useState<ExamSessionParam>({
         page: 1,
         limit: 9,
@@ -74,17 +77,19 @@ export default function StudentExamHome() {
                 { id: session.examSessionId },
                 {
                     onSuccess: (res) => {
-                        message.success("Vào phòng thi thành công!");
+                        message.success("Tham gia ca thi thành công!");
                         // Chuyển hướng sau khi API đã đăng ký tham gia thành công
-                        const examId = res.data.data.randomExamId;
+                        const examData = res.data.data;
+                        const examId = examData.randomExamId;
+                        const examAttemptId = examData.examAttemptId;
                         console.log(res.data.data);
 
-                        // Truyền examId lên URL để trang take-exam có thể lấy được
-                        router.push(`/student/examSession/takeExam/${session.examSessionId}?examId=${examId}`);
+                        router.push(
+                            `/student/examSession/takeExam/${session.examSessionId}?examId=${examId}&examAttemptId=${examAttemptId}`
+                        );
                     },
                     onError: (error: any) => {
-                        // Xử lý lỗi (ví dụ: ca thi đã kết thúc, hoặc sinh viên bị cấm)
-                        message.error(error?.response?.data?.message || "Không thể tham gia ca thi lúc này");
+                        handleError(error, toast)
                     }
                 }
             );

@@ -120,12 +120,26 @@ export default function CreateExam() {
 
     const buildPayload = (objectKey: string): ExamBody => {
         const values = form.getFieldsValue();
+
+        // Chuẩn hóa dữ liệu ngay trong quá trình build payload
+        const normalizedParts = (examState?.parts || []).map(part => ({
+            ...part,
+            // Chuyển loại của Part thành chữ hoa (nếu có)
+            questionType: part.questionType?.toUpperCase(),
+            questions: part.questions.map(q => ({
+                ...q,
+                // Chuyển loại của từng Câu hỏi thành chữ hoa
+                questionType: q.questionType?.toUpperCase()
+            }))
+        }));
+
         return {
             title: values.title,
             examCode: values.examCode,
             examSetId: values.examSetId,
             objectKey,
-            parsedJson: { parts: examState?.parts || [] },
+            // Sử dụng dữ liệu đã được chuẩn hóa ở trên
+            parsedJson: { parts: normalizedParts },
             answers: Object.entries(answersState).map(([questionNumber, value]: any) => ({
                 questionNumber: Number(questionNumber),
                 correctAnswer: value.correctAnswer,
