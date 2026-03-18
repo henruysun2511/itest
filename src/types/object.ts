@@ -252,3 +252,14 @@ export interface Fraud {
   occurredAt: string;
 }
 
+export interface Result {
+  resultId: string;
+  examSessionId: string;
+  examSessionCode: string;
+  studentId: string;
+  studentCode: string;
+  fullName: string;
+  status: string;
+  totalScore?: number;
+}
+

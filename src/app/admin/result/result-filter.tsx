@@ -1,18 +1,18 @@
-import { FraudParam } from "@/types/param";
+import { ResultParam } from "@/types/param";
 import { SearchOutlined } from "@ant-design/icons";
-import { Input, Select, Space, Typography } from "antd";
+import { Input, InputNumber, Select, Space, Typography } from "antd";
 import { useExamSessionList } from "@/queries/useExamSessionQuery";
 import { useState, useEffect } from "react";
 
 const { Text } = Typography;
 
-interface FraudFilterProps {
+interface ResultFilterProps {
     onSearch: (value: string) => void;
-    onFilterChange: (key: keyof FraudParam, value: any) => void;
-    params: FraudParam;
+    onFilterChange: (key: keyof ResultParam, value: any) => void;
+    params: ResultParam;
 }
 
-export function FraudFilter({ onSearch, onFilterChange, params }: FraudFilterProps) {
+export function ResultFilter({ onSearch, onFilterChange, params }: ResultFilterProps) {
     const [examSessionSearchTerm, setExamSessionSearchTerm] = useState("");
     const [debouncedExamSessionCode, setDebouncedExamSessionCode] = useState("");
 
@@ -62,6 +62,27 @@ export function FraudFilter({ onSearch, onFilterChange, params }: FraudFilterPro
                             label: session.examSessionCode,
                             value: session.examSessionId
                         }))}
+                    />
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <Text strong>Khoảng điểm:</Text>
+                    <InputNumber
+                        placeholder="Từ"
+                        min={0}
+                        max={100}
+                        value={params.minTotalScore}
+                        onChange={(val) => onFilterChange("minTotalScore", val)}
+                        style={{ width: 100 }}
+                    />
+                    <Text>-</Text>
+                    <InputNumber
+                        placeholder="Đến"
+                        min={0}
+                        max={100}
+                        value={params.maxTotalScore}
+                        onChange={(val) => onFilterChange("maxTotalScore", val)}
+                        style={{ width: 100 }}
                     />
                 </div>
             </Space>

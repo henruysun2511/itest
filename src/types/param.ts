@@ -61,6 +61,13 @@ interface FraudParam extends Pagination {
   studentCode?: string;
 }
 
+interface ResultParam extends Pagination {
+  studentCode?: string;
+  examSessionId?: string;
+  minTotalScore?: number;
+  maxTotalScore?: number;
+}
+
 interface ExamAttemptParam extends Pagination {
   status?: ExamAttemptStatus;
   fraudLevel?: FraudLevel;
@@ -85,6 +92,6 @@ interface TeacherExamSessionParam extends Pagination{
 
 export type {
   AccountParam, CourseParam, ExamAttemptParam, ExamParam, ExamRegistrationParam, ExamSessionParam,
-  ExamSetParam, RoleParam,TeacherExamSessionParam, StudentParam, FraudParam
+  ExamSetParam, RoleParam,TeacherExamSessionParam, StudentParam, FraudParam, ResultParam
 };
 
