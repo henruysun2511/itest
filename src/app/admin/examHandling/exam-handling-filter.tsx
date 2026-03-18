@@ -1,4 +1,4 @@
-import { FraudParam } from "@/types/param";
+import { ExamSessionHandlingParam } from "@/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Typography } from "antd";
 import { useExamSessionList } from "@/queries/useExamSessionQuery";
@@ -6,13 +6,13 @@ import { useState, useEffect } from "react";
 
 const { Text } = Typography;
 
-interface FraudFilterProps {
+interface ExamHandlingFilterProps {
     onSearch: (value: string) => void;
-    onFilterChange: (key: keyof FraudParam, value: any) => void;
-    params: FraudParam;
+    onFilterChange: (key: keyof ExamSessionHandlingParam, value: any) => void;
+    params: ExamSessionHandlingParam;
 }
 
-export function FraudFilter({ onSearch, onFilterChange, params }: FraudFilterProps) {
+export function ExamHandlingFilter({ onSearch, onFilterChange, params }: ExamHandlingFilterProps) {
     const [examSessionSearchTerm, setExamSessionSearchTerm] = useState("");
     const [debouncedExamSessionCode, setDebouncedExamSessionCode] = useState("");
 

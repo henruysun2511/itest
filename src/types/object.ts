@@ -243,13 +243,18 @@ export interface ExamData {
   parts: Part[];
 }
 
-export interface Fraud {
-  fraudDetailId: string;
-  examSessionCode: string;
-  fullName: string;
+export interface ExamSessionHandling {
+  examSessionHandlingId: string;
+  reason: string;
+  studentId: string;
   studentCode: string;
-  fraudType: string;
-  occurredAt: string;
+  fullName?: string;
+  examSessionId: string;
+  examSessionCode: string;
+  teacherId: string;
+  teacherName: string;
+  createdAt: string;
+  type: string;
 }
 
 export interface Result {

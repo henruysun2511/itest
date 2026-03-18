@@ -56,7 +56,7 @@ interface ExamRegistrationParam extends Pagination {
   status?: ExamRegistrationStatusType;
 }
 
-interface FraudParam extends Pagination {
+interface ExamSessionHandlingParam extends Pagination {
   examSessionId?: string;
   studentCode?: string;
 }
@@ -92,6 +92,6 @@ interface TeacherExamSessionParam extends Pagination{
 
 export type {
   AccountParam, CourseParam, ExamAttemptParam, ExamParam, ExamRegistrationParam, ExamSessionParam,
-  ExamSetParam, RoleParam,TeacherExamSessionParam, StudentParam, FraudParam, ResultParam
+  ExamSetParam, RoleParam,TeacherExamSessionParam, StudentParam, ExamSessionHandlingParam, ResultParam
 };
 
