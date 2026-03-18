@@ -22,6 +22,19 @@ export const useExamAttemptList = (examSessionId: string, params?: ExamAttemptPa
   });
 };
 
+export const useMyExamAttempt = (examSessionId: string) => {
+  return useQuery({
+    queryKey: [...EXAM_ATTEMPT_KEY, "session", examSessionId, "me"],
+    queryFn: async () => {
+      const res = await ExamAttemptService.getMyAttempt(examSessionId);
+      return res.data;
+    },
+    enabled: !!examSessionId,
+    retry: 1,
+  });
+};
+
+
 // Hook tạm dừng thí sinh
 export const usePauseStudentAttempt = () => {
   const qc = useQueryClient();

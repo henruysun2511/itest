@@ -2,7 +2,7 @@ import { ExamRegistrationStatusType } from '@/constants/type.enum';
 import { useRegistrationList, useRemoveRegistration } from '@/queries/useExamRegistrationQuery';
 import { ExamRegistration } from '@/types/object';
 import { DeleteOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Card, message, Modal, Table, Tag, Typography } from 'antd';
+import { Button, Card, message, Modal, Table, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 
@@ -90,13 +90,17 @@ export default function StudentListTab({ examSessionId }: StudentListTabProps) {
             width: 100,
             align: 'center',
             render: (_, record) => (
-                <Button
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDelete(record)}
-                    loading={removeMutation.isPending && removeMutation.variables === record.studentId}
-                />
+                <Tooltip title="Xóa khỏi ca thi">
+                    <Button
+                        type="text"
+                        danger
+                        className='text-white'
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDelete(record)}
+                        loading={removeMutation.isPending && removeMutation.variables === record.studentId}
+                    />
+                </Tooltip>
+
             ),
         },
     ];

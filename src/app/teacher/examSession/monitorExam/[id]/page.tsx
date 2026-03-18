@@ -7,7 +7,8 @@ import {
     PlayCircleOutlined, StopOutlined, TeamOutlined,
     ThunderboltOutlined,
     UnlockOutlined,
-    UserOutlined
+    UserOutlined,
+    WarningOutlined
 } from '@ant-design/icons';
 import {
     Badge,
@@ -25,7 +26,7 @@ import {
     message
 } from 'antd';
 import { useParams } from 'next/navigation';
-import MonitoringTab from '../../(tabs)/monitoring-tab';
+import MonitoringTab from '../(components)/monitoring-tab';
 
 // Import Hooks của bạn
 import { ExamSessionStatus } from '@/constants/status.enum';
@@ -36,7 +37,9 @@ import {
     useExamSessionLock,
     useExamSessionPause
 } from "@/queries/useExamSessionQuery";
-import StudentListTab from '../../(tabs)/student-list-tab';
+import FraudLogTab from '../(components)/fraud-log-tab';
+import MonitoringTableTab from '../(components)/monitoring-table-tab';
+import StudentListTab from '../(components)/student-list-tab';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -46,9 +49,9 @@ export default function ProctorDashboardPage() {
 
 
     // 1. Lấy thông tin ca thi hiện tại từ cache/API
-   const { data: currentSessionRes, isLoading } = useExamSessionDetail(examSessionId);
-   console.log(currentSessionRes)
-   const currentSession = currentSessionRes?.data;
+    const { data: currentSessionRes, isLoading } = useExamSessionDetail(examSessionId);
+    console.log(currentSessionRes)
+    const currentSession = currentSessionRes?.data;
 
     // 2. Khai báo các Mutation Hooks
     const lockMutation = useExamSessionLock();
@@ -129,7 +132,6 @@ export default function ProctorDashboardPage() {
     );
 
 
-
     const tabItems = [
         {
             key: '1',
@@ -138,13 +140,23 @@ export default function ProctorDashboardPage() {
         },
         {
             key: '2',
-            label: <span><FileTextOutlined />Đề thi</span>,
-            children: <ExamContentTab />,
+            label: <span><FileTextOutlined /> Danh sách chi tiết (Table)</span>,
+            children: <MonitoringTableTab examSessionId={examSessionId} />,
         },
         {
             key: '3',
+            label: <span><WarningOutlined /> Nhật ký vi phạm</span>,
+            children: <FraudLogTab examSessionId={examSessionId} />,
+        },
+        {
+            key: '4',
             label: <span><UserOutlined />Danh sách thí sinh</span>,
             children: <StudentListTab examSessionId={examSessionId} />,
+        },
+        {
+            key: '5',
+            label: <span><FileTextOutlined />Đề thi</span>,
+            children: <ExamContentTab />,
         },
     ];
 

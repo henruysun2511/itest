@@ -6,9 +6,9 @@ import { ArrowLeftOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { Button, Card, Space, Typography } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { RegistrationBulkModal } from "./examRegistration-bulk-modal";
-import { RegistrationFilter } from "./examRegistration-filter";
-import RegistrationTable from "./examRegistration-table";
+import { RegistrationBulkModal } from "../examRegistration-bulk-modal";
+import { RegistrationFilter } from "../examRegistration-filter";
+import RegistrationTable from "../examRegistration-table";
 
 const { Text } = Typography;
 

@@ -3,30 +3,30 @@
 import { useHeartbeat, useReportFraud, useSaveDraft } from '@/queries/useExamAttemptQuery';
 import { useExamDetail } from '@/queries/useExamQuery';
 import { useExamSessionDetail } from '@/queries/useExamSessionQuery';
-import { FraudType } from '@/types/enum';
+import { SaveDraftBody } from '@/types/body';
+import { FraudType, QuestionType } from '@/types/enum';
 import { Button, Card, Col, message, Result, Row, Spin, Statistic, Tabs, Tag } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
-import ExamMonitor from '../(questionRender)/exam-monitor';
-import { StudentQuestion } from '../(questionRender)/student-question';
+import ExamMonitor from '../(components)/exam-monitor';
+import { RenderMediaList } from '../(components)/media-render';
+import { StudentQuestion } from '../(components)/student-question';
 
 export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = React.use(params);
     const examSessionId = resolvedParams.id;
     const searchParams = useSearchParams();
     const examId = searchParams.get("examId");
+    const examAttemptId = searchParams.get("examAttemptId");
 
     // 1. Fetch Data
     const { data: examDetailRes, isLoading: isExamLoading, error: examError } = useExamDetail(examId as string);
-
     const { data: examSessionRes, isLoading: isExamSessionLoading } = useExamSessionDetail(examSessionId);
-    console.log(examSessionRes)
-
     // Lấy dữ liệu từ cấu trúc parsedJson 
     const examData = examDetailRes?.data?.parsedJson;
     console.log(examData)
     // Giả định API Join/Detail trả về ID của lượt thi để gọi Draft/Heartbeat
-    const examAttemptId = examDetailRes?.data?.examAttemptId || "";
+
 
     // 2. State quản lý câu trả lời
     const [userAnswers, setUserAnswers] = useState<any[]>([]);
@@ -57,12 +57,19 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const { mutate: heartbeat } = useHeartbeat();
 
     useEffect(() => {
-        if (!examAttemptId || userAnswers.length === 0) return;
+        if (!examAttemptId || Object.keys(userAnswers).length === 0) return;
         const timer = setInterval(() => {
-            saveDraft({ examAttemptId, data: { answers: userAnswers } });
+            const payload: SaveDraftBody = {
+                examSessionId: examSessionId,
+                changes: Object.entries(userAnswers).map(([qId, val]) => ({
+                    questionId: qId,
+                    answer: val
+                }))
+            };
+            saveDraft(payload);
         }, 10000);
         return () => clearInterval(timer);
-    }, [userAnswers, examAttemptId]);
+    }, [userAnswers, examAttemptId, examSessionId]);
 
     useEffect(() => {
         if (!examAttemptId) return;
@@ -76,72 +83,55 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     //Xử lý vi phạm
     const { mutate: reportFraud } = useReportFraud();
 
-    // useEffect(() => {
-    //     const handleVisibilityChange = () => {
-    //         if (document.visibilityState === 'hidden') {
-    //             // Trường hợp chuyển Tab
-    //             reportFraud({
-    //                 examAttemptId,
-    //                 data: {
-    //                     examAttemptId,
-    //                     fraudType: FraudType.TAB_SWITCHING,
-    //                     occurredAt: new Date().toISOString(),
-    //                 }
-    //             });
-    //             message.warning("Cảnh báo: Bạn vừa rời khỏi trang thi!");
-    //         }
-    //     };
+    useEffect(() => {
+        // Hàm helper để gửi báo cáo vi phạm nhanh
+        const sendFraudReport = (type: FraudType, warningMsg: string) => {
+            if (!examAttemptId) return;
 
-    //     const handleWindowBlur = () => {
-    //         reportFraud({
-    //             examAttemptId,
-    //             data: {
-    //                 examAttemptId,
-    //                 fraudType: FraudType.WINDOW_BLUR,
-    //                 occurredAt: new Date().toISOString(),
-    //             }
-    //         });
-    //         message.warning("Cảnh báo: Không được rời khỏi cửa sổ làm bài!");
-    //     };
+            reportFraud({
+                examAttemptId,
+                data: { fraudType: type } // Chỉ truyền fraudType theo yêu cầu
+            });
 
-    //     // Đăng ký sự kiện
-    //     document.addEventListener('visibilitychange', handleVisibilityChange);
-    //     window.addEventListener('blur', handleWindowBlur);
+            if (warningMsg) {
+                message.warning(warningMsg);
+            }
+        };
 
-    //     return () => {
-    //         // Hủy đăng ký khi thoát trang
-    //         document.removeEventListener('visibilitychange', handleVisibilityChange);
-    //         window.removeEventListener('blur', handleWindowBlur);
-    //     };
-    // }, [examAttemptId]);
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                sendFraudReport(FraudType.TAB_SWITCHING, "Cảnh báo: Bạn vừa rời khỏi trang thi!");
+            }
+        };
 
-    // useEffect(() => {
-    //     const handleOffline = () => {
-    //         reportFraud({
-    //             examAttemptId,
-    //             data: {
-    //                 examAttemptId,
-    //                 fraudType: FraudType.NETWORK_DISRUPTION,
-    //                 occurredAt: new Date().toISOString(),
-    //             }
-    //         });
-    //     };
+        const handleWindowBlur = () => {
+            sendFraudReport(FraudType.WINDOW_BLUR, "Cảnh báo: Không được rời khỏi cửa sổ làm bài!");
+        };
 
-    //     window.addEventListener('offline', handleOffline);
-    //     return () => window.removeEventListener('offline', handleOffline);
-    // }, [examAttemptId]);
+        const handleOffline = () => {
+            sendFraudReport(FraudType.NETWORK_DISRUPTION, "Cảnh báo: Kết nối mạng bị gián đoạn!");
+        };
 
-    const handleViolationDetected = (type: FraudType, faceData?: string) => {
+        // Đăng ký tất cả các sự kiện giám sát
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('blur', handleWindowBlur);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            // Hủy đăng ký tất cả
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('blur', handleWindowBlur);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, [examAttemptId, reportFraud]); // Thêm các dependency cần thiết
+
+    // Hàm dùng cho các component con (ví dụ: phát hiện khuôn mặt từ ExamMonitor)
+    const handleViolationDetected = (type: FraudType) => {
         if (!examAttemptId) return;
 
         reportFraud({
             examAttemptId,
-            data: {
-                examAttemptId,
-                fraudType: type,
-                occurredAt: new Date().toISOString(),
-                face: faceData // Ảnh bằng chứng dạng base64
-            }
+            data: { fraudType: type }
         });
     };
 
@@ -172,8 +162,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             fullQuestionsList.push(...combined);
 
             // Tách câu hỏi tự luận ra
-            const nonEssay = combined.filter(q => q.questionType !== "essay");
-            const essays = combined.filter(q => q.questionType === "essay");
+            const nonEssay = combined.filter(q => q.questionType !== QuestionType.ESSAY);
+            const essays = combined.filter(q => q.questionType === QuestionType.ESSAY);
 
             allEssayQuestions.push(...essays);
 
@@ -192,6 +182,11 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                     {part.partDescription && (
                         <div className="mb-6 p-4 bg-blue-50 rounded-2xl border border-blue-100 text-blue-800 italic">
                             <div dangerouslySetInnerHTML={{ __html: part.partDescription }} />
+                        </div>
+                    )}
+                    {part.mediaPlaceholders && (
+                        <div className="mb-6 p-4 rounded-2xl">
+                            <RenderMediaList mediaList={part.mediaPlaceholders} />
                         </div>
                     )}
                     {part.nonEssayQuestions.length > 0 ? (
@@ -254,7 +249,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                     />
                 )}
 
-               <Row gutter={24}>
+                <Row gutter={24}>
                     <Col span={17}>
                         <div className="mb-6 flex items-center justify-between">
                             <div>
@@ -310,16 +305,24 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                             >
                                 <div className="grid grid-cols-6 gap-3 mb-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                     {allQuestions.map((q) => {
-                                        const isAnswered = userAnswers.some(a => a.questionId === q.questionIndex.toString() && a.answer);
+                                        // Tìm câu trả lời tương ứng
+                                        const userAnswer = userAnswers.find(a => a.questionId === q.questionIndex.toString());
+
+                                        // Kiểm tra câu trả lời có "thực sự" tồn tại không
+                                        const isAnswered = userAnswer && (
+                                            // Nếu là mảng (Multiple Choice), phải có ít nhất 1 phần tử
+                                            (Array.isArray(userAnswer.answer) && userAnswer.answer.length > 0) ||
+                                            // Nếu là chuỗi hoặc số, không được rỗng/null/undefined
+                                            (typeof userAnswer.answer !== 'object' && userAnswer.answer !== "" && userAnswer.answer != null)
+                                        );
+
                                         return (
                                             <button
                                                 key={q.questionIndex}
-                                                className={`
-                                                    aspect-square flex items-center justify-center rounded-xl text-sm font-bold transition-all
-                                                    ${isAnswered
+                                                className={`aspect-square flex items-center justify-center rounded-xl text-sm font-bold transition-all
+                                                  ${isAnswered
                                                         ? 'bg-[var(--color-primary)] text-white shadow-md shadow-[rgba(44,44,112,0.2)]'
-                                                        : 'bg-slate-50 text-slate-400 border border-slate-200 hover:border-[var(--color-accent)]'}
-                                                `}
+                                                        : 'bg-slate-50 text-slate-400 border border-slate-200 hover:border-[var(--color-accent)]'}`}
                                             >
                                                 {q.questionIndex}
                                             </button>

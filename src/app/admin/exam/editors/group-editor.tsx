@@ -1,36 +1,40 @@
 import { useDeleteFileCloudinary } from "@/queries/useCloudinaryQuery";
-import { QuestionGroup } from "@/types/object";
-import { PaperClipOutlined, TagsOutlined } from "@ant-design/icons";
-import { Input, Tag, message } from "antd";
+import { MediaPlaceholder, QuestionGroup } from "@/types/object";
+import { TagsOutlined } from "@ant-design/icons";
+import { Input, message } from "antd";
+import { renderMediaContent } from "./media-render";
 import MediaUploader from "./media-uploader";
 
 interface Props {
     group: QuestionGroup;
     onChange: (g: QuestionGroup) => void;
-    uploadHook: any; 
+    uploadHook: any;
 }
 
 export default function GroupEditor({ group, onChange, uploadHook }: Props) {
     const deleteMedia = useDeleteFileCloudinary();
 
-    const handleRemoveMedia = async (mediaItem: any) => {
+    const handleRemoveMedia = async (mIndex: number, placeholder: MediaPlaceholder) => {
         try {
-            await deleteMedia.mutateAsync({
-                publicId: mediaItem.publicId,
-                resourceType: mediaItem.resourceType,
-            });
-            const updatedMedia = group.media?.filter((m) => m.publicId !== mediaItem.publicId);
-            onChange({ ...group, media: updatedMedia });
-            message.success("Xóa media nhóm thành công");
+            if (placeholder.publicId) {
+                await deleteMedia.mutateAsync({
+                    publicId: placeholder.publicId,
+                    resourceType: placeholder.mediaType === 'audio' ? 'video' : 'image',
+                });
+            }
+            const updated = group.mediaPlaceholders?.filter((_, i) => i !== mIndex);
+            onChange({ ...group, mediaPlaceholders: updated || [] });
+            message.success("Xóa thành công");
         } catch (error) {
-            message.error("Lỗi khi xóa file");
+            console.error(error);
+            message.error("Lỗi xóa file");
         }
     };
-
+    
     return (
         <div className="bg-white border-2 border-orange-100 rounded-xl p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4 text-orange-600 font-bold uppercase text-xs tracking-wider">
-                <TagsOutlined /> 
+                <TagsOutlined />
                 <span>Nhóm câu: {group.questionIndices?.join(", ")}</span>
             </div>
 
@@ -43,33 +47,27 @@ export default function GroupEditor({ group, onChange, uploadHook }: Props) {
             />
 
             <div className="flex flex-col gap-3 pt-3 border-t border-orange-50">
-                <div className="flex flex-wrap gap-2">
-                    {group.media?.map((m) => (
-                        <Tag
-                            key={m.publicId}
-                            closable
-                            onClose={(e) => {
-                                e.preventDefault();
-                                handleRemoveMedia(m);
-                            }}
-                            className="flex items-center gap-1 px-3 py-1 rounded-full border-orange-200 bg-orange-50 text-orange-700 font-medium"
-                        >
-                            <PaperClipOutlined /> {m.resourceType === 'image' ? 'Ảnh' : 'Audio'}: {m.publicId.slice(-8)}
-                        </Tag>
-                    ))}
+                <div className="flex flex-wrap gap-3">
+                    {group.mediaPlaceholders?.map((p, pIndex) => 
+                        renderMediaContent(p, () => handleRemoveMedia(pIndex, p))
+                    )}
                 </div>
 
-                <div className="max-w-xs">
-                    <MediaUploader
-                        uploadMutation={uploadHook}
-                        onUploadSuccess={(newMedia) =>
-                            onChange({
-                                ...group,
-                                media: [...(group.media || []), newMedia],
-                            })
-                        }
-                    />
-                </div>
+                <MediaUploader
+                    uploadMutation={uploadHook}
+                    onUploadSuccess={(newMedia) => {
+                        const newP: MediaPlaceholder = {
+                            mediaType: newMedia.resourceType === 'video' ? 'audio' : 'image',
+                            description: "Group file",
+                            url: newMedia.url,
+                            publicId: newMedia.publicId
+                        };
+                        onChange({
+                            ...group,
+                            mediaPlaceholders: [...(group.mediaPlaceholders || []), newP]
+                        });
+                    }}
+                />
             </div>
         </div>
     );

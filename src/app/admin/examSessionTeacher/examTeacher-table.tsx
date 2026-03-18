@@ -1,5 +1,5 @@
 import { useToast } from "@/hooks/useToast";
-import { useRemoveExamTeacher } from "@/queries/useExamTeacherQuery";
+import { useRemoveExamTeacher } from "@/queries/useExamSessionTeacherQuery";
 import { ExamSessionTeacher } from "@/types/object";
 import { DeleteOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Popconfirm, Space, Table, Tooltip, Typography } from "antd";

@@ -1,5 +1,5 @@
 import { useDeleteFileCloudinary } from "@/queries/useCloudinaryQuery";
-import { Part } from "@/types/object";
+import { MediaPlaceholder, Part } from "@/types/object";
 import { BookOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Button, Input, message } from "antd";
 import GroupEditor from "./group-editor";
@@ -36,17 +36,19 @@ export default function PartEditor({
         updatePart(partIndex, { ...part, questionGroups: newGroups });
     };
 
-    const handleRemoveMediaForPart = async (mediaItem: any) => {
+    const handleRemoveMediaForPart = async (mIndex: number, placeholder: MediaPlaceholder) => {
         try {
-            await deleteMedia.mutateAsync({
-                publicId: mediaItem.publicId,
-                resourceType: mediaItem.resourceType,
-            });
-            const updatedMedia = part.media?.filter(m => m.publicId !== mediaItem.publicId);
-            updatePart(partIndex, { ...part, media: updatedMedia });
-            message.success("Xóa file media của Part thành công");
+            if (placeholder.publicId) {
+                await deleteMedia.mutateAsync({
+                    publicId: placeholder.publicId,
+                    resourceType: placeholder.mediaType === 'audio' ? 'video' : 'image',
+                });
+            }
+            const updated = part.mediaPlaceholders?.filter((_, i) => i !== mIndex);
+            updatePart(partIndex, { ...part, mediaPlaceholders: updated });
+            message.success("Xóa thành công");
         } catch (error) {
-            message.error("Lỗi khi xóa file trên Cloudinary");
+            message.error("Lỗi xóa file");
         }
     };
 
@@ -96,20 +98,27 @@ export default function PartEditor({
                 {/* Part Media */}
                 <div className="p-4 bg-[var(--color-bg-main)] rounded-xl border border-dashed border-slate-300 mb-8">
                     <div className="mb-3 font-medium text-[var(--color-navy-main)]">Media của Part (Audio/Hình ảnh chung)</div>
-                    <MediaUploader
-                        uploadMutation={uploadHook}
-                        onUploadSuccess={(newMedia) =>
-                            updatePart(partIndex, {
-                                ...part,
-                                media: [...(part.media || []), newMedia],
-                            })
-                        }
-                    />
-                    <div className="mt-4 flex flex-wrap gap-3">
-                        {part.media?.map((m) =>
-                            renderMediaContent(m, () => handleRemoveMediaForPart(m))
+                    <div className="flex flex-wrap gap-3 mb-4">
+                        {part.mediaPlaceholders?.filter(p => p.url).map((p, mIndex) =>
+                            renderMediaContent(p, () => handleRemoveMediaForPart(mIndex, p))
                         )}
                     </div>
+
+                    <MediaUploader
+                        uploadMutation={uploadHook}
+                        onUploadSuccess={(mediaData) => {
+                            const newP: MediaPlaceholder = {
+                                mediaType: mediaData.resourceType === 'video' ? 'audio' : 'image',
+                                description: "Part media",
+                                url: mediaData.url,
+                                publicId: mediaData.publicId
+                            };
+                            updatePart(partIndex, {
+                                ...part,
+                                mediaPlaceholders: [...(part.mediaPlaceholders || []), newP]
+                            });
+                        }}
+                    />
                 </div>
 
                 {/* Groups Section */}
