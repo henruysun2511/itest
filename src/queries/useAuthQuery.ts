@@ -33,7 +33,7 @@ export function useLogin() {
         onSuccess: (res) => {
             const { accessToken } = res.data.data;
             const decoded = jwtDecode(accessToken) as UserJwtDecode;
-            console.log(decoded)
+            
             const expires = new Date(new Date().getTime() + 30 * 60 * 1000);
 
             Cookies.set("accessToken", accessToken, {
@@ -46,6 +46,9 @@ export function useLogin() {
                 accountId: decoded.sub,
                 roleName: decoded.roleName,
             }, accessToken);
+
+            // Trả về decoded để component xử lý điều hướng
+            return decoded;
         },
     });
 }
