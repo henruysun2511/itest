@@ -1,10 +1,9 @@
 "use client";
 import { useToast } from "@/hooks/useToast";
 import { useUpdateAccountPassword } from "@/queries/useAccountQuery";
-import { useLogoutDevices } from "@/queries/useAuthQuery";
 import { handleError } from "@/shares/utils/error";
 import { CheckCircleOutlined, LockOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, Modal, Typography } from "antd";
+import { Button, Card, Form, Input, Typography } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -24,7 +23,6 @@ export default function UpdatePasswordPage() {
     }, [router]);
 
     const { mutate: updatePassword, isPending: isUpdating } = useUpdateAccountPassword();
-    const { mutate: logoutAllDevices, isPending: isLoggingOut } = useLogoutDevices();
 
     const onFinish = (values: any) => {
         const payload = {
@@ -34,28 +32,14 @@ export default function UpdatePasswordPage() {
 
         updatePassword(payload, {
             onSuccess: () => {
-                // Xóa flag thiết lập lần đầu
+                // 1. Xóa flag thiết lập lần đầu
                 sessionStorage.removeItem("first_login_setup");
 
-                // Hiển thị Confirm sau khi đổi mật khẩu thành công
-                Modal.confirm({
-                    title: 'Thiết lập mật khẩu thành công!',
-                    icon: <CheckCircleOutlined className="text-green-500" />,
-                    content: 'Bạn có muốn đăng xuất tài khoản này khỏi tất cả các thiết bị khác để đảm bảo bảo mật không?',
-                    okText: 'Có, đăng xuất tất cả',
-                    cancelText: 'Để sau',
-                    okButtonProps: {
-                        danger: true,
-                        loading: isLoggingOut
-                    },
-                    onOk: () => {
-                        logoutAllDevices();
-                    },
-                    onCancel: () => {
-                        toast.success("Chào mừng bạn quay lại!");
-                        router.push("/student");
-                    },
-                });
+                // 2. Thông báo thành công
+                toast.success("Thiết lập mật khẩu thành công! Chào mừng bạn.");
+
+                // 3. Điều hướng thẳng về trang student
+                router.push("/student");
             },
             onError: (error: any) => {
                 handleError(error, toast);
@@ -74,7 +58,7 @@ export default function UpdatePasswordPage() {
                         Thiết lập mật khẩu
                     </Title>
                     <Text className="text-slate-500 block px-6">
-                        Chào mừng bạn! Vui lòng thiết lập mật khẩu cho tài khoản Google của bạn để hoàn tất đăng ký.
+                        Vui lòng thiết lập mật khẩu để hoàn tất quy trình đăng ký tài khoản.
                     </Text>
                 </div>
 
@@ -134,8 +118,6 @@ export default function UpdatePasswordPage() {
                         </Button>
                     </Form.Item>
                 </Form>
-
-            
             </Card>
         </div>
     );

@@ -1,5 +1,5 @@
 import { AccountStatus } from "@/shares/constants/status.enum";
-import { ApiResponse, BulkAccountBody } from "@/shares/types/body";
+import { ApiResponse, BulkAccountBody, ChangePasswordBody, UpdateStudentPasswordBody } from "@/shares/types/body";
 import { Account } from "@/shares/types/object";
 import { AccountParam } from "@/shares/types/param";
 import http from "@/shares/utils/http";
@@ -39,9 +39,17 @@ export const AccountService = {
     },
 
     // PATCH /accounts/change-password - Đổi mật khẩu
-    changePassword(payload: any) {
+    changePassword(payload: ChangePasswordBody) {
         return http.patch<ApiResponse<null>>(
             `/${prefix}/change-password`,
+            payload
+        );
+    },
+
+    // PATCH /accounts/{examSessionId}/password - Cập nhật mật khẩu sinh viên trong session
+    updateStudentPassword(examSessionId: string, payload: UpdateStudentPasswordBody) {
+        return http.patch<ApiResponse<null>>(
+            `/${prefix}/${examSessionId}/password`,
             payload
         );
     },

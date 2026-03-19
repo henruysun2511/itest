@@ -38,7 +38,6 @@ export default function LoginPage() {
     };
 
     return (
-
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
             <div className="flex flex-col items-center mb-6">
                 <Image

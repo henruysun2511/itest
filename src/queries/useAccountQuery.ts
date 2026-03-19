@@ -1,6 +1,6 @@
 import { AccountService } from "@/services/account.service";
 import { AccountStatus } from "@/shares/constants/status.enum";
-import { ApiResponse } from "@/shares/types/body";
+import { ApiResponse, ChangePasswordBody, UpdateStudentPasswordBody } from "@/shares/types/body";
 import { Account } from "@/shares/types/object";
 import { AccountParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -66,5 +66,29 @@ export const useChangeAccountStatus = () => {
 export const useUpdateAccountPassword = () => {
     return useMutation({
         mutationFn: AccountService.updatePassword,
+    });
+};
+
+
+export const useChangePassword = () => {
+    return useMutation({
+        mutationFn: (payload: ChangePasswordBody) => 
+            AccountService.changePassword(payload),
+    });
+};
+
+export const useUpdateStudentPassword = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ 
+            examSessionId, 
+            payload 
+        }: { 
+            examSessionId: string; 
+            payload: UpdateStudentPasswordBody 
+        }) => AccountService.updateStudentPassword(examSessionId, payload),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ACCOUNT_QUERY_KEY });
+        },
     });
 };

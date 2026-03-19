@@ -1,6 +1,5 @@
-import { ExamSessionStatus } from "@/shares/constants/status.enum";
-import { GenderType } from "@/shares/constants/type.enum";
-import { AccountStatus, FraudType, ProctoringHandleType } from "./enum";
+import { AccountStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
+import { FraudType, GenderType, ProctoringHandleType } from "@/shares/constants/type.enum";
 import { Pagination } from "./param";
 
 interface ApiResponse<T> {
@@ -12,6 +11,7 @@ interface ApiResponse<T> {
 }
 
 export type { ApiResponse };
+
 
 interface UserJwtDecode {
   sub: string;
@@ -26,6 +26,18 @@ interface LoginResponse {
   refreshToken: string;
 }
 export type { LoginResponse };
+
+interface ChangePasswordBody {
+    oldPassword?: string;
+    password: string;
+    passwordConfirm: string;
+}
+
+interface UpdateStudentPasswordBody {
+    studentAccountId: string;
+    password: string;
+    passwordConfirm: string;
+}
 
 interface LoginBody {
   username: string;
@@ -187,7 +199,7 @@ interface CreateProctoringHandleBody {
   type: ProctoringHandleType;
 }
 export type {
-    CreateProctoringHandleBody, DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
-    SaveAnswersBody, SaveDraftBody, SubmitExamBody
+  ChangePasswordBody, CreateProctoringHandleBody, DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
+  SaveAnswersBody, SaveDraftBody, SubmitExamBody, UpdateStudentPasswordBody
 };
 
