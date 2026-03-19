@@ -9,9 +9,9 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { CameraOutlined, HistoryOutlined, LoadingOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Modal, Tabs, Typography, Upload, message } from 'antd';
 import { useState } from 'react';
+import { PersonalInfoTab } from '../../../components/common/personal-info-tab';
+import { SecurityTab } from '../../../components/common/security-tab';
 import { ExamHistoryTab } from './exam-result-tab';
-import { PersonalInfoTab } from './personal-info-tab';
-import { SecurityTab } from './security-tab';
 
 const { Title } = Typography;
 
