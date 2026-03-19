@@ -1,4 +1,4 @@
-import { ResultParam } from "@/types/param";
+import { ResultParam } from "../../../shares/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, InputNumber, Select, Space, Typography } from "antd";
 import { useExamSessionList } from "@/queries/useExamSessionQuery";

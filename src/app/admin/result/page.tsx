@@ -1,12 +1,12 @@
 "use client";
 import { useResultList } from "@/queries/useResultQuery";
-import { ResultParam } from "@/types/param";
+import { ResultParam } from "../../../shares/types/param";
 import { Space } from "antd";
 import { useState } from "react";
 import { ResultFilter } from "./result-filter";
 import ResultTable from "./result-table";
 import { ResultDetailModal } from "./result-detail-modal";
-import { Result } from "@/types/object";
+import { Result } from "../../../shares/types/object";
 
 export default function ResultPage() {
     const [params, setParams] = useState<ResultParam>({

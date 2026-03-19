@@ -1,4 +1,4 @@
-import { Result } from "@/types/object";
+import { Result } from "../../../shares/types/object";
 import { Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 
