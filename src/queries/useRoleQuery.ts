@@ -1,5 +1,5 @@
 import { RoleService } from "@/services/role.service";
-import { RoleParam } from "@/types/param";
+import { RoleParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const ROLE_QUERY_KEY = ["roles"];

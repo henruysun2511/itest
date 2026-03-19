@@ -1,7 +1,7 @@
-import { ApiResponse, CreateProctoringHandleBody } from "@/types/body";
-import { ExamSessionHandling } from "@/types/object";
-import { ExamSessionHandlingParam } from "@/types/param";
-import http from "@/utils/http";
+import { ApiResponse, CreateProctoringHandleBody } from "@/shares/types/body";
+import { ExamSessionHandling } from "@/shares/types/object";
+import { ExamSessionHandlingParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 export const ExamSessionHandlingService = {
   getList: (params: ExamSessionHandlingParam) => {

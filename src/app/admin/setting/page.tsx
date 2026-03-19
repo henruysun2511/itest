@@ -2,26 +2,26 @@
 
 import { useUploadFileCloudinary } from "@/queries/useCloudinaryQuery";
 import { useGetSettings, useUpdateSettings } from "@/queries/useSettingQuery";
-import { handleError } from "@/utils/error";
+import { handleError } from "@/shares/utils/error";
 import {
-  CloseOutlined,
-  CloudUploadOutlined,
-  EditOutlined,
-  FileAddOutlined,
-  PictureOutlined,
-  SaveOutlined,
-  SettingOutlined
+    CloseOutlined,
+    CloudUploadOutlined,
+    EditOutlined,
+    FileAddOutlined,
+    PictureOutlined,
+    SaveOutlined,
+    SettingOutlined
 } from "@ant-design/icons";
 import {
-  Button,
-  Card,
-  Divider,
-  Form,
-  message,
-  Skeleton,
-  Space,
-  Typography,
-  Upload
+    Button,
+    Card,
+    Divider,
+    Form,
+    message,
+    Skeleton,
+    Space,
+    Typography,
+    Upload
 } from "antd";
 import { useEffect, useState } from "react";
 

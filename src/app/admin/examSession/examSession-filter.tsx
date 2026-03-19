@@ -1,6 +1,6 @@
-import { ExamSessionSortBy, SortOrder } from "@/constants/sort.enum";
-import { ExamSessionStatus } from "@/constants/status.enum";
-import { ExamSessionParam } from "@/types/param";
+import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { ExamSessionStatus } from "@/shares/constants/status.enum";
+import { ExamSessionParam } from "@/shares/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { DatePicker, Input, Select, Space, Typography } from "antd";
 

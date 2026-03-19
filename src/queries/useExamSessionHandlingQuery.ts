@@ -1,6 +1,6 @@
 import { ExamSessionHandlingService } from "@/services/examSessionHandling.service";
-import { CreateProctoringHandleBody } from "@/types/body";
-import { ExamSessionHandlingParam } from "@/types/param";
+import { CreateProctoringHandleBody } from "@/shares/types/body";
+import { ExamSessionHandlingParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 

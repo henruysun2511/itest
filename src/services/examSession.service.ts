@@ -1,7 +1,7 @@
-import { ApiResponse, ChangeExamSessionStatusBody, CreateExamSessionBody, LockStateBody, SetPauseStateBody } from "@/types/body";
-import { ExamSession } from "@/types/object";
-import { ExamSessionParam, TeacherExamSessionParam } from "@/types/param";
-import http from "@/utils/http";
+import { ApiResponse, ChangeExamSessionStatusBody, CreateExamSessionBody, LockStateBody, SetPauseStateBody } from "@/shares/types/body";
+import { ExamSession } from "@/shares/types/object";
+import { ExamSessionParam, TeacherExamSessionParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 const prefix = "exam-sessions";
 

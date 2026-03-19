@@ -1,5 +1,5 @@
-import { ExamRegistrationStatusType } from "@/constants/type.enum";
-import { ExamRegistrationParam } from "@/types/param";
+import { ExamRegistrationStatusType } from "@/shares/constants/type.enum";
+import { ExamRegistrationParam } from "@/shares/types/param";
 import { Input, Select } from "antd";
 
 interface Props {

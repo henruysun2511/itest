@@ -1,6 +1,6 @@
 import { useDeleteFileCloudinary } from "@/queries/useCloudinaryQuery";
-import { QuestionType } from "@/types/enum"; // Đảm bảo bạn đã export enum này
-import { MediaPlaceholder, Part, Question } from "@/types/object";
+import { QuestionType } from "@/shares/constants/type.enum";
+import { MediaPlaceholder, Part, Question } from "@/shares/types/object";
 import {
     DeleteOutlined,
     FileTextOutlined,

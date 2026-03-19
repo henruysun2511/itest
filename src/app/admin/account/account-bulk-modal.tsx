@@ -1,8 +1,8 @@
 import { useToast } from "@/hooks/useToast";
 import { useCreateAccountBulk } from "@/queries/useAccountQuery";
 import { useRoleList } from "@/queries/useRoleQuery";
-import { BulkAccountBody, BulkAccountItem } from "@/types/body";
-import { handleError } from "@/utils/error";
+import { BulkAccountBody, BulkAccountItem } from "@/shares/types/body";
+import { handleError } from "@/shares/utils/error";
 import { InboxOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Alert, Button, Modal, Select, Space, Spin, Table, Typography, Upload } from "antd";
 import { useState } from "react";

@@ -1,5 +1,5 @@
 import { useDeleteFileCloudinary } from "@/queries/useCloudinaryQuery";
-import { MediaPlaceholder, QuestionGroup } from "@/types/object";
+import { MediaPlaceholder, QuestionGroup } from "@/shares/types/object";
 import { TagsOutlined } from "@ant-design/icons";
 import { Input, message } from "antd";
 import { renderMediaContent } from "./media-render";

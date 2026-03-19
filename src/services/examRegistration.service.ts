@@ -1,7 +1,7 @@
-import { AccessStateBody, ApiResponse, CreateExamRegistrationBody } from "@/types/body";
-import { ExamRegistration } from "@/types/object";
-import { ExamRegistrationParam } from "@/types/param";
-import http from "@/utils/http";
+import { AccessStateBody, ApiResponse, CreateExamRegistrationBody } from "@/shares/types/body";
+import { ExamRegistration } from "@/shares/types/object";
+import { ExamRegistrationParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 const prefix = "exam-registrations";
 

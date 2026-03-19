@@ -1,7 +1,7 @@
 "use client";
-import { SortOrder } from "@/constants/sort.enum";
 import { useStudentList } from "@/queries/useStudentQuery";
-import { StudentParam } from "@/types/param";
+import { SortOrder } from "@/shares/constants/sort.enum";
+import { StudentParam } from "@/shares/types/param";
 import { Space, Typography } from "antd";
 import { useState } from "react";
 import { StudentFilter } from "./student-filter";

@@ -2,7 +2,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useToast } from "@/hooks/useToast";
 import { useCourseList } from "@/queries/useCourseQuery";
 import { useExamSetCreate } from "@/queries/useExamSetQuery";
-import { handleError } from "@/utils/error";
+import { handleError } from "@/shares/utils/error";
 import { Button, Form, Input, Modal, Select } from "antd";
 import { useState } from "react";
 

@@ -1,7 +1,7 @@
 "use client";
-import { ExamSortBy, SortOrder } from "@/constants/sort.enum";
 import { useExamByExamSet } from "@/queries/useExamQuery";
-import { ExamParam } from "@/types/param";
+import { ExamSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { ExamParam } from "@/shares/types/param";
 import { useState } from "react";
 import { ExamFilter } from "./exam-filter";
 import ExamTable from "./exam-table";

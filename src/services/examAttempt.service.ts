@@ -1,8 +1,8 @@
-import { ApiResponse, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody, SaveAnswersBody, SaveDraftBody, SubmitExamBody } from "@/types/body";
-import { ExamAttempt } from "@/types/object";
-import { ExamAttemptParam } from "@/types/param";
+import { ApiResponse, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody, SaveAnswersBody, SaveDraftBody, SubmitExamBody } from "@/shares/types/body";
+import { ExamAttempt } from "@/shares/types/object";
+import { ExamAttemptParam } from "@/shares/types/param";
 
-import http from "@/utils/http";
+import http from "@/shares/utils/http";
 
 const prefix = "exam-attempts";
 

@@ -1,6 +1,6 @@
-import { ApiResponse } from "@/types/body";
-import { Setting } from "@/types/object";
-import http from "@/utils/http";
+import { ApiResponse } from "@/shares/types/body";
+import { Setting } from "@/shares/types/object";
+import http from "@/shares/utils/http";
 
 const prefix = "settings";
 

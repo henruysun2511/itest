@@ -1,7 +1,7 @@
 import { useToast } from "@/hooks/useToast";
 import { useExamSetDelete } from "@/queries/useExamSetQuery";
-import { ExamSet } from "@/types/object";
-import { handleError } from "@/utils/error";
+import { ExamSet } from "@/shares/types/object";
+import { handleError } from "@/shares/utils/error";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Popconfirm, Space, Table } from "antd";
 import { ColumnsType } from "antd/es/table";

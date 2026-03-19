@@ -1,6 +1,6 @@
-import { ExamRegistrationStatusType } from '@/constants/type.enum';
 import { useRegistrationList, useRemoveRegistration } from '@/queries/useExamRegistrationQuery';
-import { ExamRegistration } from '@/types/object';
+import { ExamRegistrationStatusType } from '@/shares/constants/type.enum';
+import { ExamRegistration } from '@/shares/types/object';
 import { DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Card, message, Modal, Table, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';

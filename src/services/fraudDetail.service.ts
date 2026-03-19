@@ -1,7 +1,7 @@
-import { ApiResponse } from "@/types/body";
-import { FraudDetail } from "@/types/object";
-import { FraudDetailParam } from "@/types/param";
-import http from "@/utils/http";
+import { ApiResponse } from "@/shares/types/body";
+import { FraudDetail } from "@/shares/types/object";
+import { FraudDetailParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 const prefix = "fraud-details";
 

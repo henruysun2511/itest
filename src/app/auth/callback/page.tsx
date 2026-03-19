@@ -1,6 +1,6 @@
 "use client";
+import { UserJwtDecode } from "@/shares/types/body";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { UserJwtDecode } from "@/types/body";
 import { Spin } from "antd";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";

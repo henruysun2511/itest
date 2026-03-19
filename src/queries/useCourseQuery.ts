@@ -1,5 +1,5 @@
 import { CourseService } from "@/services/course.service";
-import { CourseParam } from "@/types/param";
+import { CourseParam } from "@/shares/types/param";
 import { useQuery } from "@tanstack/react-query";
 
 export const COURSE_KEY = ["courses"];

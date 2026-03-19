@@ -1,5 +1,5 @@
 import { StorageService } from "@/services/storage.service";
-import { DeleteFilePdfBody, GetSignedUrlBody } from "@/types/body";
+import { DeleteFilePdfBody, GetSignedUrlBody } from "@/shares/types/body";
 import { useMutation } from "@tanstack/react-query";
 
 export const STORAGE_QUERY_KEY = ["storage"];

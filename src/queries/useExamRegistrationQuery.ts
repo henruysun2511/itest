@@ -1,6 +1,6 @@
 import { ExamRegistrationService } from "@/services/examRegistration.service";
-import { AccessStateBody, CreateExamRegistrationBody } from "@/types/body";
-import { ExamRegistrationParam } from "@/types/param";
+import { AccessStateBody, CreateExamRegistrationBody } from "@/shares/types/body";
+import { ExamRegistrationParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const REGISTRATION_QUERY_KEY = ["exam-registrations"];

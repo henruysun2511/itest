@@ -1,7 +1,7 @@
-import { ApiResponse, ExamBody } from "@/types/body";
-import { Exam, ExamPdf } from "@/types/object";
-import { ExamParam } from "@/types/param";
-import http from "@/utils/http";
+import { ApiResponse, ExamBody } from "@/shares/types/body";
+import { Exam, ExamPdf } from "@/shares/types/object";
+import { ExamParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 const prefix = "exams";
 

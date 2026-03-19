@@ -1,5 +1,5 @@
 import { CloudinaryService } from "@/services/cloudinary.service";
-import { DeleteFileCloudinaryBody } from "@/types/body";
+import { DeleteFileCloudinaryBody } from "@/shares/types/body";
 import { useMutation } from "@tanstack/react-query";
 
 export const CLOUDINARY_QUERY_KEY = ["cloudinary"];

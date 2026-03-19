@@ -1,6 +1,5 @@
-import { ExamSessionStatus } from "@/constants/status.enum";
-import { ExamRegistrationStatusType, GenderType } from "@/constants/type.enum";
-import { AccountStatus, FraudType, ProctoringHandleType } from "./enum";
+import { AccountStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
+import { ExamRegistrationStatusType, FraudType, GenderType, ProctoringHandleType } from "@/shares/constants/type.enum";
 
 interface BaseObject {
   createdAt: string;

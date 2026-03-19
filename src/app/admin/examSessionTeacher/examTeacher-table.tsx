@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/useToast";
 import { useRemoveExamTeacher } from "@/queries/useExamSessionTeacherQuery";
-import { ExamSessionTeacher } from "@/types/object";
+import { ExamSessionTeacher } from "@/shares/types/object";
 import { DeleteOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Popconfirm, Space, Table, Tooltip, Typography } from "antd";
 import { ColumnsType } from "antd/es/table";

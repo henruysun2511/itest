@@ -1,5 +1,5 @@
 import { FraudDetailService } from "@/services/fraudDetail.service";
-import { FraudDetailParam } from "@/types/param";
+import { FraudDetailParam } from "@/shares/types/param";
 import { useQuery } from "@tanstack/react-query";
 
 export const FRAUD_DETAIL_KEY = ["fraud-details"];

@@ -29,7 +29,6 @@ import { useParams } from 'next/navigation';
 import MonitoringTab from '../(components)/monitoring-tab';
 
 // Import Hooks của bạn
-import { ExamSessionStatus } from '@/constants/status.enum';
 import {
     useExamSessionChangeStatus,
     useExamSessionClose,
@@ -37,6 +36,7 @@ import {
     useExamSessionLock,
     useExamSessionPause
 } from "@/queries/useExamSessionQuery";
+import { ExamSessionStatus } from '@/shares/constants/status.enum';
 import FraudLogTab from '../(components)/fraud-log-tab';
 import MonitoringTableTab from '../(components)/monitoring-table-tab';
 import StudentListTab from '../(components)/student-list-tab';

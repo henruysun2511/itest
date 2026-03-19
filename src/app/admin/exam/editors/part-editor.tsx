@@ -1,5 +1,5 @@
 import { useDeleteFileCloudinary } from "@/queries/useCloudinaryQuery";
-import { MediaPlaceholder, Part } from "@/types/object";
+import { MediaPlaceholder, Part } from "@/shares/types/object";
 import { BookOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Button, Input, message } from "antd";
 import GroupEditor from "./group-editor";

@@ -1,7 +1,7 @@
 "use client";
 import { useRefreshTokenQuery } from "@/queries/useAuthQuery";
+import { UserJwtDecode } from "@/shares/types/body";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { UserJwtDecode } from "@/types/body";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 

@@ -1,5 +1,5 @@
-import { ExamSessionStatus } from "@/constants/status.enum";
-import { GenderType } from "@/constants/type.enum";
+import { ExamSessionStatus } from "@/shares/constants/status.enum";
+import { GenderType } from "@/shares/constants/type.enum";
 import { AccountStatus, FraudType, ProctoringHandleType } from "./enum";
 import { Pagination } from "./param";
 
@@ -187,7 +187,7 @@ interface CreateProctoringHandleBody {
   type: ProctoringHandleType;
 }
 export type {
-  CreateProctoringHandleBody, DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
-  SaveAnswersBody, SaveDraftBody, SubmitExamBody
+    CreateProctoringHandleBody, DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
+    SaveAnswersBody, SaveDraftBody, SubmitExamBody
 };
 

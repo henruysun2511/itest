@@ -1,6 +1,6 @@
-import { ApiResponse, CreateExamSessionTeacherBody } from "@/types/body";
-import { ExamSessionTeacher } from "@/types/object";
-import http from "@/utils/http";
+import { ApiResponse, CreateExamSessionTeacherBody } from "@/shares/types/body";
+import { ExamSessionTeacher } from "@/shares/types/object";
+import http from "@/shares/utils/http";
 
 const prefix = "exam-session-teachers";
 

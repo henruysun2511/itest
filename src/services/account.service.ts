@@ -1,8 +1,8 @@
-import { ApiResponse, BulkAccountBody } from "@/types/body";
-import { AccountStatus } from "@/types/enum";
-import { Account } from "@/types/object";
-import { AccountParam } from "@/types/param";
-import http from "@/utils/http";
+import { AccountStatus } from "@/shares/constants/status.enum";
+import { ApiResponse, BulkAccountBody } from "@/shares/types/body";
+import { Account } from "@/shares/types/object";
+import { AccountParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 const prefix = "accounts";
 

@@ -1,8 +1,8 @@
 import { AccountService } from "@/services/account.service";
-import { ApiResponse } from "@/types/body";
-import { AccountStatus } from "@/types/enum";
-import { Account } from "@/types/object";
-import { AccountParam } from "@/types/param";
+import { AccountStatus } from "@/shares/constants/status.enum";
+import { ApiResponse } from "@/shares/types/body";
+import { Account } from "@/shares/types/object";
+import { AccountParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const ACCOUNT_QUERY_KEY = ["accounts"];

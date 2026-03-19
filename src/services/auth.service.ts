@@ -1,6 +1,6 @@
-import { ApiResponse, LoginBody, LoginResponse } from "@/types/body";
-import { refreshApi } from "@/utils/axios";
-import http from "@/utils/http";
+import { ApiResponse, LoginBody, LoginResponse } from "@/shares/types/body";
+import { refreshApi } from "@/shares/utils/axios";
+import http from "@/shares/utils/http";
 
 const authPrefix = "/auth";
 

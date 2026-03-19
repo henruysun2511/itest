@@ -1,7 +1,7 @@
 "use client";
-import { ExamSessionSortBy, SortOrder } from "@/constants/sort.enum";
 import { useExamSessionList } from "@/queries/useExamSessionQuery";
-import { ExamSessionParam } from "@/types/param";
+import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { ExamSessionParam } from "@/shares/types/param";
 import { FileExcelOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import { useState } from "react";

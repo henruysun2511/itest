@@ -1,5 +1,5 @@
 "use client";
-import AdminSidebar from '@/components/admin/sidebar/sidebar';
+import AdminSidebar from '@/components/admin/sidebar';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined
@@ -20,6 +20,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
 
   return (
     <Layout style={{ minHeight: "100vh" }}>

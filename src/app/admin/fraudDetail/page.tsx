@@ -1,6 +1,6 @@
 "use client";
-import { useFraudList } from "@/queries/useFraudQuery";
-import { FraudParam } from "@/types/param";
+import { useFraudDetailList } from "@/queries/useFraudDetailQuery";
+import { FraudParam } from "@/shares/types/param";
 import { Space } from "antd";
 import { useState } from "react";
 import { FraudFilter } from "./fraud-filter";
@@ -14,7 +14,7 @@ export default function FraudPage() {
         examSessionId: undefined
     });
 
-    const { data, isLoading } = useFraudList(params);
+    const { data, isLoading } = useFraudDetailList(params);
     
     const handleSearch = (val: string) => {
         setParams(p => ({ ...p, studentCode: val, page: 1 }));

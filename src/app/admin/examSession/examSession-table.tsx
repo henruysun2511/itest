@@ -1,5 +1,5 @@
-import { ExamSessionStatus } from "@/constants/status.enum";
 import { useExamSessionChangeStatus } from "@/queries/useExamSessionQuery";
+import { ExamSessionStatus } from "@/shares/constants/status.enum";
 import { TeamOutlined, UserAddOutlined } from "@ant-design/icons";
 import { Button, Space, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";

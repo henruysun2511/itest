@@ -2,8 +2,8 @@
 import { useToast } from "@/hooks/useToast";
 import { useCreateAccount } from "@/queries/useAccountQuery";
 import { useRoleList } from "@/queries/useRoleQuery";
-import { Account } from "@/types/object";
-import { handleError } from "@/utils/error";
+import { Account } from "@/shares/types/object";
+import { handleError } from "@/shares/utils/error";
 import { Button, Form, Input, Modal, Select } from "antd";
 
 export function AccountCreateModal({ open, onCancel }: { open: boolean; onCancel: () => void }) {

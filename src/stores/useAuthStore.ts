@@ -1,4 +1,4 @@
-import { AuthState } from "@/types/state";
+import { AuthState } from "@/shares/types/state";
 import { create } from "zustand";
 import { persist } from 'zustand/middleware';
 

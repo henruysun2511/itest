@@ -2,7 +2,7 @@
 
 import { useTeacherExamSessions } from '@/queries/useExamSessionQuery';
 import { useMyTeacherCourses } from '@/queries/useTeacherCourse';
-import { TeacherExamSessionParam } from '@/types/param';
+import { TeacherExamSessionParam } from '@/shares/types/param';
 import {
     BookOutlined,
     CalendarOutlined,

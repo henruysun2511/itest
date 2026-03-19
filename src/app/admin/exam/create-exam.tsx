@@ -5,9 +5,9 @@ import { useCreateExam } from "@/queries/useExamQuery";
 import { useExamSetList } from "@/queries/useExamSetQuery";
 import { useParseExam } from "@/queries/useGeminiQuery";
 import { useDeleteExamPdf, useUploadExamPdf } from "@/queries/useStorageQuery";
-import { ExamBody } from "@/types/body";
-import { ExamData } from "@/types/object";
-import { normalizeExamData } from "@/utils/normalizeExam";
+import { ExamBody } from "@/shares/types/body";
+import { ExamData } from "@/shares/types/object";
+import { normalizeExamData } from "@/shares/utils/normalizeExam";
 import {
     EditOutlined,
     FilePdfOutlined,

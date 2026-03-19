@@ -1,5 +1,5 @@
-import { ExamAttemptParam } from "@/types/param";
-import { FRAUD_OPTIONS, STATUS_OPTIONS } from "@/utils/mappingLabel";
+import { ExamAttemptParam } from "@/shares/types/param";
+import { FRAUD_OPTIONS, STATUS_OPTIONS } from "@/shares/utils/mappingLabel";
 import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Card, Input, Select, Space } from "antd";
 

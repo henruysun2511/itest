@@ -1,8 +1,8 @@
 import { useToast } from "@/hooks/useToast";
 import { useCreateProctoringHandle } from "@/queries/useExamSessionHandlingQuery";
-import { ProctoringHandleType } from "@/types/enum";
-import { handleError } from "@/utils/error";
-import { PROCTORING_OPTIONS } from "@/utils/mappingLabel";
+import { ProctoringHandleType } from "@/shares/constants/type.enum";
+import { handleError } from "@/shares/utils/error";
+import { PROCTORING_OPTIONS } from "@/shares/utils/mappingLabel";
 import { Button, Form, Input, Modal, Select } from "antd";
 
 

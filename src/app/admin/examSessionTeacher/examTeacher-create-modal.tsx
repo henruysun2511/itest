@@ -1,8 +1,8 @@
 import { useToast } from "@/hooks/useToast";
 import { useCreateExamTeacher } from "@/queries/useExamSessionTeacherQuery";
 import { useTeacherList } from "@/queries/useTeacherQuery";
-import { Teacher } from "@/types/object";
-import { handleError } from "@/utils/error";
+import { Teacher } from "@/shares/types/object";
+import { handleError } from "@/shares/utils/error";
 import { Button, Form, Modal, Select } from "antd";
 
 interface Props {

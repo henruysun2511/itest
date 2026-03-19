@@ -1,7 +1,7 @@
 "use client";
 import { useLogin } from "@/queries/useAuthQuery";
-import { LoginBody } from "@/types/body";
-import { handleError } from "@/utils/error";
+import { LoginBody } from "@/shares/types/body";
+import { handleError } from "@/shares/utils/error";
 import {
     LockOutlined,
     SafetyOutlined,

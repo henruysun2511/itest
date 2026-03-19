@@ -1,7 +1,7 @@
 "use client";
-import { BaseSortBy, SortOrder } from "@/constants/sort.enum";
 import { useAccountList } from "@/queries/useAccountQuery";
-import { AccountParam } from "@/types/param";
+import { BaseSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { AccountParam } from "@/shares/types/param";
 import { FileExcelOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Space } from "antd";
 import { useState } from "react";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useExamAttemptList, useForceSubmitSelected, useGrantRetake, usePauseStudentAttempt, useSaveAnswers } from "@/queries/useExamAttemptQuery";
-import { ExamAttemptStatus } from "@/types/enum";
+import { ExamAttemptStatus } from "@/shares/constants/status.enum";
 import {
     CheckCircleOutlined,
     TeamOutlined,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRegistrationList } from "@/queries/useExamRegistrationQuery";
-import { ExamRegistrationParam } from "@/types/param";
+import { ExamRegistrationParam } from "@/shares/types/param";
 import { ArrowLeftOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { Button, Card, Space, Typography } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";

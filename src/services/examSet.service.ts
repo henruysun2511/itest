@@ -1,7 +1,7 @@
-import { ApiResponse } from "@/types/body";
-import { ExamSet } from "@/types/object";
-import { ExamSetParam } from "@/types/param";
-import http from "@/utils/http";
+import { ApiResponse } from "@/shares/types/body";
+import { ExamSet } from "@/shares/types/object";
+import { ExamSetParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 const prefix = "exam-sets";
 

@@ -1,6 +1,6 @@
-import { ApiResponse, UpdateProfileBody } from "@/types/body";
-import { Profile } from "@/types/object";
-import http from "@/utils/http";
+import { ApiResponse, UpdateProfileBody } from "@/shares/types/body";
+import { Profile } from "@/shares/types/object";
+import http from "@/shares/utils/http";
 
 const prefix = "profiles";
 

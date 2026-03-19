@@ -1,6 +1,6 @@
-import { BaseSortBy, SortOrder } from "@/constants/sort.enum";
 import { useRoleList } from "@/queries/useRoleQuery";
-import { AccountParam } from "@/types/param";
+import { BaseSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { AccountParam } from "@/shares/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Typography } from "antd";
 

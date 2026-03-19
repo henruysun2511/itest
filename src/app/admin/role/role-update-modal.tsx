@@ -1,8 +1,8 @@
 
 import { useToast } from "@/hooks/useToast";
 import { useRoleUpdate } from "@/queries/useRoleQuery";
-import { Role } from "@/types/object";
-import { handleError } from "@/utils/error";
+import { Role } from "@/shares/types/object";
+import { handleError } from "@/shares/utils/error";
 import { Button, Form, Input, Modal } from "antd";
 import { useEffect } from "react";
 

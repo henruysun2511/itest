@@ -1,8 +1,8 @@
 "use client";
 
-import { ExamSetSortBy, SortOrder } from "@/constants/sort.enum";
 import { useExamSetList } from "@/queries/useExamSetQuery";
-import { ExamSetParam } from "@/types/param";
+import { ExamSetSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { ExamSetParam } from "@/shares/types/param";
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Space } from "antd";
 import { useState } from "react";

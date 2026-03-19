@@ -8,10 +8,10 @@ import {
     usePauseStudentAttempt,
     useSaveAnswers
 } from "@/queries/useExamAttemptQuery";
-import { ExamAttempt } from "@/types/object";
-import { ExamAttemptParam } from "@/types/param";
-import { handleError } from "@/utils/error";
-import { getStatusBadge } from "@/utils/mappingLabel";
+import { ExamAttempt } from "@/shares/types/object";
+import { ExamAttemptParam } from "@/shares/types/param";
+import { handleError } from "@/shares/utils/error";
+import { getStatusBadge } from "@/shares/utils/mappingLabel";
 import {
     AlertOutlined,
     CheckCircleOutlined,

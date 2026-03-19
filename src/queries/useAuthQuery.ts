@@ -1,6 +1,6 @@
 import { authService } from "@/services/auth.service";
+import { UserJwtDecode } from '@/shares/types/body';
 import { useAuthStore } from "@/stores/useAuthStore";
-import { UserJwtDecode } from '@/types/body';
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { jwtDecode } from 'jwt-decode';

@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/useToast";
 import { useRemoveRegistration, useUpdateAccessState } from "@/queries/useExamRegistrationQuery";
-import { ExamRegistration } from "@/types/object";
+import { ExamRegistration } from "@/shares/types/object";
 import { DeleteOutlined, LockOutlined, UnlockOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Popconfirm, Space, Switch, Table, Tag, Tooltip, Typography } from "antd";
 import { ColumnsType } from "antd/es/table";

@@ -1,8 +1,8 @@
 import { useToast } from "@/hooks/useToast";
 import { useChangeAccountStatus, useDeleteAccount } from "@/queries/useAccountQuery";
-import { AccountStatus } from "@/types/enum";
-import { Account } from "@/types/object";
-import { handleError } from "@/utils/error";
+import { AccountStatus } from "@/shares/constants/status.enum";
+import { Account } from "@/shares/types/object";
+import { handleError } from "@/shares/utils/error";
 import { DeleteOutlined } from "@ant-design/icons";
 import { Button, Popconfirm, Space, Switch, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";

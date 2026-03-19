@@ -1,7 +1,7 @@
-import { SortOrder } from "@/constants/sort.enum";
 import { useFraudDetailList } from "@/queries/useFraudDetailQuery";
-import { FraudDetail } from "@/types/object";
-import { getFraudTypeBadge } from "@/utils/mappingLabel";
+import { SortOrder } from "@/shares/constants/sort.enum";
+import { FraudDetail } from "@/shares/types/object";
+import { getFraudTypeBadge } from "@/shares/utils/mappingLabel";
 import { AlertOutlined, UserOutlined } from "@ant-design/icons";
 import { Card, Col, Empty, Pagination, Row, Spin, Tag, Typography } from "antd";
 import dayjs from "dayjs";

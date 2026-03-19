@@ -1,7 +1,7 @@
-import { ApiResponse } from "@/types/body";
-import { Student } from "@/types/object";
-import { StudentParam } from "@/types/param";
-import http from "@/utils/http";
+import { ApiResponse } from "@/shares/types/body";
+import { Student } from "@/shares/types/object";
+import { StudentParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 const prefix = "students";
 

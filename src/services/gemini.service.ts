@@ -1,6 +1,6 @@
-import { ApiResponse, ParseExamBody } from "@/types/body";
-import { ExamData } from "@/types/object";
-import http from "@/utils/http";
+import { ApiResponse, ParseExamBody } from "@/shares/types/body";
+import { ExamData } from "@/shares/types/object";
+import http from "@/shares/utils/http";
 
 
 const prefix = "gemini";

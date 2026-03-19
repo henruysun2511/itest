@@ -1,5 +1,5 @@
-import { ExamSetSortBy, SortOrder } from "@/constants/sort.enum";
-import { ExamSetParam } from "@/types/param";
+import { ExamSetSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { ExamSetParam } from "@/shares/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Typography } from "antd";
 

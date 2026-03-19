@@ -1,7 +1,7 @@
 import { useToast } from "@/hooks/useToast";
 import { useExamSetUpdate } from "@/queries/useExamSetQuery";
-import { ExamSet } from "@/types/object";
-import { handleError } from "@/utils/error";
+import { ExamSet } from "@/shares/types/object";
+import { handleError } from "@/shares/utils/error";
 import { Button, Form, Input, Modal } from "antd";
 import { useEffect } from "react";
 

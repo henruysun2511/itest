@@ -1,8 +1,8 @@
 import { useToast } from "@/hooks/useToast";
 import { useExamSessionCreate } from "@/queries/useExamSessionQuery";
 import { useExamSetList } from "@/queries/useExamSetQuery";
-import { CreateExamSessionBody } from "@/types/body";
-import { handleError } from "@/utils/error";
+import { CreateExamSessionBody } from "@/shares/types/body";
+import { handleError } from "@/shares/utils/error";
 import {
     Button,
     Checkbox,

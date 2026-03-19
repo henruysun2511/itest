@@ -1,7 +1,7 @@
-import { ApiResponse } from "@/types/body";
-import { Role } from "@/types/object";
-import { RoleParam } from "@/types/param";
-import http from "@/utils/http";
+import { ApiResponse } from "@/shares/types/body";
+import { Role } from "@/shares/types/object";
+import { RoleParam } from "@/shares/types/param";
+import http from "@/shares/utils/http";
 
 const prefix = "roles";
 

@@ -1,7 +1,7 @@
 
-import { ApiResponse, DeleteFilePdfBody, GetSignedUrlBody } from "@/types/body";
-import { UploadExamPdf } from "@/types/object";
-import http from "@/utils/http";
+import { ApiResponse, DeleteFilePdfBody, GetSignedUrlBody } from "@/shares/types/body";
+import { UploadExamPdf } from "@/shares/types/object";
+import http from "@/shares/utils/http";
 
 
 const prefix = "storage";

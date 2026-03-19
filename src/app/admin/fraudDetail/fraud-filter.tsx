@@ -1,5 +1,5 @@
 import { useExamSessionList } from "@/queries/useExamSessionQuery";
-import { FraudParam } from "@/types/param";
+import { FraudParam } from "@/shares/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Typography } from "antd";
 import { useEffect, useState } from "react";

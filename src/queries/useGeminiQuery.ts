@@ -1,5 +1,5 @@
 import { GeminiService } from "@/services/gemini.service";
-import { ParseExamBody } from "@/types/body";
+import { ParseExamBody } from "@/shares/types/body";
 import { useMutation } from "@tanstack/react-query";
 
 export const GEMINI_QUERY_KEY = ["gemini"];

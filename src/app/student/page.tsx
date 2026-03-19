@@ -1,11 +1,11 @@
 "use client";
 
-import { ExamSessionSortBy, SortOrder } from "@/constants/sort.enum";
-import { ExamSessionStatus } from "@/constants/status.enum";
 import { useToast } from "@/hooks/useToast";
 import { useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
-import { ExamSessionParam } from "@/types/param";
-import { handleError } from "@/utils/error";
+import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { ExamSessionStatus } from "@/shares/constants/status.enum";
+import { ExamSessionParam } from "@/shares/types/param";
+import { handleError } from "@/shares/utils/error";
 import {
     BookOutlined,
     ClockCircleOutlined,

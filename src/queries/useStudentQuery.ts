@@ -1,5 +1,5 @@
 import { StudentService } from "@/services/student.service";
-import { StudentParam } from "@/types/param";
+import { StudentParam } from "@/shares/types/param";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const STUDENT_QUERY_KEY = ["students"];

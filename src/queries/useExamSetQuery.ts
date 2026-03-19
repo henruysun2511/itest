@@ -1,5 +1,5 @@
 import { ExamSetService } from "@/services/examSet.service";
-import { ExamSetParam } from "@/types/param";
+import { ExamSetParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAMSET_QUERY_KEY = ["examsets"];

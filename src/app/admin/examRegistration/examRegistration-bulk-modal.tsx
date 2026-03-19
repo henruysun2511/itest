@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/useToast";
 import { useRegisterStudents } from "@/queries/useExamRegistrationQuery";
-import { handleError } from "@/utils/error";
+import { handleError } from "@/shares/utils/error";
 import { DeleteOutlined, FileExcelOutlined, InboxOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { Button, Card, Modal, Space, Table, Tag, Typography, Upload } from "antd";
 import { useState } from "react";

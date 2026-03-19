@@ -1,11 +1,11 @@
 "use client";
+import UserDropdown from '@/components/common/user-dropdown';
+import { RoleType } from '@/shares/constants/type.enum';
+import { useAuthStore } from '@/stores/useAuthStore';
 import {
-    BellOutlined,
-    LogoutOutlined,
-    SolutionOutlined,
-    UserOutlined
+    BellOutlined
 } from '@ant-design/icons';
-import { Avatar, Badge, Dropdown, Layout } from 'antd';
+import { Badge, Layout } from 'antd';
 import React from 'react';
 
 const { Header, Sider, Content } = Layout;
@@ -16,12 +16,8 @@ interface StudentLayoutProps {
 }
 
 export default function StudentLayout({ children }: StudentLayoutProps) {
+    const roleName = useAuthStore((state) => state.user?.roleName);
 
-    const userMenuItems = [
-        { key: 'profile', label: 'Thông tin cá nhân', icon: <UserOutlined /> },
-        { key: 'settings', label: 'Cài đặt tài khoản', icon: <SolutionOutlined /> },
-        { key: 'logout', label: 'Đăng xuất', icon: <LogoutOutlined />, danger: true },
-    ];
     return (
         <>
             <Layout className="min-h-screen bg-[#F0F2F5]">
@@ -39,23 +35,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
                             <BellOutlined className="text-white text-xl cursor-pointer opacity-70 hover:opacity-100" />
                         </Badge>
                         <div className="h-8 w-[1px] bg-white/20"></div>
-                        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-                            <div className="flex items-center gap-3 cursor-pointer group px-2 py-1 rounded-lg hover:bg-white/5 transition-all">
-                                <div className="flex flex-col items-end justify-center">
-                                    <div className="text-white font-bold leading-tight text-sm group-hover:text-[var(--color-accent)] transition-colors">
-                                        Đặng Nhật Huy
-                                    </div>
-                                    <span className="text-blue-300 text-[10px] uppercase font-bold tracking-wider leading-none mt-1">
-                                        Sinh viên
-                                    </span>
-                                </div>
-                                <Avatar
-                                    size={42}
-                                    icon={<UserOutlined />}
-                                    className="bg-white/10 border border-white/20 group-hover:border-[var(--color-accent)] transition-all flex-shrink-0"
-                                />
-                            </div>
-                        </Dropdown>
+                        <UserDropdown role={(roleName as any) || RoleType.STUDENT} />
                     </div>
                 </Header>
 

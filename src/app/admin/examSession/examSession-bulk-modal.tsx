@@ -1,6 +1,6 @@
 import { useExamSessionCreateMany } from "@/queries/useExamSessionQuery";
 import { useExamSetList } from "@/queries/useExamSetQuery";
-import { CreateExamSessionBody } from "@/types/body";
+import { CreateExamSessionBody } from "@/shares/types/body";
 import { InboxOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import {
     Alert,

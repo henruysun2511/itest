@@ -1,6 +1,6 @@
-import { ExamSessionStatus } from "@/constants/status.enum";
 import { ExamSessionService } from "@/services/examSession.service";
-import { ExamSessionParam, TeacherExamSessionParam } from "@/types/param";
+import { ExamSessionStatus } from "@/shares/constants/status.enum";
+import { ExamSessionParam, TeacherExamSessionParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAM_SESSION_QUERY_KEY = ["exam-sessions"];

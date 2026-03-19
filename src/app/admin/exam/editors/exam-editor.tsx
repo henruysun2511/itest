@@ -1,4 +1,4 @@
-import { ExamData, Part } from "@/types/object";
+import { ExamData, Part } from "@/shares/types/object";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import PartEditor from "./part-editor";

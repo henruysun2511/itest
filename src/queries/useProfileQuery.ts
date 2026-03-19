@@ -1,5 +1,5 @@
 import { ProfileService } from "@/services/profile.service";
-import { UpdateProfileBody } from "@/types/body";
+import { UpdateProfileBody } from "@/shares/types/body";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const PROFILE_QUERY_KEY = ["profile"];

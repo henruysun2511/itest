@@ -264,11 +264,4 @@ body {
   border-bottom: none !important;
 }
 
-/* Content box */
-/* .ant-tabs-card > .ant-tabs-content-holder {
-  border: 1px solid var(--color-bg-sidebar);
-  border-top: none;
-  background: var(--color-bg-card);
-  padding: 20px;
-  border-radius: 0 12px 12px 12px;
-} */
+

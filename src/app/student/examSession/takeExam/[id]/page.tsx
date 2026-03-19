@@ -3,8 +3,8 @@
 import { useHeartbeat, useReportFraud, useSaveDraft } from '@/queries/useExamAttemptQuery';
 import { useExamDetail } from '@/queries/useExamQuery';
 import { useExamSessionDetail } from '@/queries/useExamSessionQuery';
-import { SaveDraftBody } from '@/types/body';
-import { FraudType, QuestionType } from '@/types/enum';
+import { FraudType, QuestionType } from '@/shares/constants/type.enum';
+import { SaveDraftBody } from '@/shares/types/body';
 import { Button, Card, Col, message, Result, Row, Spin, Statistic, Tabs, Tag } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';

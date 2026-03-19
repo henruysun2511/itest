@@ -1,4 +1,5 @@
-import { ExamAttemptStatus, FraudLevel, FraudType, ProctoringHandleType, QuestionType } from "@/types/enum";
+import { ExamAttemptStatus } from "../constants/status.enum";
+import { FraudLevel, FraudType, ProctoringHandleType, QuestionType, RoleType } from "../constants/type.enum";
 
 export const getQuestionTypeLabel = (type: string) => {
     switch (type?.toUpperCase()) {
@@ -23,6 +24,39 @@ export const getStatusBadge = (status: string) => {
             return { label: 'Mất kết nối', color: 'red', status: 'error' };
         default:
             return { label: 'Chưa bắt đầu', color: 'gray', status: 'default' };
+    }
+};
+
+export const getRoleBadge = (role: string) => {
+    switch (role) {
+        case RoleType.ADMIN:
+            return { 
+                label: 'Quản trị viên', 
+                color: 'red',       // Màu đỏ tạo sự quan trọng
+                status: 'error',
+                roleName: 'ADMIN'
+            };
+        case RoleType.TEACHER:
+            return { 
+                label: 'Giảng viên', 
+                color: 'blue',      // Màu xanh chuyên nghiệp
+                status: 'processing',
+                roleName: 'TEACHER'
+            };
+        case RoleType.STUDENT:
+            return { 
+                label: 'Sinh viên', 
+                color: 'green',     // Màu xanh lá thân thiện
+                status: 'success',
+                roleName: 'STUDENT'
+            };
+        default:
+            return { 
+                label: 'Khách', 
+                color: 'gray', 
+                status: 'default',
+                roleName: 'GUEST'
+            };
     }
 };
 
@@ -115,3 +149,4 @@ export const PROCTORING_OPTIONS = [
     { label: 'Đình chỉ thi', value: ProctoringHandleType.SUSPENSION },
     { label: 'Dừng để chuyển ca', value: ProctoringHandleType.STOP_FOR_SESSION_TRANSFER },
 ];
+

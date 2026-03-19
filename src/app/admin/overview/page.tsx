@@ -3,29 +3,29 @@
 import { InfoItem } from "@/components/common/info-item";
 import { useUploadFileCloudinary } from "@/queries/useCloudinaryQuery";
 import { useGetProfile, useUpdateProfile } from "@/queries/useProfileQuery";
-import { handleError } from "@/utils/error";
+import { handleError } from "@/shares/utils/error";
 import {
-  CalendarOutlined,
-  CameraOutlined,
-  CloseOutlined,
-  EditOutlined,
-  LoadingOutlined,
-  PhoneOutlined,
-  SafetyCertificateOutlined,
-  SaveOutlined,
-  UserOutlined
+    CalendarOutlined,
+    CameraOutlined,
+    CloseOutlined,
+    EditOutlined,
+    LoadingOutlined,
+    PhoneOutlined,
+    SafetyCertificateOutlined,
+    SaveOutlined,
+    UserOutlined
 } from "@ant-design/icons";
 import {
-  Avatar,
-  Button,
-  Card,
-  DatePicker,
-  Form,
-  Input,
-  Select,
-  Typography,
-  Upload,
-  message
+    Avatar,
+    Button,
+    Card,
+    DatePicker,
+    Form,
+    Input,
+    Select,
+    Typography,
+    Upload,
+    message
 } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";

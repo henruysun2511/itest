@@ -1,6 +1,6 @@
-import { SortOrder } from "@/constants/sort.enum";
-import { GenderType } from "@/constants/type.enum";
-import { StudentParam } from "@/types/param";
+import { SortOrder } from "@/shares/constants/sort.enum";
+import { GenderType } from "@/shares/constants/type.enum";
+import { StudentParam } from "@/shares/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, Select, Space, Typography } from "antd";
 

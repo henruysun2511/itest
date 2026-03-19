@@ -5,8 +5,8 @@ import {
   ReportFraudBody,
   SaveAnswersBody,
   SubmitExamBody
-} from "@/types/body";
-import { ExamAttemptParam } from "@/types/param";
+} from "@/shares/types/body";
+import { ExamAttemptParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const EXAM_ATTEMPT_KEY = ["exam-attempts"];

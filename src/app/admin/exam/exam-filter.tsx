@@ -1,6 +1,6 @@
-import { ExamSortBy, SortOrder } from "@/constants/sort.enum"; // Đảm bảo đúng enum cho Exam
 import { useExamSetList } from "@/queries/useExamSetQuery";
-import { ExamParam } from "@/types/param";
+import { ExamSortBy, SortOrder } from "@/shares/constants/sort.enum"; // Đảm bảo đúng enum cho Exam
+import { ExamParam } from "@/shares/types/param";
 import { Input, Select, Space, Typography } from "antd";
 import { useEffect } from "react";
 

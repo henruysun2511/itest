@@ -3,7 +3,7 @@
 import { InfoItem } from "@/components/common/info-item";
 import { useUploadFileCloudinary } from "@/queries/useCloudinaryQuery";
 import { useGetProfile, useUpdateProfile } from "@/queries/useProfileQuery";
-import { handleError } from "@/utils/error";
+import { handleError } from "@/shares/utils/error";
 import {
     CalendarOutlined,
     CameraOutlined,

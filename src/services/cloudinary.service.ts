@@ -1,6 +1,6 @@
-import { ApiResponse, DeleteFileCloudinaryBody } from "@/types/body";
-import { UploadCloudinary } from "@/types/object";
-import http from "@/utils/http";
+import { ApiResponse, DeleteFileCloudinaryBody } from "@/shares/types/body";
+import { UploadCloudinary } from "@/shares/types/object";
+import http from "@/shares/utils/http";
 
 
 const prefix = "cloudinaries";

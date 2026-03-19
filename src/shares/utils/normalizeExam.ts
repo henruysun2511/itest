@@ -1,4 +1,4 @@
-import { ExamData, Part, Question, QuestionGroup } from "@/types/object";
+import { ExamData, Part, Question, QuestionGroup } from "@/shares/types/object";
 
 export const normalizeExamData = (raw: any): ExamData => {
   if (!raw) return { hasParts: false, parts: [] };

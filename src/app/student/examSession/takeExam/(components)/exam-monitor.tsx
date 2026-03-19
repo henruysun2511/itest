@@ -1,6 +1,6 @@
 "use client";
 
-import { FraudType } from '@/types/enum';
+import { FraudType } from '@/shares/constants/type.enum';
 import { message } from 'antd';
 import { useEffect, useRef } from 'react';
 

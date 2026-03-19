@@ -1,4 +1,4 @@
-import { MediaPlaceholder } from '@/types/object';
+import { MediaPlaceholder } from '@/shares/types/object';
 import {
     DeleteOutlined
 } from '@ant-design/icons';

@@ -1,7 +1,7 @@
 "use client";
 
-import { QuestionType } from '@/types/enum';
-import { getQuestionTypeLabel } from '@/utils/mappingLabel';
+import { QuestionType } from '@/shares/constants/type.enum';
+import { getQuestionTypeLabel } from '@/shares/utils/mappingLabel';
 import { Card, Checkbox, Input, Radio, Tag } from 'antd';
 import { RenderMediaList } from './media-render';
 

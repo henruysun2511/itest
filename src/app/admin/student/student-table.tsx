@@ -1,5 +1,5 @@
-import { GenderType } from "@/constants/type.enum";
-import { Student } from "@/types/object";
+import { GenderType } from "@/shares/constants/type.enum";
+import { Student } from "@/shares/types/object";
 import { UserOutlined } from "@ant-design/icons";
 import { Avatar, Space, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";

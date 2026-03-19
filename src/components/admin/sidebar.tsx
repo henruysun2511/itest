@@ -1,10 +1,10 @@
 import { useToast } from "@/hooks/useToast"; // Giả định bạn có hook toast
 import { useLogout } from "@/queries/useAuthQuery";
-import { handleError } from "@/utils/error";
+import { handleError } from "@/shares/utils/error";
 import { LogoutOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
 import Sider from "antd/es/layout/Sider";
-import AdminMenu from '../menu/menu';
+import AdminMenu from './menu';
 
 export default function AdminSidebar({ collapsed }: { collapsed: boolean }) {
     const toast = useToast();

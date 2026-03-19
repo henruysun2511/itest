@@ -1,8 +1,9 @@
 import { useToast } from "@/hooks/useToast";
-import { ExamAttemptStatus, FraudLevel } from "@/types/enum";
-import { ExamAttempt } from "@/types/object";
-import { handleError } from "@/utils/error";
-import { getStatusBadge } from "@/utils/mappingLabel";
+import { ExamAttemptStatus } from "@/shares/constants/status.enum";
+import { FraudLevel } from "@/shares/constants/type.enum";
+import { ExamAttempt } from "@/shares/types/object";
+import { handleError } from "@/shares/utils/error";
+import { getStatusBadge } from "@/shares/utils/mappingLabel";
 import {
     AlertOutlined,
     CheckCircleOutlined,

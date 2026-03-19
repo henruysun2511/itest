@@ -1,38 +1,25 @@
-export enum AccountStatus {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
+export enum GenderType {
+  MALE = "MALE",
+  FEMALE = "FEMALE",
 }
-
 
 export enum AccountType {
   GOOGLE = 'GOOGLE',
   LOCAL = 'LOCAL'
-} 
+}
 
-
-
-export enum ExamSessionStatus  {
-  NOT_STARTED = 'NOT_STARTED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  PAUSE = 'PAUSE',
-  FINISHED ='FINISHED'
-} 
-
-
-export enum ExamAttemptStatus {
-  IN_PROGRESS = 'IN_PROGRESS',
-  PAUSE = 'PAUSE',
-  COMPLETED = 'COMPLETED',
-  DISCONNECTED ='DISCONNECTED'
-} 
-
-
+export enum ExamRegistrationStatusType {
+  REGISTERED = 'REGISTERED',
+  BLOCKED = 'BLOCKED',
+  BANNED = 'BANNED',
+  CANCELLED = 'CANCELLED'
+}
 
 export enum FraudLevel {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH'
-} 
+}
 
 
 export enum FraudType {
@@ -43,28 +30,12 @@ export enum FraudType {
   WINDOW_BLUR = 'WINDOW_BLUR',
   IP_CHANGED = 'IP_CHANGED',
   NETWORK_DISRUPTION = 'NETWORK_DISRUPTION'
-} 
-
-
+}
 
 export enum ResultGradingRole {
   REVIEWER = 'REVIEWER',
-  FINAL_APPROVER ='FINAL_APPROVER'
-} 
-
-
-export enum ResultStatus {
-  NOT_GRADED = 'NOT_GRADED',
-  PUBLISHED = 'PUBLISHED'
-} 
-
-
-export enum GradingStatus {
-  ASSIGNED = 'ASSIGNED',
-  GRADING ='GRADING',
-  COMPLETED = 'COMPLETED'
-} 
-
+  FINAL_APPROVER = 'FINAL_APPROVER'
+}
 
 export enum QuestionType {
   SINGLE_CHOICE = 'SINGLE_CHOICE',
@@ -72,11 +43,17 @@ export enum QuestionType {
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
   FILL_IN_THE_BLANK = 'FILL_IN_THE_BLANK',
   ESSAY = 'ESSAY'
-} 
+}
 
 export enum ProctoringHandleType {
   WARNING = 'WARNING',
   STOP_FOR_SESSION_TRANSFER = 'STOP_FOR_SESSION_TRANSFER',
   REPRIMAND = 'REPRIMAND',
   SUSPENSION = 'SUSPENSION'
+}
+
+export enum RoleType {
+  ADMIN = 'ADMIN',
+  TEACHER = 'TEACHER',
+  STUDENT = 'STUDENT'
 }
