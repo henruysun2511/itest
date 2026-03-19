@@ -1,6 +1,6 @@
+import { ExamSessionHandling } from "@/types/object";
 import { Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { ExamSessionHandling } from "@/types/object";
 
 export const handlingTypeMap: Record<string, { label: string; color: string }> = {
     WARNING: { label: "Cảnh cáo", color: "orange" },

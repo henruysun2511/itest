@@ -122,7 +122,7 @@ export default function AdminMenu() {
                 {
                     key: '/admin/fraud',
                     icon: <SafetyCertificateOutlined />, 
-                    label: 'Báo cáo gian lận',
+                    label: 'Xử lý ca thi',
                 },
             ],
         },
