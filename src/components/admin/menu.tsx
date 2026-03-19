@@ -123,10 +123,10 @@ export default function AdminMenu() {
                 {
                     key: '/admin/fraudDetail',
                     icon: <SafetyCertificateOutlined />, 
-                    label: 'Báo cáo gian lận',
+                    label: 'Xử lý vi phạm',
                 },
                 {
-                    key: '/admin/examSessionHanling',
+                    key: '/admin/examSessionHandling',
                     icon: <MonitorOutlined />, 
                     label: 'Xử lý coi thi',
                 },

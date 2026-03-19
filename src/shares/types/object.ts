@@ -262,12 +262,49 @@ export interface ExamData {
   parts: Part[];
 }
 
-export interface Fraud {
-  fraudDetailId: string;
-  examSessionCode: string;
-  fullName: string;
+export interface ExamSessionHandling {
+  examSessionHandlingId: string;
+  reason: string;
+  studentId: string;
   studentCode: string;
-  fraudType: string;
-  occurredAt: string;
+  fullName?: string;
+  examSessionId: string;
+  examSessionCode: string;
+  teacherId: string;
+  teacherName: string;
+  createdAt: string;
+  type: string;
 }
+
+export interface Result {
+  resultId: string;
+  examSessionId: string;
+  examSessionCode: string;
+  studentId: string;
+  studentCode: string;
+  fullName: string;
+  status: string;
+  totalScore?: number;
+}
+
+export interface ScorePart {
+  score: number;
+  correct: number;
+  partIndex: number;
+  totalQuestions: number;
+}
+
+export interface ScoreDetail {
+  parts: ScorePart[];
+  percent: number;
+  maxScore: number;
+  totalScore: number;
+  totalCorrect: number;
+  totalQuestions: number;
+}
+
+export interface ResultDetail extends Result {
+  scoreDetail?: ScoreDetail;
+}
+
 

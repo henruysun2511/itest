@@ -1,26 +1,32 @@
 "use client";
-import { useFraudDetailList } from "@/queries/useFraudDetailQuery";
-import { FraudParam } from "@/shares/types/param";
+
+import { useExamSessionHandlingList } from "@/queries/useExamSessionHandlingQuery";
+import { ExamSessionHandling } from "@/shares/types/object";
+import { ExamSessionHandlingParam } from "@/shares/types/param";
 import { Space } from "antd";
 import { useState } from "react";
-import { FraudFilter } from "./fraud-filter";
-import FraudTable from "./fraud-table";
+import { ExamHandlingFilter } from "./examSesionHandling-filter";
+import ExamHandlingDetailModal from "./examSessionHandling-detail-modal";
+import ExamHandlingTable from "./examSessionHandling-table";
 
-export default function FraudPage() {
-    const [params, setParams] = useState<FraudParam>({
+
+export default function ExamHandlingPage() {
+    const [params, setParams] = useState<ExamSessionHandlingParam>({
         page: 1,
         limit: 10,
         studentCode: "",
         examSessionId: undefined
     });
+    const [selectedRecord, setSelectedRecord] = useState<ExamSessionHandling | null>(null);
 
-    const { data, isLoading } = useFraudDetailList(params);
+
+    const { data, isLoading } = useExamSessionHandlingList(params);
     
     const handleSearch = (val: string) => {
         setParams(p => ({ ...p, studentCode: val, page: 1 }));
     };
 
-    const handleFilterChange = (key: keyof FraudParam, value: any) => {
+    const handleFilterChange = (key: keyof ExamSessionHandlingParam, value: any) => {
         setParams(p => ({ ...p, [key]: value, page: 1 }));
     };
 
@@ -29,16 +35,17 @@ export default function FraudPage() {
             <div className="mb-6"></div>
             <Space direction="vertical" className="w-full" size="large">
                 <div className="flex justify-between">
-                    <FraudFilter
+                    <ExamHandlingFilter
                         params={params}
                         onSearch={handleSearch}
                         onFilterChange={handleFilterChange}
                     />
                 </div>
 
-                <FraudTable
+                <ExamHandlingTable
                     data={data?.data ?? []}
                     loading={isLoading}
+                    onViewDetail={(record) => setSelectedRecord(record)}
                     pagination={{
                         current: params.page,
                         pageSize: params.limit,
@@ -48,6 +55,11 @@ export default function FraudPage() {
                     }}
                 />
             </Space>
+            <ExamHandlingDetailModal 
+                open={!!selectedRecord} 
+                onClose={() => setSelectedRecord(null)} 
+                data={selectedRecord} 
+            />
         </>
     );
 }
