@@ -54,7 +54,27 @@ export function useLogout() {
     const logoutStore = useAuthStore((s) => s.logout);
 
     return useMutation({
-        mutationFn: authService.logout, 
+        mutationFn: authService.logout,
+        onSuccess: () => {
+            Cookies.remove("accessToken");
+            logoutStore();
+            localStorage.clear();
+            window.location.href = "/auth/login"; 
+        },
+        onError: (error) => {
+            console.error("Lỗi khi đăng xuất:", error);
+            Cookies.remove("accessToken");
+            logoutStore();
+            window.location.href = "/auth/login";
+        }
+    });
+}
+
+export function useLogoutDevices() {
+    const logoutStore = useAuthStore((s) => s.logout);
+
+    return useMutation({
+        mutationFn: authService.logoutDevices, 
         onSuccess: () => {
             Cookies.remove("accessToken");
             localStorage.clear(); // Xóa sạch dữ liệu nếu cần

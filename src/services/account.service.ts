@@ -30,10 +30,10 @@ export const AccountService = {
         );
     },
 
-    // PATCH /accounts/update-password - Cập nhật mật khẩu
+    // PATCH /accounts/password - Cập nhật mật khẩu
     updatePassword(payload: Partial<Account>) {
         return http.patch<ApiResponse<null>>(
-            `/${prefix}/update-password`,
+            `/${prefix}/password`,
             payload
         );
     },

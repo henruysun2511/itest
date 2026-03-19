@@ -10,6 +10,10 @@ export const authService = {
   },
 
   logout() {
+    return http.post<ApiResponse<null>>(`${authPrefix}/logout`);
+  },
+
+  logoutDevices() {
     return http.delete<ApiResponse<null>>(`${authPrefix}/logout-devices`);
   },
 

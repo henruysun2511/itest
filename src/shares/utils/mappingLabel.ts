@@ -150,3 +150,17 @@ export const PROCTORING_OPTIONS = [
     { label: 'Dừng để chuyển ca', value: ProctoringHandleType.STOP_FOR_SESSION_TRANSFER },
 ];
 
+export const getHandlingTypeBadge = (type: string) => {
+    switch (type?.toUpperCase()) {
+        case ProctoringHandleType.WARNING:
+            return { label: "Cảnh cáo", color: "orange", status: "warning" };
+        case ProctoringHandleType.REPRIMAND:
+            return { label: "Khiển trách", color: "gold", status: "warning" };
+        case ProctoringHandleType.STOP_FOR_SESSION_TRANSFER:
+            return { label: "Dừng thi chuyển ca", color: "volcano", status: "error" };
+        case ProctoringHandleType.SUSPENSION:
+            return { label: "Đình chỉ thi", color: "red", status: "error" };
+        default:
+            return { label: "Không xác định", color: "default", status: "default" };
+    }
+};

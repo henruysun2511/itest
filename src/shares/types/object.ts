@@ -1,5 +1,5 @@
 import { AccountStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
-import { ExamRegistrationStatusType, FraudType, GenderType, ProctoringHandleType } from "@/shares/constants/type.enum";
+import { ExamRegistrationStatusType, FraudType, GenderType } from "@/shares/constants/type.enum";
 
 interface BaseObject {
   createdAt: string;
@@ -187,22 +187,6 @@ interface TeacherCourse {
 }
 export type { TeacherCourse };
 
-interface ExamSessionHandling {
-  id: string;
-  studentId: string;
-  examSessionId: string;
-  examAttemptId: string;
-  reason: string;
-  type: ProctoringHandleType;
-  createdAt: string;
-  student: {
-    studentCode: string;
-  };
-  examSession: {
-    examSessionCode: string;
-  };
-}
-export type { ExamSessionHandling };
 
 interface FraudDetail {
     fraudDetailId: string;

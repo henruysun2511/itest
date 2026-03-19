@@ -8,7 +8,6 @@ import {
     FileTextOutlined,
     FormOutlined,
     IdcardOutlined,
-    MonitorOutlined,
     ReadOutlined,
     SafetyCertificateOutlined,
     ScheduleOutlined,
@@ -120,14 +119,14 @@ export default function AdminMenu() {
                     icon: <BarChartOutlined />,
                     label: 'Kết quả thi',
                 },
-                {
-                    key: '/admin/fraudDetail',
-                    icon: <SafetyCertificateOutlined />, 
-                    label: 'Xử lý vi phạm',
-                },
+                // {
+                //     key: '/admin/fraudDetail',
+                //     icon: <SafetyCertificateOutlined />, 
+                //     label: 'Xử lý vi phạm',
+                // },
                 {
                     key: '/admin/examSessionHandling',
-                    icon: <MonitorOutlined />, 
+                    icon: <SafetyCertificateOutlined />, 
                     label: 'Xử lý coi thi',
                 },
             ],

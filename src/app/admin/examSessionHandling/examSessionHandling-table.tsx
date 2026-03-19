@@ -1,20 +1,9 @@
-import { ExamSessionHandling } from "@/types/object";
-import { Table, Tag } from "antd";
+import { ExamSessionHandling } from "@/shares/types/object";
+import { getHandlingTypeBadge } from "@/shares/utils/mappingLabel";
+import { Button, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 
-export const handlingTypeMap: Record<string, { label: string; color: string }> = {
-    WARNING: { label: "Cảnh cáo", color: "orange" },
-    REPRIMAND: { label: "Khiển trách", color: "gold" },
-    STOP_FOR_SESSION_TRANSFER: { label: "Dừng thi chuyển ca", color: "volcano" },
-    SUSPENSION: { label: "Đình chỉ thi", color: "red" }
-};
 
-export const getHandlingTypeTag = (type: string) => {
-    const tagStyle = { fontSize: '14px', padding: '2px 8px' };
-    if (!type) return <Tag color="default" style={tagStyle}>Không xác định</Tag>;
-    const mapped = handlingTypeMap[type?.toUpperCase()];
-    return <Tag color={mapped?.color || "red"} style={tagStyle}>{mapped?.label || type}</Tag>;
-};
 
 interface Props {
     data: ExamSessionHandling[];
@@ -43,20 +32,35 @@ export default function FraudTable({ data, loading, pagination, onViewDetail }: 
             width: 250
         },
         {
-            title: "Loại vi phạm",
+            title: "Hình thức xử lý",
             dataIndex: "type",
             key: "type",
             align: "left",
-            render: (type: string) => getHandlingTypeTag(type)
+            render: (type: string) => {
+                const badge = getHandlingTypeBadge(type);
+                return (
+                    <Tag
+                        color={badge.color}
+                        style={{
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            padding: '2px 10px',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        {badge.label}
+                    </Tag>
+                );
+            }
         },
         {
             title: "Chi tiết",
             key: "action",
             align: "center",
             render: (_, record) => (
-                <a onClick={() => onViewDetail(record)} className="text-blue-600 hover:underline">
+                <Button onClick={() => onViewDetail(record)} className="text-blue-600 hover:underline">
                     Xem chi tiết
-                </a>
+                </Button>
             )
         }
     ];

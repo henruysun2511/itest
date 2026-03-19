@@ -14,23 +14,42 @@ function AuthCallbackHandler() {
 
     useEffect(() => {
         const token = searchParams.get("token");
+        const isPasswordSetParam = searchParams.get("isPasswordSet");
+        
+        // Chuyển thành boolean để xử lý logic
+        const isPasswordSet = isPasswordSetParam === "true";
+
         if (token) {
             try {
                 const decoded = jwtDecode(token) as UserJwtDecode;
                 const expires = new Date(new Date().getTime() + 30 * 60 * 1000);
 
+                // 1. Lưu Token vào Cookie
                 Cookies.set("accessToken", token, {
                     expires,
                     path: "/",
                     sameSite: "strict"
                 });
 
+                // 2. Cập nhật Zustand Store
                 setAuth({
                     accountId: decoded.sub,
                     roleName: decoded.roleName,
                 }, token);
 
-                router.push("/");
+                // 3. XỬ LÝ FLAG VÀ ĐIỀU HƯỚNG
+                if (!isPasswordSet) {
+                    // Đánh dấu vào sessionStorage: "Người dùng này cần đặt mật khẩu ngay"
+                    sessionStorage.setItem("first_login_setup", "true");
+                    
+                    // Điều hướng sang trang cập nhật mật khẩu
+                    router.push("/auth/updatePassword");
+                } else {
+                    // Nếu đã có mật khẩu, đảm bảo xóa flag cũ (nếu có) và về trang chủ
+                    sessionStorage.removeItem("first_login_setup");
+                    router.push("/student");
+                }
+                
             } catch (error) {
                 console.error("Lỗi xác thực token Google:", error);
                 router.push("/auth/login");
@@ -43,11 +62,8 @@ function AuthCallbackHandler() {
     return (
         <div className="flex flex-col items-center">
             <Spin size="large" className="custom-spin" />
-            <p className="mt-6 text-[var(--color-navy-deep)] font-bold tracking-wide animate-pulse">
-                ĐANG HOÀN TẤT ĐĂNG NHẬP...
-            </p>
-            <p className="text-slate-400 text-xs mt-2 uppercase tracking-[0.2em]">
-                Hệ thống thi trực tuyến BA
+            <p className="mt-6 text-[var(--color-navy-deep)] font-bold tracking-wide animate-pulse uppercase">
+                Đang kiểm tra thông tin tài khoản...
             </p>
         </div>
     );

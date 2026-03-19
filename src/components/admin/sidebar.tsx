@@ -1,8 +1,6 @@
 import { useToast } from "@/hooks/useToast"; // Giả định bạn có hook toast
 import { useLogout } from "@/queries/useAuthQuery";
-import { handleError } from "@/shares/utils/error";
 import { LogoutOutlined } from "@ant-design/icons";
-import { Modal } from "antd";
 import Sider from "antd/es/layout/Sider";
 import AdminMenu from './menu';
 
@@ -10,33 +8,15 @@ export default function AdminSidebar({ collapsed }: { collapsed: boolean }) {
     const toast = useToast();
     const { mutate: logoutMutation, isPending } = useLogout();
 
+
     const handleLogout = () => {
-        Modal.confirm({
-            title: 'Xác nhận đăng ký đăng xuất toàn cục',
-            icon: <LogoutOutlined className="text-red-500" />,
-            content: 'Hệ thống sẽ đăng xuất tài khoản của bạn khỏi tất cả các thiết bị hiện đang đăng nhập. Bạn có chắc chắn muốn tiếp tục?',
-            okText: 'Đăng xuất tất cả',
-            cancelText: 'Hủy bỏ',
-            okButtonProps: { 
-                danger: true, 
-                loading: isPending 
-            },
-            onOk: () => {
-                return new Promise((resolve, reject) => {
-                    logoutMutation(undefined, {
-                        onSuccess: () => {
-                            toast.success("Đã đăng xuất khỏi tất cả các thiết bị");
-                            resolve(true);
-                        },
-                        onError: (err: any) => {
-                            handleError(err, toast);
-                            reject();
-                        }
-                    });
-                });
+        logoutMutation(undefined, {
+            onSuccess: () => {
+                toast.success("Đã đăng xuất thành công");
             },
         });
     };
+
 
     return (
         <Sider
