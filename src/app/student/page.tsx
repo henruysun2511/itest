@@ -6,6 +6,7 @@ import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
 import { ExamSessionStatus } from "@/shares/constants/status.enum";
 import { ExamSessionParam } from "@/shares/types/param";
 import { handleError } from "@/shares/utils/error";
+import { getStatusConfig } from "@/shares/utils/mappingLabel";
 import { useExamStore } from "@/stores/useExamStore";
 import {
     BookOutlined,
@@ -41,18 +42,7 @@ export default function StudentExamHome() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const getStatusConfig = (status: ExamSessionStatus) => {
-        switch (status) {
-            case ExamSessionStatus.IN_PROGRESS:
-                return { color: '#16a34a', text: 'Đang diễn ra', label: 'Vào thi ngay' };
-            case ExamSessionStatus.NOT_STARTED:
-                return { color: '#e6a943', text: 'Sắp diễn ra', label: 'Chưa mở' };
-            case ExamSessionStatus.FINISHED:
-                return { color: '#6b7280', text: 'Đã đóng', label: 'Đã kết thúc' };
-            default:
-                return { color: '#6b7280', text: 'Không xác định', label: 'Liên hệ GV' };
-        }
-    };
+    
 
     const handleSearch = (val: string) => {
         setParams(prev => ({ ...prev, search: val, page: 1 }));

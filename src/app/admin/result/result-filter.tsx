@@ -1,14 +1,15 @@
-import { ResultParam } from "@/types/param";
+import { useExamSessionList } from "@/queries/useExamSessionQuery";
+import { ResultParam } from "@/shares/types/param";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, InputNumber, Select, Space, Typography } from "antd";
-import { useExamSessionList } from "@/queries/useExamSessionQuery";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const { Text } = Typography;
 
 interface ResultFilterProps {
     onSearch: (value: string) => void;
-    onFilterChange: (key: keyof ResultParam, value: any) => void;
+    // Sửa kiểu dữ liệu ở đây để khớp với Page
+    onFilterChange: <K extends keyof ResultParam>(key: K, value: ResultParam[K]) => void;
     params: ResultParam;
 }
 
@@ -23,18 +24,14 @@ export function ResultFilter({ onSearch, onFilterChange, params }: ResultFilterP
         return () => clearTimeout(handler);
     }, [examSessionSearchTerm]);
 
-    const { data: examSessions, isLoading: isLoadingExamSessions } = useExamSessionList({ 
-        page: 1, 
-        limit: 100, 
-        ...(debouncedExamSessionCode ? { examSessionCode: debouncedExamSessionCode } : {}) 
+    const { data: examSessions, isLoading: isLoadingExamSessions } = useExamSessionList({
+        page: 1,
+        limit: 100,
+        ...(debouncedExamSessionCode ? { examSessionCode: debouncedExamSessionCode } : {})
     });
 
-    const handleExamSessionSearch = (value: string) => {
-        setExamSessionSearchTerm(value);
-    };
-
     return (
-        <div className="flex flex-wrap items-center gap-4 mb-6">
+        <div className="flex flex-wrap items-center gap-4">
             <Space size="middle" className="flex-wrap">
                 <Input.Search
                     placeholder="Tìm kiếm mã sinh viên..."
@@ -52,9 +49,9 @@ export function ResultFilter({ onSearch, onFilterChange, params }: ResultFilterP
                         placeholder="Tất cả ca thi"
                         allowClear
                         showSearch
-                        onSearch={handleExamSessionSearch}
+                        onSearch={(val) => setExamSessionSearchTerm(val)}
                         filterOption={false}
-                        style={{ width: 200 }}
+                        style={{ width: 220 }}
                         loading={isLoadingExamSessions}
                         value={params.examSessionId}
                         onChange={(val) => onFilterChange("examSessionId", val)}
@@ -70,19 +67,23 @@ export function ResultFilter({ onSearch, onFilterChange, params }: ResultFilterP
                     <InputNumber
                         placeholder="Từ"
                         min={0}
-                        max={100}
+                        max={10}
+                        step={0.1}
                         value={params.minTotalScore}
-                        onChange={(val) => onFilterChange("minTotalScore", val)}
-                        style={{ width: 100 }}
+                        // Sửa ở đây: Nếu val là null, chuyển nó thành undefined
+                        onChange={(val) => onFilterChange("minTotalScore", val ?? undefined)}
+                        style={{ width: 80 }}
                     />
                     <Text>-</Text>
                     <InputNumber
                         placeholder="Đến"
                         min={0}
-                        max={100}
+                        max={10}
+                        step={0.1}
                         value={params.maxTotalScore}
-                        onChange={(val) => onFilterChange("maxTotalScore", val)}
-                        style={{ width: 100 }}
+                        // Sửa ở đây: Tương tự cho maxTotalScore
+                        onChange={(val) => onFilterChange("maxTotalScore", val ?? undefined)}
+                        style={{ width: 80 }}
                     />
                 </div>
             </Space>

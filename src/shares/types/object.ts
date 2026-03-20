@@ -70,7 +70,7 @@ interface ExamPdf {
 }
 export type { ExamPdf };
 
-interface QuestionDetail{
+interface QuestionDetail {
   questionId: string;
   questionNumber: string;
   questionType: QuestionType;
@@ -141,20 +141,20 @@ interface Profile {
   profileId: string;
   fullName: string;
   phoneNumber: string;
-  dateOfBirth: string; 
+  dateOfBirth: string;
   avatar: string | null;
   gender: GenderType;
 }
 export type { Profile };
 
 interface Setting {
-    settingId: string | null;
-    logo: string | null;
-    backgroundImage: string | null;
-    audioTest: string | null;
-    logoUrl: string | null;
-    backgroundImageUrl: string | null;
-    audioTestUrl: string | null;
+  settingId: string | null;
+  logo: string | null;
+  backgroundImage: string | null;
+  audioTest: string | null;
+  logoUrl: string | null;
+  backgroundImageUrl: string | null;
+  audioTestUrl: string | null;
 }
 export type { Setting };
 
@@ -196,14 +196,14 @@ export type { TeacherCourse };
 
 
 interface FraudDetail {
-    fraudDetailId: string;
-    examAttemptId: string;
-    examSessionId: string;
-    examSessionCode: string;
-    fraudType: FraudType; 
-    occurredAt: string;
-    fullName: string;
-    studentCode: string;
+  fraudDetailId: string;
+  examAttemptId: string;
+  examSessionId: string;
+  examSessionCode: string;
+  fraudType: FraudType;
+  occurredAt: string;
+  fullName: string;
+  studentCode: string;
 }
 export type { FraudDetail };
 
@@ -214,7 +214,7 @@ export type MediaType = "image" | "audio" | "video";
 export interface MediaPlaceholder {
   mediaType: MediaType;
   description: string;
-  url: string;       
+  url: string;
   publicId: string;
 }
 
@@ -292,10 +292,33 @@ export interface ScoreDetail {
   totalScore: number;
   totalCorrect: number;
   totalQuestions: number;
+  scoreDetail?: {
+    maxScore: number;
+    totalScore: number;
+    totalCorrect: number;
+    totalQuestions: number;
+    percent: number;
+    parts: any[];
+  };
 }
 
 export interface ResultDetail extends Result {
   scoreDetail?: ScoreDetail;
+}
+
+export interface EssayAnswerItem {
+  questionType: string;
+  questionId: string;
+  partId: string;
+  content: string;
+  answerText: string;
+  fileUrls: string[];
+}
+
+export interface EssayResult {
+  resultGradingId: string;
+  currentScore: number;
+  answers: EssayAnswerItem[];
 }
 
 

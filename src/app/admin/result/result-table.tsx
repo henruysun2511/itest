@@ -1,15 +1,17 @@
-import { Result } from "@/types/object";
-import { Table, Tag } from "antd";
+import { Result } from "@/shares/types/object";
+import { getResultStatusBadge } from "@/shares/utils/mappingLabel";
+import { EyeOutlined } from "@ant-design/icons";
+import { Button, Table, Tag, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
 
 interface Props {
     data: Result[];
     loading?: boolean;
     pagination?: any;
-    onRowClick?: (record: Result) => void;
+    onViewDetail: (id: string) => void;
 }
 
-export default function ResultTable({ data, loading, pagination, onRowClick }: Props) {
+export default function ResultTable({ data, loading, pagination, onViewDetail }: Props) {
     const columns: ColumnsType<Result> = [
         {
             title: "Mã phiên thi",
@@ -43,9 +45,33 @@ export default function ResultTable({ data, loading, pagination, onRowClick }: P
             key: "status",
             align: "center",
             render: (status: string) => {
-                const color = status === "NOT_GRADED" ? "orange" : "green";
-                return <Tag color={color}>{status || "Không xác định"}</Tag>;
+                const config = getResultStatusBadge(status);
+                return (
+                    <Tag color={config.color} style={{ borderRadius: '6px', fontWeight: 500 }}>
+                        {config.label.toUpperCase()}
+                    </Tag>
+                );
             }
+        },
+        {
+            title: "Hành động",
+            key: "action",
+            align: "center",
+            width: 100,
+            render: (_, record) => (
+                <Tooltip title="Xem chi tiết">
+                    <Button
+                        type="primary"
+                        shape="circle"
+                        icon={<EyeOutlined />}
+                        onClick={(e) => {
+                            e.stopPropagation(); // Ngăn sự kiện click dòng
+                            onViewDetail(record.resultId);
+                        }}
+                        className="bg-blue-50 text-blue-600 border-none hover:bg-blue-600 hover:text-white"
+                    />
+                </Tooltip>
+            )
         }
     ];
 
@@ -56,12 +82,10 @@ export default function ResultTable({ data, loading, pagination, onRowClick }: P
             dataSource={data}
             loading={loading}
             pagination={pagination}
-            onRow={onRowClick ? (record) => {
-                return {
-                    onClick: () => onRowClick(record)
-                };
-            } : undefined}
-            rowClassName={onRowClick ? "cursor-pointer hover:bg-gray-50 transition-colors" : ""}
+            onRow={(record) => ({
+                onClick: () => onViewDetail(record.resultId),
+                className: "cursor-pointer"
+            })}
         />
     );
 }

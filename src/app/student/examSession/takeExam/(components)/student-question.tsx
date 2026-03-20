@@ -8,7 +8,7 @@ import { RenderMediaList } from './media-render';
 
 
 export function StudentQuestion({ question, value, onChange }: any) {
-  const { questionType, questionText, options, questionNumber, groupInstruction, groupMedia, mediaPlaceholders } = question;
+  const { questionType, content, options, questionNumber, groupInstruction, groupMedia, mediaPlaceholders } = question;
   const type = questionType?.toUpperCase();
   const typeInfo = getQuestionTypeLabel(questionType);
 
@@ -105,8 +105,7 @@ export function StudentQuestion({ question, value, onChange }: any) {
           <div className='flex justify-between items-center mb-4'>
             <div
               className="text-[17px] font-semibold text-[var(--color-text-primary)] leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: questionText }}
-            />
+             >{content}</div>
 
             <Tag color={typeInfo.color} className="rounded-full px-3 font-medium uppercase text-[10px] tracking-wider border-none shadow-sm">
               {typeInfo.label}
