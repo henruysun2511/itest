@@ -9,7 +9,10 @@ import { Button, Card, Col, message, Modal, Result, Row, Spin, Statistic, Tabs }
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ExamMonitor from '../(components)/exam-monitor';
+import { ProgressButton } from '../(components)/renderProgressButton';
 import { StudentQuestion } from '../(components)/student-question';
+
+
 
 export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
@@ -123,6 +126,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         };
     }, [finalExamData, userAnswers]);
 
+
     // 4. Auto-save & Heartbeat
     const { mutate: saveDraft } = useSaveDraft();
     const { mutate: heartbeat } = useHeartbeat();
@@ -172,7 +176,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
     // 5. Submit & Timer
     const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
-
+    const setExamResult = useExamStore((state) => state.setExamResult);
     const handleSubmit = () => {
         console.log(userAnswers);
         Modal.confirm({
@@ -185,10 +189,14 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                 }, {
                     onSuccess: (res) => {
                         message.success("Nộp bài thành công!");
-                        console.log(res)
-                        // localStorage.removeItem(`exam_endtime_${examSessionId}`);
-                        // localStorage.removeItem(`exam_progress_${examSessionId}`);
-                        // router.replace(`/student/examSession/history`);
+                        console.log(res.data.data)
+                        const resultData = res.data?.data;
+                        if (resultData) {
+                            setExamResult(resultData);
+                        }
+                        localStorage.removeItem(`exam_endtime_${examSessionId}`);
+                        localStorage.removeItem(`exam_progress_${examSessionId}`);
+                        router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
                     }
                 });
             }
@@ -369,37 +377,68 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
                             <Card
                                 className="rounded-3xl border-none shadow-lg"
-                                title={<span className="font-bold">TIẾN ĐỘ ({userAnswers.length}/{allQuestions.length})</span>}
+                                title={<span className="font-bold uppercase text-sm">Tiến độ làm bài</span>}
                             >
-                                <div className="grid grid-cols-6 gap-3 max-h-[400px] overflow-y-auto">
-                                    {allQuestions.map((q) => {
-                                        const userAnswer = userAnswers.find(a => a.questionId === q.questionId);
-                                        const isAnswered = userAnswer && (
-                                            Array.isArray(userAnswer.answer)
-                                                ? userAnswer.answer.length > 0
-                                                : !!userAnswer.answer
-                                        );
-                                        return (
-                                            <button
-                                                key={q.questionId}
-                                                className={`aspect-square flex items-center justify-center rounded-xl text-sm font-bold transition-all
-                                                    ${isAnswered ? 'bg-[var(--color-primary)] text-white' : 'bg-slate-50 text-slate-400 border'}`}
-                                            >
-                                                {q.questionNumber}
-                                            </button>
-                                        );
-                                    })}
+                                <Tabs
+                                    size="small"
+                                    items={[
+                                        // Render các Part
+                                        ...(finalExamData?.examDetail?.parts || []).map((part: any, index: number) => ({
+                                            key: `part-${index}`,
+                                            label: `P.${part.partIndex || index + 1}`,
+                                            children: (
+                                                <div className="grid grid-cols-4 gap-2 max-h-[250px] overflow-y-auto py-2 px-1">
+                                                    {part.questions
+                                                        ?.filter((q: any) => q.questionType !== QuestionType.ESSAY)
+                                                        .map((q: any) => (
+                                                            <ProgressButton
+                                                                key={q.questionId}
+                                                                question={q}
+                                                                userAnswer={userAnswers.find(a => a.questionId === q.questionId)}
+                                                                size="lg" // Ô nhỏ theo ý bạn
+                                                            />
+                                                        ))}
+                                                </div>
+                                            )
+                                        })),
+                                        // Render Tab Tự luận
+                                        {
+                                            key: 'essay',
+                                            label: 'T.LUẬN',
+                                            children: (
+                                                <div className="grid grid-cols-4 gap-2 max-h-[250px] overflow-y-auto py-2 px-1">
+                                                    {allQuestions
+                                                        .filter((q: any) => q.questionType === QuestionType.ESSAY)
+                                                        .map((q: any) => (
+                                                            <ProgressButton
+                                                                key={q.questionId}
+                                                                question={q}
+                                                                userAnswer={userAnswers.find(a => a.questionId === q.questionId)}
+                                                                size="lg"
+                                                            />
+                                                        ))}
+                                                </div>
+                                            )
+                                        }
+                                    ]}
+                                />
+
+                                <div className="mt-6 space-y-3">
+                                    <div className="flex justify-between text-xs font-medium text-slate-500 px-1">
+                                        <span>Đã làm: {userAnswers.length}</span>
+                                        <span>Tổng: {allQuestions.length}</span>
+                                    </div>
+                                    <Button
+                                        type="primary"
+                                        block
+                                        size="large"
+                                        loading={isSubmitting}
+                                        onClick={handleSubmit}
+                                        className="h-12 rounded-xl font-bold bg-[var(--color-primary)] border-none"
+                                    >
+                                        NỘP BÀI THI
+                                    </Button>
                                 </div>
-                                <Button
-                                    type="primary"
-                                    block
-                                    size="large"
-                                    loading={isSubmitting}
-                                    onClick={handleSubmit}
-                                    className="mt-6 h-14 rounded-2xl font-bold bg-[var(--color-primary)]"
-                                >
-                                    NỘP BÀI THI
-                                </Button>
                             </Card>
                         </div>
                     </Col>
