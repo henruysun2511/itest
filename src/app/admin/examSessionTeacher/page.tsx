@@ -4,8 +4,9 @@ import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Space, Typography } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { ExamSessionTeacherCreateModal } from "../examTeacher-create-modal";
-import ExamSessionTeacherTable from "../examTeacher-table";
+import { ExamSessionTeacherCreateModal } from "./examTeacher-create-modal";
+import ExamSessionTeacherTable from "./examTeacher-table";
+
 
 const { Text } = Typography;
 

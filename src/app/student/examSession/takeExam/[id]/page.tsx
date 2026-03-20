@@ -1,18 +1,19 @@
 "use client";
 
-import { useHeartbeat, useReportFraud, useSaveDraft } from '@/queries/useExamAttemptQuery';
+import { useHeartbeat, useReportFraud, useSaveDraft, useSubmitExam, useVerifyFaceAttempt } from '@/queries/useExamAttemptQuery';
 import { useExamDetail } from '@/queries/useExamQuery';
 import { useExamSessionDetail } from '@/queries/useExamSessionQuery';
 import { FraudType, QuestionType } from '@/shares/constants/type.enum';
-import { SaveDraftBody } from '@/shares/types/body';
-import { Button, Card, Col, message, Result, Row, Spin, Statistic, Tabs, Tag } from 'antd';
-import { useSearchParams } from 'next/navigation';
+import { DraftAnswer, SaveDraftBody } from '@/shares/types/body';
+import { Button, Card, Col, message, Modal, Result, Row, Spin, Statistic, Tabs, Tag } from 'antd';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import ExamMonitor from '../(components)/exam-monitor';
 import { RenderMediaList } from '../(components)/media-render';
 import { StudentQuestion } from '../(components)/student-question';
 
 export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
+    const router = useRouter();
     const resolvedParams = React.use(params);
     const examSessionId = resolvedParams.id;
     const searchParams = useSearchParams();
@@ -236,6 +237,123 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         };
     }, [examData, userAnswers]);
 
+
+    const { mutate: verifyFace } = useVerifyFaceAttempt();
+    // Hiệu ứng chụp ảnh mỗi 3 phút
+    useEffect(() => {
+        // Chỉ chạy nếu ca thi yêu cầu camera và đã có lượt thi (examAttemptId)
+        if (!examAttemptId || !examSessionRes?.data.isCameraRequired) return;
+
+        const VERIFY_INTERVAL = 3 * 60 * 1000; // 3 phút
+
+        const handleAutoCapture = () => {
+            // Tìm video đang hiển thị từ ExamMonitor
+            const video = document.querySelector('video');
+            const canvas = document.createElement('canvas');
+
+            if (video && video.readyState === 4) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+
+                if (ctx) {
+                    // Lật ảnh (Mirror) cho giống thực tế
+                    ctx.translate(canvas.width, 0);
+                    ctx.scale(-1, 1);
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // Chuyển canvas sang Blob -> File
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const faceFile = new File(
+                                [blob],
+                                `verify_${examAttemptId}_${Date.now()}.jpg`,
+                                { type: "image/jpeg" }
+                            );
+
+                            // Gửi ảnh về server
+                            verifyFace({
+                                examAttemptId,
+                                face: faceFile,
+                                occurredAt: new Date()
+                            }, {
+                                onError: () => {
+                                    // Cảnh báo nhẹ nhàng nếu gửi lỗi hoặc không nhận diện được
+                                    message.warning("Hệ thống giám sát không thể xác thực khuôn mặt, vui lòng điều chỉnh lại vị trí ngồi!");
+                                }
+                            });
+                        }
+                    }, "image/jpeg", 0.7); // Nén 70% để giảm tải server
+                }
+            }
+        };
+
+        // Chạy lần đầu sau 1 phút để ổn định, sau đó lặp lại mỗi 3 phút
+        const firstShot = setTimeout(handleAutoCapture, 60000);
+        const interval = setInterval(handleAutoCapture, VERIFY_INTERVAL);
+
+        return () => {
+            clearTimeout(firstShot);
+            clearInterval(interval);
+        };
+    }, [examAttemptId, examSessionRes, verifyFace]);
+
+    const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
+
+    // 2. Hàm xử lý khi nhấn nút Nộp bài
+    const handleSubmit = () => {
+        // Thu thập danh sách câu trả lời từ state draftAnswers của bạn
+        const answers: DraftAnswer[] = userAnswers.map((item) => ({
+            questionId: item.questionId,
+            answer: item.answer
+        }));
+
+        console.log(answers)
+        Modal.confirm({
+            title: 'Xác nhận nộp bài?',
+            content: 'Bạn có chắc chắn muốn kết thúc bài thi và nộp các câu trả lời này không?',
+            okText: 'Nộp bài',
+            cancelText: 'Hủy',
+            onOk: () => {
+                submitExam({
+                    examSessionId,
+                    data: { answers }
+                }, {
+                    onSuccess: (res) => {
+                        message.success("Nộp bài thi thành công!");
+                        console.log(res);
+                        localStorage.removeItem(`exam_endtime_${examSessionId}`);
+                        localStorage.removeItem(`exam_progress_${examSessionId}`);
+                        // router.replace(`/student/examSession/result/${examSessionId}?examAttemptId=${examAttemptId}`);
+                    },
+                    onError: (err: any) => {
+                        message.error(err?.response?.data?.message || "Lỗi khi nộp bài thi");
+                    }
+                });
+            }
+        });
+    };
+
+    // Thêm logic tính toán thời gian kết thúc vào trong TakeExamPage
+    const endTime = useMemo(() => {
+        const storageKey = `exam_endtime_${examSessionId}`;
+        const savedEndTime = localStorage.getItem(storageKey);
+
+        if (savedEndTime) {
+            return parseInt(savedEndTime, 10);
+        }
+
+        // Nếu chưa có (lần đầu vào thi), tính toán dựa trên duration từ API
+        // duration thường là phút, đổi sang miliseconds
+        if (examSessionRes?.data?.duration) {
+            const newEndTime = Date.now() + examSessionRes.data.duration * 60 * 1000;
+            localStorage.setItem(storageKey, newEndTime.toString());
+            return newEndTime;
+        }
+
+        return Date.now(); // Default fallback
+    }, [examSessionId, examSessionRes]);
+
     if (isExamLoading || isExamSessionLoading) return <Spin fullscreen tip="Đang tải đề thi..." />;
     if (examError || !examData) return <Result status="error" title="Lỗi tải đề" subTitle="Không tìm thấy cấu trúc đề thi." />;
 
@@ -281,10 +399,13 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                                 <div className="relative z-10 p-2">
                                     <p className="text-[var(--color-accent)] text-xs font-bold uppercase tracking-wider mb-2 text-center opacity-90">Thời gian còn lại</p>
                                     <Statistic.Countdown
-                                        value={Date.now() + (examSessionRes?.data?.duration || 60) * 60 * 1000}
+                                        value={endTime}
                                         format="HH:mm:ss"
                                         valueStyle={{ color: '#fff', fontWeight: '900', fontSize: '42px', textAlign: 'center', fontFamily: 'monospace' }}
-                                        onFinish={() => message.error("Hết giờ làm bài!")}
+                                        onFinish={() => {
+                                            message.warning("Đã hết giờ làm bài! Hệ thống đang tự động nộp...");
+                                            handleSubmit();
+                                        }}
                                     />
                                 </div>
                                 <div className="absolute -right-4 -bottom-4 opacity-10 text-[var(--color-accent)]">
@@ -335,11 +456,15 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                                         type="primary"
                                         block
                                         size="large"
+                                        loading={isSubmitting} // Hiển thị loading khi đang gọi API
+                                        onClick={handleSubmit} // Gắn hàm xử lý nộp bài
                                         className="h-14 rounded-2xl font-bold bg-[var(--color-primary)] hover:bg-[var(--color-navy-main)] border-none shadow-lg shadow-[rgba(44,44,112,0.1)]"
                                     >
                                         NỘP BÀI THI
                                     </Button>
-                                    <p className="text-center text-[var(--color-text-secondary)] text-xs italic">Tự động lưu sau 10 giây</p>
+                                    <p className="text-center text-[var(--color-text-secondary)] text-xs italic">
+                                        Tự động lưu sau 10 giây
+                                    </p>
                                 </div>
                             </Card>
                         </div>

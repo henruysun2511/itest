@@ -13,6 +13,7 @@ declare global {
     }
 }
 
+
 export default function VerifyFacePage() {
     const params = useParams();
     const examSessionId = params.examSessionId as string;
@@ -28,6 +29,8 @@ export default function VerifyFacePage() {
     const lastStepTimeRef = useRef(0);
     const lastErrorTimeRef = useRef(0);
     const faceMeshRef = useRef<any>(null); // Lưu FaceMesh vào ref để cleanup
+    const brightnessCanvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [isTooDark, setIsTooDark] = useState(false); // State để hiển thị UI cảnh báo
 
     const { mutate: joinExam, isPending } = useExamSessionJoin();
 
@@ -36,6 +39,26 @@ export default function VerifyFacePage() {
         "Vui lòng xoay mặt sang PHẢI",
         "Nhìn THẲNG vào camera để chụp ảnh",
     ];
+
+    const getBrightness = (video: HTMLVideoElement) => {
+        if (!brightnessCanvasRef.current) {
+            brightnessCanvasRef.current = document.createElement('canvas');
+        }
+        const canvas = brightnessCanvasRef.current;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Tối ưu cho getImageData
+        if (!ctx) return 255;
+
+        canvas.width = 40;
+        canvas.height = 30;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+        let colorSum = 0;
+        for (let i = 0; i < data.length; i += 4) {
+            colorSum += (data[i] + data[i + 1] + data[i + 2]) / 3;
+        }
+        return colorSum / (canvas.width * canvas.height);
+    };
 
     useEffect(() => {
         let active = true; // Flag để tránh update state khi component đã unmount
@@ -70,9 +93,21 @@ export default function VerifyFacePage() {
                 });
 
                 faceMesh.onResults((results: any) => {
+                  
+                    const now = Date.now();
+
+                    if (now - lastErrorTimeRef.current > 1000 && videoRef.current) {
+                        const brightness = getBrightness(videoRef.current);
+                        const tooDark = brightness < 40;
+                        setIsTooDark(tooDark);
+                        if (tooDark) {
+                            message.warning("Ánh sáng yếu, vui lòng bật thêm đèn để đảm bảo xác thực!", 1);
+                        }
+                        lastErrorTimeRef.current = now;
+                    }
+
                     if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) return;
 
-                    const now = Date.now();
                     const landmarks = results.multiFaceLandmarks[0];
                     const leftEye = landmarks[33];
                     const rightEye = landmarks[263];
@@ -197,6 +232,14 @@ export default function VerifyFacePage() {
                 </div>
 
                 <div className="relative mx-auto w-full aspect-[4/3] max-w-[680px] bg-slate-900 rounded-[32px] shadow-2xl overflow-hidden border-[6px] border-white ring-2 ring-slate-100">
+                    {isTooDark && (
+                        <div className="absolute inset-0 z-30 bg-black/60 flex items-center justify-center text-center p-4 transition-opacity">
+                            <div className="bg-white p-4 rounded-2xl shadow-xl">
+                                <Text strong className="text-red-500 block">⚠️ KHÔNG ĐỦ ÁNH SÁNG</Text>
+                                <Text>Vui lòng di chuyển đến nơi sáng hơn</Text>
+                            </div>
+                        </div>
+                    )}
                     {loadingCamera && (
                         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950 text-white">
                             <Spin size="large" />
@@ -205,7 +248,7 @@ export default function VerifyFacePage() {
                     )}
                     <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
 
-                    {!capturedFile && !loadingCamera && (
+                    {!capturedFile && !loadingCamera && !isTooDark && (
                         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                             <div className="w-[70%] h-[80%] border-2 border-dashed border-white/40 rounded-[120px] relative">
                                 <div className="absolute -top-1 -left-1 w-12 h-12 border-t-4 border-l-4 border-[var(--color-accent)] rounded-tl-3xl"></div>

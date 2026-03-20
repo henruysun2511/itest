@@ -5,27 +5,27 @@ import { useUploadFileCloudinary } from "@/queries/useCloudinaryQuery";
 import { useGetProfile, useUpdateProfile } from "@/queries/useProfileQuery";
 import { handleError } from "@/shares/utils/error";
 import {
-    CalendarOutlined,
-    CameraOutlined,
-    CloseOutlined,
-    EditOutlined,
-    LoadingOutlined,
-    PhoneOutlined,
-    SafetyCertificateOutlined,
-    SaveOutlined,
-    UserOutlined
+  CalendarOutlined,
+  CameraOutlined,
+  CloseOutlined,
+  EditOutlined,
+  LoadingOutlined,
+  PhoneOutlined,
+  SafetyCertificateOutlined,
+  SaveOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import {
-    Avatar,
-    Button,
-    Card,
-    DatePicker,
-    Form,
-    Input,
-    Select,
-    Typography,
-    Upload,
-    message
+  Avatar,
+  Button,
+  Card,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Typography,
+  Upload,
+  message
 } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
@@ -111,17 +111,11 @@ export default function AdminOverviewPage() {
   const avatar = form.getFieldValue("avatar") || profile?.avatar;
 
   return (
-
     <div className="p-6 w-full">
-
       {/* HEADER */}
-
       <div className="relative mb-12">
-
         <div className="h-40 w-full rounded-3xl bg-gradient-to-r from-[var(--color-navy-deep)] to-[var(--color-navy-main)] shadow-lg"></div>
-
         <div className="absolute -bottom-8 left-8 flex items-end gap-6">
-
           <div className="relative group">
 
             <Avatar

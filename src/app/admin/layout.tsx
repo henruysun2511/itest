@@ -1,14 +1,10 @@
 "use client";
 import AdminSidebar from '@/components/admin/sidebar';
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined
-} from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { Button, Layout, theme } from 'antd';
 import React, { useState } from 'react';
 
-const { Header, Sider, Content } = Layout;
-
+const { Header, Content } = Layout;
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -16,19 +12,14 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
-
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
+  const { token: { colorBgContainer } } = theme.useToken();
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout className="h-screen overflow-hidden">
       <AdminSidebar collapsed={collapsed} />
 
-      <Layout>
-        <Header
-          style={{ padding: 0, background: colorBgContainer }}>
+      <Layout className="flex flex-col">
+        <Header style={{ padding: 0, background: colorBgContainer }} className="shrink-0 shadow-sm z-10">
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -39,13 +30,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         <Content
           style={{
-            margin: "24px 16px",
+            margin: "16px",
             padding: 24,
             background: "#fff",
-            flex: 1, 
+            borderRadius: 8,
           }}
+          className="flex-1 overflow-y-auto bg-slate-50"
         >
-          {children}
+          <div className="min-h-full">
+            {children}
+          </div>
         </Content>
       </Layout>
     </Layout>

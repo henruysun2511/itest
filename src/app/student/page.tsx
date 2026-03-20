@@ -209,6 +209,7 @@ export default function StudentExamHome() {
                                                         size="large"
                                                         icon={<LoginOutlined />}
                                                         disabled={!isAvailable || session.isLocked}
+                                                        loading={isJoining}
                                                         onClick={() => handleJoinSession(session)}
                                                         className={`rounded-xl font-bold h-12 flex items-center justify-center transition-all ${isAvailable
                                                             ? 'bg-[var(--color-navy-main)] hover:bg-[var(--color-navy-light)] border-none shadow-lg'

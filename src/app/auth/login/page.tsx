@@ -1,6 +1,7 @@
 "use client";
 import { useLogin } from "@/queries/useAuthQuery";
-import { LoginBody } from "@/shares/types/body";
+import { RoleType } from "@/shares/constants/type.enum";
+import { LoginBody, UserJwtDecode } from "@/shares/types/body";
 import { handleError } from "@/shares/utils/error";
 import {
     LockOutlined,
@@ -8,6 +9,7 @@ import {
     UserOutlined
 } from "@ant-design/icons";
 import { Button, Divider, Form, Image, Input } from "antd";
+import { jwtDecode } from "jwt-decode";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "../../../hooks/useToast";
@@ -18,14 +20,29 @@ export default function LoginPage() {
     const { mutate: login, isPending } = useLogin();
 
     const handleLogin = (values: LoginBody) => {
-        const payload: LoginBody = {
-            username: values.username,
-            password: values.password,
-        };
-        login(payload, {
-            onSuccess: () => {
+        login(values, {
+            onSuccess: (res) => {
                 toast.success("Đăng nhập thành công!");
-                router.push("/");
+
+                const { accessToken } = res.data.data;
+                const decoded = jwtDecode(accessToken) as UserJwtDecode;
+                const role = decoded.roleName;
+
+                // Điều hướng dựa trên roleName
+                switch (role) {
+                    case RoleType.ADMIN:
+                        router.push("/admin/overview");
+                        break;
+                    case RoleType.TEACHER:
+                        router.push("/teacher");
+                        break;
+                    case RoleType.STUDENT:
+                        router.push("/student");
+                        break;
+                    default:
+                        router.push("/");
+                        break;
+                }
             },
             onError: (error: any) => {
                 handleError(error, toast);
