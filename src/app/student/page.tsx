@@ -42,8 +42,6 @@ export default function StudentExamHome() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    
-
     const handleSearch = (val: string) => {
         setParams(prev => ({ ...prev, search: val, page: 1 }));
     };
@@ -68,17 +66,40 @@ export default function StudentExamHome() {
                 { id: session.examSessionId },
                 {
                     onSuccess: (res) => {
-                        message.success("Tham gia ca thi thành công!");
-                        // Chuyển hướng sau khi API đã đăng ký tham gia thành công
-                        const examData = res.data.data;
-                        const examId = examData.randomExamId;
-                        const examAttemptId = examData.examAttemptId;
-                        console.log(res.data.data);
-                        setExamData(examData);
+                        const rawData = res?.data?.data;
 
-                        router.push(
-                            `/student/examSession/takeExam/${session.examSessionId}?examId=${examId}&examAttemptId=${examAttemptId}`
-                        );
+                        if (!rawData) {
+                            console.error("API Response Data is missing:", res);
+                            message.error("Không thể lấy thông tin bài thi. Vui lòng thử lại!");
+                            return;
+                        }
+
+                        // 2. Trích xuất biến với giá trị mặc định để tránh undefined
+                        const {
+                            randomExamId: examId,
+                            examAttemptId,
+                            examSessionId: resSessionId
+                        } = rawData;
+
+                        // 3. Kiểm tra các ID quan trọng trước khi redirect
+                        if (!examId || !examAttemptId) {
+                            console.error("Missing IDs:", { examId, examAttemptId });
+                            message.warning("Dữ liệu bài thi chưa sẵn sàng.");
+                            return;
+                        }
+
+                        message.success("Tham gia ca thi thành công!");
+
+                        // 4. Cập nhật Store (Zustand)
+                        setExamData(rawData);
+
+                        // 5. Sử dụng ID trực tiếp từ biến đã trích xuất để push router
+                        // Dùng template string sạch sẽ
+                        const targetSessionId = resSessionId || session.examSessionId;
+                        const url = `/student/examSession/takeExam/${targetSessionId}?examId=${examId}&examAttemptId=${examAttemptId}`;
+
+                        console.log("Redirecting to:", url);
+                        router.push(url);
                     },
                     onError: (error: any) => {
                         handleError(error, toast)

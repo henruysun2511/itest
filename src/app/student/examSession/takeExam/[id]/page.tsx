@@ -29,39 +29,92 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const { data: examDetailRes, isLoading: isExamLoading } = useExamDetail(
         !storeExamData ? (examId as string) : ""
     );
+    console.log(examDetailRes);
     const { data: examSessionRes, isLoading: isExamSessionLoading } = useExamSessionDetail(examSessionId);
 
     // Xác định nguồn dữ liệu cuối cùng để render
     const finalExamData = useMemo(() => {
+        // Ưu tiên store, nếu không có thì lấy từ API response
         return storeExamData || examDetailRes?.data;
-    }, [storeExamData, examDetailRes]);
-
+    }, [storeExamData, examDetailRes?.data]);
     // 2. State quản lý câu trả lời
-    const [userAnswers, setUserAnswers] = useState<any[]>([]);
-
+    // const [userAnswers, setUserAnswers] = useState<any[]>([]);
+    const setExamData = useExamStore((state) => state.setExamData);
     useEffect(() => {
-        const localData = localStorage.getItem(`exam_progress_${examSessionId}`);
-        if (localData) {
-            setUserAnswers(JSON.parse(localData).answers);
+        if (!storeExamData && examDetailRes?.data) {
+            setExamData(examDetailRes.data);
         }
-    }, [examSessionId]);
+    }, [examDetailRes?.data, storeExamData, setExamData]);
+
+    const [userAnswers, setUserAnswers] = useState<{ questionId: string; answer: any }[]>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`exam_progress_${examSessionId}`);
+            return saved ? JSON.parse(saved).answers : [];
+        }
+        return [];
+    });
 
     const handleAnswerChange = (questionId: string, value: any) => {
-        setUserAnswers(prev => {
+        setUserAnswers((prev) => {
             const newAnswers = [...prev];
-            const index = newAnswers.findIndex(a => a.questionId === questionId);
-            if (index > -1) newAnswers[index].answer = value;
-            else newAnswers.push({ questionId, answer: value });
+            const index = newAnswers.findIndex((a) => a.questionId === questionId);
 
-            localStorage.setItem(`exam_progress_${examSessionId}`, JSON.stringify({ answers: newAnswers }));
+            if (index > -1) {
+                // Gán trực tiếp value (nếu là trắc nghiệm là "A", tự luận là {content, file_metadata})
+                newAnswers[index].answer = value;
+            } else {
+                newAnswers.push({ questionId, answer: value });
+            }
+
+            // Lưu vào localStorage để khi F5 không bị mất
+            localStorage.setItem(
+                `exam_progress_${examSessionId}`,
+                JSON.stringify({ answers: newAnswers })
+            );
             return newAnswers;
         });
     };
 
+    const handleEnableFullScreen = () => {
+        const elem = document.documentElement; // Lấy toàn bộ trang web
+
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch((err) => {
+                console.error(`Không thể bật toàn màn hình: ${err.message}`);
+            });
+        }
+    };
+
+    useEffect(() => {
+        // Nếu chưa ở chế độ toàn màn hình, hiện Modal bắt buộc
+        Modal.warning({
+            title: 'Yêu cầu chế độ toàn màn hình',
+            content: 'Để đảm bảo tính công bằng, bài thi yêu cầu chế độ toàn màn hình. Vui lòng nhấn xác nhận để bắt đầu.',
+            okText: 'Xác nhận & Vào thi',
+            onOk: () => {
+                handleEnableFullScreen();
+            },
+        });
+
+        // Theo dõi nếu người dùng cố tình thoát Fullscreen (nhấn Esc)
+        const handleExit = () => {
+            if (!document.fullscreenElement) {
+                message.error("Cảnh báo: Bạn đã thoát chế độ toàn màn hình! Hành động này sẽ được ghi nhận.");
+                handleViolationDetected(FraudType.WINDOW_BLUR);
+            }
+        };
+
+        document.addEventListener('fullscreenchange', handleExit);
+        return () => document.removeEventListener('fullscreenchange', handleExit);
+    }, []);
+
     // 3. Logic xử lý Tab và Câu hỏi (Dựa trên cấu trúc state bạn cung cấp)
+    const actualParts = useMemo(() => {
+        return finalExamData?.parts || finalExamData?.examDetail?.parts || [];
+    }, [finalExamData]);
+
     const { tabItems, allQuestions } = useMemo(() => {
         // Lưu ý: Object của bạn có cấu trúc: examDetail: { parts: [...] }
-        const actualParts = finalExamData?.examDetail?.parts || [];
         if (actualParts.length === 0) return { tabItems: [], allQuestions: [] };
 
         const fullQuestionsList: any[] = [];
@@ -129,7 +182,6 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
     // 4. Auto-save & Heartbeat
     const { mutate: saveDraft } = useSaveDraft();
-    const { mutate: heartbeat } = useHeartbeat();
 
     const lastSavedAnswersRef = useRef<string>("");
     const currentUserAnswersRef = useRef(userAnswers);
@@ -165,27 +217,79 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         }, 10000); // Luôn chạy mỗi 10s cố định
 
         return () => clearInterval(timer);
-    }, [examAttemptId]); //
+    }, [examAttemptId]);
+
+    const { mutate: sendHeartbeat } = useHeartbeat();
 
     useEffect(() => {
-        if (examAttemptId) {
-            const timer = setInterval(() => heartbeat(examAttemptId), 30000);
-            return () => clearInterval(timer);
-        }
-    }, [examAttemptId]);
+        // 1. Xử lý khi mất kết nối mạng (Offline)
+        const handleOffline = () => {
+            console.log("Mất kết nối mạng, gửi heartbeat cuối...");
+            sendHeartbeat(examAttemptId as string);
+        };
+
+        // 2. Xử lý khi đóng tab, tắt trình duyệt hoặc chuyển ứng dụng
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                // Sử dụng sendBeacon hoặc mutate để báo cáo trạng thái cuối
+                // Lưu ý: Chrome ưu tiên sendBeacon khi đóng tab
+                sendHeartbeat(examAttemptId as string);
+            }
+        };
+
+        // 3. Xử lý sự kiện trước khi unload (F5, Close Tab)
+        const handleBeforeUnload = () => {
+            sendHeartbeat(examAttemptId as string);
+        };
+
+        window.addEventListener('offline', handleOffline);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('offline', handleOffline);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [examAttemptId, sendHeartbeat]);
 
     // 5. Submit & Timer
     const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
     const setExamResult = useExamStore((state) => state.setExamResult);
     const handleSubmit = () => {
-        console.log(userAnswers);
         Modal.confirm({
             title: 'Xác nhận nộp bài?',
             content: 'Bạn có chắc chắn muốn nộp bài thi không?',
             onOk: () => {
+                const formattedAnswers = userAnswers.map((ans) => {
+                    // Kiểm tra nếu là câu tự luận (value là object có content)
+                    const isEssay = typeof ans.answer === 'object' && ans.answer !== null;
+
+                    if (isEssay) {
+                        return {
+                            questionId: ans.questionId,
+                            answer: ans.answer.content || "", // Nội dung văn bản
+                            file_urls: ans.answer.file_metadata?.map((m: any) => m.signedUrl) || [] // Mảng URL phẳng
+                        };
+                    }
+
+                    // Trắc nghiệm giữ nguyên
+                    return {
+                        questionId: ans.questionId,
+                        answer: ans.answer || ""
+                    };
+                });
+
+                const payload = {
+                    examAttemptId,
+                    answers: formattedAnswers
+                };
+
+                console.log("Dữ liệu chuẩn gửi đi:", payload);
+
                 submitExam({
                     examSessionId,
-                    data: { answers: userAnswers }
+                    data: { answers: formattedAnswers }
                 }, {
                     onSuccess: (res) => {
                         message.success("Nộp bài thành công!");
@@ -382,9 +486,9 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                                 <Tabs
                                     size="small"
                                     items={[
-                                        // Render các Part
-                                        ...(finalExamData?.examDetail?.parts || []).map((part: any, index: number) => ({
-                                            key: `part-${index}`,
+                                        // Sử dụng actualParts thay vì finalExamData?.examDetail?.parts
+                                        ...(actualParts || []).map((part: any, index: number) => ({
+                                            key: `progress-part-${index}`,
                                             label: `P.${part.partIndex || index + 1}`,
                                             children: (
                                                 <div className="grid grid-cols-4 gap-2 max-h-[250px] overflow-y-auto py-2 px-1">
@@ -395,15 +499,15 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                                                                 key={q.questionId}
                                                                 question={q}
                                                                 userAnswer={userAnswers.find(a => a.questionId === q.questionId)}
-                                                                size="lg" // Ô nhỏ theo ý bạn
+                                                                size="lg"
                                                             />
                                                         ))}
                                                 </div>
                                             )
                                         })),
-                                        // Render Tab Tự luận
-                                        {
-                                            key: 'essay',
+                                        // Chỉ render tab Tự luận nếu thực sự có câu hỏi tự luận
+                                        ...(allQuestions.some(q => q.questionType === QuestionType.ESSAY) ? [{
+                                            key: 'essay-progress',
                                             label: 'T.LUẬN',
                                             children: (
                                                 <div className="grid grid-cols-4 gap-2 max-h-[250px] overflow-y-auto py-2 px-1">
@@ -419,10 +523,9 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                                                         ))}
                                                 </div>
                                             )
-                                        }
+                                        }] : [])
                                     ]}
                                 />
-
                                 <div className="mt-6 space-y-3">
                                     <div className="flex justify-between text-xs font-medium text-slate-500 px-1">
                                         <span>Đã làm: {userAnswers.length}</span>

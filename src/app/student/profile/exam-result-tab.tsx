@@ -62,7 +62,7 @@ export function ExamResultTab() {
                         type="primary"
                         shape="circle"
                         icon={<EyeOutlined />}
-                        onClick={() => router.push(`/student/exam-history/${record.resultId}`)}
+                        onClick={() => router.push(`/student/result/${record.resultId}`)}
                         className="bg-blue-50 text-blue-600 border-none hover:bg-blue-600 hover:text-white"
                     />
                 </Tooltip>
