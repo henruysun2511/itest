@@ -13,7 +13,7 @@ export const StorageService = {
         formData.append("file", file);
 
         return http.post<ApiResponse<UploadExamPdf>>(
-            `/${prefix}/exam-pdf`,
+            `/${prefix}/exam-pdf-exams`,
             formData,
             {
                 headers: {
