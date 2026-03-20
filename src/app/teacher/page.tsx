@@ -157,9 +157,7 @@ export default function TeacherPage() {
                                                 {teacherCourses?.find(tc => tc.courseId === selectedCourse)?.course.name}
                                             </Title>
                                         </div>
-                                        <Button type="primary" className="bg-slate-800 rounded-xl h-10 px-6 font-bold shrink-0 border-none hover:!bg-slate-700">
-                                            Báo cáo tổng hợp
-                                        </Button>
+                                     
                                     </div>
 
                                     {/* Danh sách ca thi có Scroll */}

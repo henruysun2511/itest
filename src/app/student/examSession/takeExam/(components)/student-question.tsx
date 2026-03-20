@@ -8,7 +8,7 @@ import { RenderMediaList } from './media-render';
 
 
 export function StudentQuestion({ question, value, onChange }: any) {
-  const { questionType, questionText, options, questionIndex, groupInstruction, groupMedia, mediaPlaceholders } = question;
+  const { questionType, questionText, options, questionNumber, groupInstruction, groupMedia, mediaPlaceholders } = question;
   const type = questionType?.toUpperCase();
   const typeInfo = getQuestionTypeLabel(questionType);
 
@@ -97,7 +97,7 @@ export function StudentQuestion({ question, value, onChange }: any) {
         <div className="flex-shrink-0 flex flex-col items-center gap-2">
           {/* Số thứ tự câu hỏi */}
           <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center font-black shadow-lg shadow-[rgba(44,44,112,0.2)]">
-            {questionIndex}
+            {questionNumber}
           </div>
         </div>
 

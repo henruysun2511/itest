@@ -30,6 +30,7 @@ export default function RegistrationPage() {
 
   // Hooks dữ liệu
   const { data, isLoading } = useRegistrationList(sessionId, params);
+  console.log(data);
   const { mutate: updateBulkAccess, isPending: isUpdatingBulk } = useUpdateAccessState(sessionId);
 
   // Tính toán trạng thái Switch tổng dựa trên dữ liệu hiện tại

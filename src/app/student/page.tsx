@@ -6,6 +6,7 @@ import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
 import { ExamSessionStatus } from "@/shares/constants/status.enum";
 import { ExamSessionParam } from "@/shares/types/param";
 import { handleError } from "@/shares/utils/error";
+import { useExamStore } from "@/stores/useExamStore";
 import {
     BookOutlined,
     ClockCircleOutlined,
@@ -24,6 +25,7 @@ const { Title, Text } = Typography;
 export default function StudentExamHome() {
     const router = useRouter();
     const toast = useToast();
+    const setExamData = useExamStore((state) => state.setExamData);
     const [params, setParams] = useState<ExamSessionParam>({
         page: 1,
         limit: 9,
@@ -38,7 +40,6 @@ export default function StudentExamHome() {
         setParams(prev => ({ ...prev, page, limit: pageSize }));
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    console.log(data)
 
     const getStatusConfig = (status: ExamSessionStatus) => {
         switch (status) {
@@ -83,6 +84,7 @@ export default function StudentExamHome() {
                         const examId = examData.randomExamId;
                         const examAttemptId = examData.examAttemptId;
                         console.log(res.data.data);
+                        setExamData(examData);
 
                         router.push(
                             `/student/examSession/takeExam/${session.examSessionId}?examId=${examId}&examAttemptId=${examAttemptId}`
