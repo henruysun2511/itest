@@ -1,4 +1,4 @@
-import { AccessStateBody, ApiResponse, CreateExamRegistrationBody } from "@/shares/types/body";
+import { AccessStateBody, ApiResponse, CreateExamRegistrationBody, StudentAccessStateBody } from "@/shares/types/body";
 import { ExamRegistration } from "@/shares/types/object";
 import { ExamRegistrationParam } from "@/shares/types/param";
 import http from "@/shares/utils/http";
@@ -25,7 +25,15 @@ export const ExamRegistrationService = {
   // PATCH: Cập nhật quyền vào thi (Mở/Khóa)
   updateAccess(sessionId: string, data: AccessStateBody) {
     return http.patch<ApiResponse<ExamRegistration>>(
-      `/${prefix}/access-state/${sessionId}`, 
+      `/${prefix}/${sessionId}/state`, 
+      data
+    );
+  },
+
+  // PATCH: Cập nhật quyền vào thi theo studentCode
+  updateStudentAccess(sessionId: string, data: StudentAccessStateBody) {
+    return http.patch<ApiResponse<ExamRegistration>>(
+      `/${prefix}/${sessionId}/student/state`, 
       data
     );
   },

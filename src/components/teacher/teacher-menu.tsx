@@ -8,7 +8,7 @@ export const TEACHER_MENU_ITEMS = [
         key: 'exam-management', 
         icon: <SolutionOutlined />, 
         label: 'Quản lý thi',
-        path: '/teacher/exam-management' 
+        path: '/teacher' 
     },
     { 
         key: 'bank', 

@@ -1,5 +1,5 @@
 import { AccountStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
-import { ExamRegistrationStatusType, FraudType, GenderType } from "@/shares/constants/type.enum";
+import { ExamRegistrationStatusType, FraudType, GenderType, QuestionType } from "@/shares/constants/type.enum";
 
 interface BaseObject {
   createdAt: string;
@@ -70,11 +70,18 @@ interface ExamPdf {
 }
 export type { ExamPdf };
 
+interface QuestionDetail{
+  questionId: string;
+  questionNumber: string;
+  questionType: QuestionType;
+  content: string;
+}
 interface Exam {
   examCode: string;
   title: string;
   objectKey: string;
   parsedJson?: ExamData;
+  questions: QuestionDetail[];
 }
 export type { Exam };
 

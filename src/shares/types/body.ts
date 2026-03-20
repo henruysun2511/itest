@@ -198,8 +198,19 @@ interface CreateProctoringHandleBody {
   reason: string;
   type: ProctoringHandleType;
 }
+
+interface StudentAccessStateBody {
+  isAccessGranted: boolean;
+  studentCode: string;
+}
+
+interface VerifyFaceBody{
+  face: File;
+  examAttemptId: string;
+  occurredAt: Date;
+}
 export type {
   ChangePasswordBody, CreateProctoringHandleBody, DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
-  SaveAnswersBody, SaveDraftBody, SubmitExamBody, UpdateStudentPasswordBody
+  SaveAnswersBody, SaveDraftBody, StudentAccessStateBody, SubmitExamBody, UpdateStudentPasswordBody, VerifyFaceBody
 };
 

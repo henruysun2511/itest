@@ -50,7 +50,9 @@ export default function QuestionEditor({
             questionType: type.toUpperCase(),
             options: type === 'essay' ? null : [
                 { label: "A", text: "Lựa chọn 1" },
-                { label: "B", text: "Lựa chọn 2" }
+                { label: "B", text: "Lựa chọn 2" },
+                { label: "C", text: "Lựa chọn 3" },
+                { label: "D", text: "Lựa chọn 4" }
             ],
             mediaPlaceholders: [],
         };

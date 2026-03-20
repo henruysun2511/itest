@@ -1,6 +1,12 @@
+"use client";
+
 import { useToast } from "@/hooks/useToast";
-import { useRemoveRegistration, useUpdateAccessState } from "@/queries/useExamRegistrationQuery";
+import {
+    useRemoveRegistration,
+    useUpdateStudentAccess // 1. Dùng hook mới ở đây
+} from "@/queries/useExamRegistrationQuery";
 import { ExamRegistration } from "@/shares/types/object";
+import { handleError } from "@/shares/utils/error";
 import { DeleteOutlined, LockOutlined, UnlockOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Popconfirm, Space, Switch, Table, Tag, Tooltip, Typography } from "antd";
 import { ColumnsType } from "antd/es/table";
@@ -16,13 +22,22 @@ interface Props {
 
 export default function RegistrationTable({ data, loading, pagination, sessionId }: Props) {
     const toast = useToast();
-    const { mutate: updateAccess, isPending: isUpdating } = useUpdateAccessState(sessionId);
+    
+    // 2. Khởi tạo hook mới
+    const { mutate: updateStudentAccess, isPending: isUpdating } = useUpdateStudentAccess(sessionId);
     const { mutate: removeStudent, isPending: isDeleting } = useRemoveRegistration(sessionId);
 
-    const handleToggleAccess = (registrationId: string, checked: boolean) => {
-        updateAccess(
-            { registrationId, data: { isAccessGranted: checked } },
-            { onSuccess: () => toast.success("Đã cập nhật quyền truy cập") }
+    // 3. Cập nhật hàm xử lý Toggle
+    const handleToggleAccess = (studentCode: string, checked: boolean) => {
+        updateStudentAccess(
+            { 
+                studentCode, 
+                isAccessGranted: checked 
+            },
+            {
+                onSuccess: () => toast.success(`Đã ${checked ? 'mở' : 'khóa'} quyền truy cập của SV ${studentCode}`),
+                onError: (error: any) => handleError(error, toast)
+            }
         );
     };
 
@@ -30,9 +45,8 @@ export default function RegistrationTable({ data, loading, pagination, sessionId
         {
             title: "Mã sinh viên",
             key: "studentCode",
-            render: (_, record) => (
-                <div>{record.studentCode}</div>
-            ),
+            dataIndex: "studentCode",
+            render: (text) => <Text strong>{text}</Text>,
         },
         {
             title: "Sinh viên",
@@ -47,9 +61,8 @@ export default function RegistrationTable({ data, loading, pagination, sessionId
         {
             title: "Số báo danh",
             key: "candidateNumber",
-            render: (_, record) => (
-                <div>{record.candidateNumber}</div>
-            ),
+            dataIndex: "candidateNumber",
+            align: "center",
         },
         {
             title: "Trạng thái",
@@ -67,7 +80,8 @@ export default function RegistrationTable({ data, loading, pagination, sessionId
                         unCheckedChildren={<LockOutlined />}
                         checked={val}
                         loading={isUpdating}
-                        onChange={(checked) => handleToggleAccess(record.registrationId, checked)}
+                        // 4. Truyền studentCode vào đây thay vì registrationId
+                        onChange={(checked) => handleToggleAccess(record.studentCode, checked)}
                     />
                     <Text style={{ fontSize: '10px' }} type={val ? "success" : "danger"}>
                         {val ? "Mở" : "Khóa"}
@@ -82,13 +96,22 @@ export default function RegistrationTable({ data, loading, pagination, sessionId
             render: (_, record) => (
                 <Popconfirm
                     title="Xóa đăng ký này?"
-                    onConfirm={() => removeStudent(record.studentId)}
+                    onConfirm={() =>
+                        removeStudent(record.studentId, { 
+                            onSuccess: () => toast.success("Đã xóa sinh viên khỏi ca thi"),
+                            onError: (error: any) => handleError(error, toast)
+                        })
+                    }
                     okText="Xóa"
                     cancelText="Hủy"
                 >
                     <Tooltip title="Xóa khỏi ca thi">
-                        <Button type="primary"
-                            danger icon={<DeleteOutlined />} loading={isDeleting} />
+                        <Button 
+                            type="primary"
+                            danger 
+                            icon={<DeleteOutlined />} 
+                            loading={isDeleting} 
+                        />
                     </Tooltip>
                 </Popconfirm>
             ),

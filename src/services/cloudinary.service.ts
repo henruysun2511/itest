@@ -27,4 +27,19 @@ export const CloudinaryService = {
             { data: payload }
         );
     },
+
+    uploadAvatarCloudinary(file: File) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        return http.post<ApiResponse<UploadCloudinary>>(
+            `/${prefix}/avatars`, 
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
+        );
+    },
 };

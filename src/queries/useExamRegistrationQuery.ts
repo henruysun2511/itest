@@ -1,5 +1,5 @@
 import { ExamRegistrationService } from "@/services/examRegistration.service";
-import { AccessStateBody, CreateExamRegistrationBody } from "@/shares/types/body";
+import { AccessStateBody, CreateExamRegistrationBody, StudentAccessStateBody } from "@/shares/types/body";
 import { ExamRegistrationParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -33,8 +33,19 @@ export const useRegisterStudents = (sessionId: string) => {
 export const useUpdateAccessState = (sessionId: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ registrationId, data }: { registrationId: string; data: AccessStateBody }) =>
-      ExamRegistrationService.updateAccess(registrationId, data),
+    mutationFn: ({ examSessionId, data }: { examSessionId: string; data: AccessStateBody }) =>
+      ExamRegistrationService.updateAccess(examSessionId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [...REGISTRATION_QUERY_KEY, sessionId] });
+    },
+  });
+};
+
+export const useUpdateStudentAccess = (sessionId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: StudentAccessStateBody) =>
+      ExamRegistrationService.updateStudentAccess(sessionId, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...REGISTRATION_QUERY_KEY, sessionId] });
     },

@@ -1,4 +1,4 @@
-import { ApiResponse, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody, SaveAnswersBody, SaveDraftBody, SubmitExamBody } from "@/shares/types/body";
+import { ApiResponse, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody, SaveAnswersBody, SaveDraftBody, SubmitExamBody, VerifyFaceBody } from "@/shares/types/body";
 import { ExamAttempt } from "@/shares/types/object";
 import { ExamAttemptParam } from "@/shares/types/param";
 
@@ -62,7 +62,20 @@ export const ExamAttemptService = {
   },
 
   // POST: Xác thực khuôn mặt ca thi
-  verifyFace(data: ReportFraudBody) {
-    return http.post<ApiResponse<any>>(`/${prefix}/exam-sessions/verify-face`, data);
+  verifyFace(data: VerifyFaceBody) {
+    const formData = new FormData();
+    formData.append('face', data.face); // data.face là đối tượng File
+    formData.append('examAttemptId', data.examAttemptId);
+    formData.append('occurredAt', data.occurredAt.toISOString());
+
+    return http.post<ApiResponse<any>>(
+      `/${prefix}/exam-sessions/verify-face`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
   }
 };

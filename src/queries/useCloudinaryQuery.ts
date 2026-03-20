@@ -16,3 +16,9 @@ export const useDeleteFileCloudinary = () => {
             CloudinaryService.deleteFileCloudinary(payload),
     });
 };
+
+export const useUploadAvatarCloudinary = () => {
+    return useMutation({
+        mutationFn: (file: File) => CloudinaryService.uploadAvatarCloudinary(file),
+    });
+};

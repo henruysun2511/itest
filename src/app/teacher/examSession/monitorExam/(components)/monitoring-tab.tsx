@@ -163,10 +163,8 @@ export default function MonitoringTab({ examSessionId }: Props) {
                 ))}
             </Row>
 
-
-
             <div
-                className="fixed right-6 top-[180px] w-[270px] bg-white rounded-2xl shadow-xl border border-slate-100 flex flex-col z-10"
+                className="fixed right-3 top-[180px] w-[270px] bg-white rounded-2xl shadow-xl border border-slate-100 flex flex-col z-10"
                 style={{ height: 'calc(100vh - 220px)' }}
             >
                 <div className="p-4 border-b flex items-center justify-between bg-slate-50 rounded-t-2xl">
