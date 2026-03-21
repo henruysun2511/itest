@@ -28,15 +28,15 @@ interface LoginResponse {
 export type { LoginResponse };
 
 interface ChangePasswordBody {
-    oldPassword?: string;
-    password: string;
-    passwordConfirm: string;
+  oldPassword?: string;
+  password: string;
+  passwordConfirm: string;
 }
 
 interface UpdateStudentPasswordBody {
-    studentAccountId: string;
-    password: string;
-    passwordConfirm: string;
+  studentAccountId: string;
+  password: string;
+  passwordConfirm: string;
 }
 
 interface LoginBody {
@@ -190,7 +190,7 @@ interface RetakePermissionBody {
 
 interface ReportFraudBody {
   fraudType: FraudType;
-} 
+}
 
 interface CreateProctoringHandleBody {
   studentId: string;
@@ -204,7 +204,7 @@ interface StudentAccessStateBody {
   studentCode: string;
 }
 
-interface VerifyFaceBody{
+interface VerifyFaceBody {
   face: File;
   examAttemptId: string;
   occurredAt: Date;

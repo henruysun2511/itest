@@ -36,7 +36,10 @@ export default function StudentExamHome() {
         sortOrder: SortOrder.DESC
     });
 
-    const { data, isLoading } = useMyExamSessions(params);
+    const { data, isLoading } = useMyExamSessions(params, {
+        refetchInterval: 5000, // Cập nhật realtime mỗi 5 giây
+        refetchOnWindowFocus: true
+    });
 
     const handlePageChange = (page: number, pageSize: number) => {
         setParams(prev => ({ ...prev, page, limit: pageSize }));
@@ -184,7 +187,7 @@ export default function StudentExamHome() {
                 ) : data?.data?.length ? (
                     <>
                         <Row gutter={[24, 24]}>
-                            {data.data.map((session) => {
+                            {data.data.map((session: any) => {
                                 const config = getStatusConfig(session.status as ExamSessionStatus);
                                 const isAvailable = session.status === ExamSessionStatus.IN_PROGRESS;
 

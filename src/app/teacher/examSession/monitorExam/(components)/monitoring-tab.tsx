@@ -117,48 +117,12 @@ export default function MonitoringTab({ examSessionId }: Props) {
             <Row gutter={[12, 12]}>
                 {attempts.map((student) => (
                     <>
-                    <StudentCard
-                        key={student.examAttemptId}
-                        student={student}
-                        actions={{ pauseAttempt, forceSubmit, grantRetake, saveAnswers, examSessionId }}
-                        onHandleViolation={(data) => setHandleModal({ open: true, student: data })}
-                    />
-                     <StudentCard
-                        key={student.examAttemptId}
-                        student={student}
-                        actions={{ pauseAttempt, forceSubmit, grantRetake, saveAnswers, examSessionId }}
-                        onHandleViolation={(data) => setHandleModal({ open: true, student: data })}
-                    />
-                     <StudentCard
-                        key={student.examAttemptId}
-                        student={student}
-                        actions={{ pauseAttempt, forceSubmit, grantRetake, saveAnswers, examSessionId }}
-                        onHandleViolation={(data) => setHandleModal({ open: true, student: data })}
-                    />
-                     <StudentCard
-                        key={student.examAttemptId}
-                        student={student}
-                        actions={{ pauseAttempt, forceSubmit, grantRetake, saveAnswers, examSessionId }}
-                        onHandleViolation={(data) => setHandleModal({ open: true, student: data })}
-                    />
-                     <StudentCard
-                        key={student.examAttemptId}
-                        student={student}
-                        actions={{ pauseAttempt, forceSubmit, grantRetake, saveAnswers, examSessionId }}
-                        onHandleViolation={(data) => setHandleModal({ open: true, student: data })}
-                    />
-                     <StudentCard
-                        key={student.examAttemptId}
-                        student={student}
-                        actions={{ pauseAttempt, forceSubmit, grantRetake, saveAnswers, examSessionId }}
-                        onHandleViolation={(data) => setHandleModal({ open: true, student: data })}
-                    />
-                     <StudentCard
-                        key={student.examAttemptId}
-                        student={student}
-                        actions={{ pauseAttempt, forceSubmit, grantRetake, saveAnswers, examSessionId }}
-                        onHandleViolation={(data) => setHandleModal({ open: true, student: data })}
-                    />
+                        <StudentCard
+                            key={student.examAttemptId}
+                            student={student}
+                            actions={{ pauseAttempt, forceSubmit, grantRetake, saveAnswers, examSessionId }}
+                            onHandleViolation={(data) => setHandleModal({ open: true, student: data })}
+                        />
                     </>
                 ))}
             </Row>

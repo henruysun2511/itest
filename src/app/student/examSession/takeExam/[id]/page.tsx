@@ -1,11 +1,14 @@
 "use client";
 
+import { useExamSSE } from '@/hooks/useExamSSE';
+import { EXAM_ATTEMPT_KEY, useMyExamAttempt } from '@/queries/useExamAttemptQuery';
 import { useExamDetail } from '@/queries/useExamQuery';
-import { useExamSessionDetail } from '@/queries/useExamSessionQuery';
+import { EXAM_SESSION_QUERY_KEY, useExamSessionDetail } from '@/queries/useExamSessionQuery';
 import { QuestionType } from '@/shares/constants/type.enum';
 import { useExamStore } from '@/stores/useExamStore';
-import { Button, Card, Col, Result, Row, Spin, Statistic, Tabs } from 'antd';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { Button, Card, Col, Result, Row, Spin, Statistic, Tabs, message } from 'antd';
+import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import ExamMonitor from '../(components)/exam-monitor';
 import { ProgressButton } from '../(components)/renderProgressButton';
@@ -19,7 +22,6 @@ import { useExamTimer } from '../(hooks)/useExamTimer';
 
 
 export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
-    const router = useRouter();
     const resolvedParams = React.use(params);
     const examSessionId = resolvedParams.id;
     const searchParams = useSearchParams();
@@ -29,12 +31,19 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     // Lấy data từ Zustand Store (Dữ liệu đã có từ trang Join)
     const storeExamData = useExamStore((state) => state.examData);
 
+    // Xử lý realtime
+    const { latestEvent, isConnected } = useExamSSE(examSessionId);
+    const queryClient = useQueryClient();
+    const { data: myAttemptRes } = useMyExamAttempt(examSessionId);
+
     // 1. Fetch Data Fallback (Chỉ dùng khi store trống - ví dụ user reload trang)
     const { data: examDetailRes, isLoading: isExamLoading } = useExamDetail(
         !storeExamData ? (examId as string) : ""
     );
     console.log(examDetailRes);
     const { data: examSessionRes, isLoading: isExamSessionLoading } = useExamSessionDetail(examSessionId);
+
+    const isAttemptPaused = examSessionRes?.data?.status === 'PAUSE' || myAttemptRes?.data?.status === 'PAUSE';
 
     // Xác định nguồn dữ liệu cuối cùng để render
     const finalExamData = useMemo(() => {
@@ -178,6 +187,48 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
     // (Logic chống vi phạm và nhận diện khuôn mặt đã chuyển sang useExamSecurity hook)
 
+    // 6. Realtime Event Handlers
+    useEffect(() => {
+        if (!latestEvent) return;
+
+        switch (latestEvent.type) {
+            case 'SESSION_STATUS_CHANGED':
+                if (latestEvent.data?.status === 'PAUSE') {
+                    message.warning('Ca thi đã bị tạm dừng bởi giám thị!');
+                } else if (latestEvent.data?.status === 'IN_PROGRESS') {
+                    message.success('Ca thi đã được tiếp tục!');
+                } else if (latestEvent.data?.status === 'FINISHED') {
+                    message.info('Ca thi đã kết thúc. Hệ thống đang tự động thu bài...');
+                    handleSubmit(true);
+                }
+                queryClient.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
+                break;
+            case 'ATTEMPT_PAUSED':
+                // Check if the event applies to current student using examAttemptId or studentId if available
+                if (latestEvent.data?.studentId === storeExamData?.studentId || latestEvent.data?.examAttemptId === examAttemptId) {
+                    message.warning('Bài thi của bạn đã bị tạm dừng!');
+                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                }
+                break;
+            case 'ATTEMPT_RESUMED':
+                if (latestEvent.data?.studentId === storeExamData?.studentId || latestEvent.data?.examAttemptId === examAttemptId) {
+                    message.success('Bài thi của bạn đã được tiếp tục!');
+                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                }
+                break;
+            case 'TIME_WARNING':
+                message.warning(`Cảnh báo: Chỉ còn ${latestEvent.data?.remainingMinutes} phút!`);
+                break;
+            case 'STUDENT_VIOLATION':
+                if (latestEvent.data?.studentId === storeExamData?.studentId) {
+                    message.error('Hệ thống ghi nhận vi phạm của bạn! Bạn có thể bị đình chỉ thi.');
+                }
+                break;
+            default:
+                break;
+        }
+    }, [latestEvent, storeExamData?.studentId, examAttemptId]);
+
 
 
 
@@ -189,6 +240,17 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
     return (
         <div className="bg-[var(--color-bg-main)] p-6">
+            {/* Màn hình khóa khi bị Pause */}
+            {isAttemptPaused && (
+                <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center backdrop-blur-md">
+                    <Result
+                        status="warning"
+                        title={<span className="text-white text-4xl font-black">BÀI THI ĐANG TẠM DỪNG</span>}
+                        subTitle={<span className="text-gray-300 text-xl">Giám thị đã tạm dừng bài thi của bạn. Vui lòng chờ cho đến khi được tiếp tục.</span>}
+                    />
+                </div>
+            )}
+
             <div className="max-w-[1600px] mx-auto">
                 {isCameraActive && examSessionRes?.data.isCameraRequired && examAttemptId && (
                     <ExamMonitor

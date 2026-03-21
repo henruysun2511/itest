@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from 'react';
 
 import {
     FileTextOutlined,
@@ -30,6 +31,7 @@ import MonitoringTab from '../(components)/monitoring-tab';
 
 // Import Hooks của bạn
 import {
+    EXAM_SESSION_QUERY_KEY,
     useExamSessionChangeStatus,
     useExamSessionClose,
     useExamSessionDetail,
@@ -40,6 +42,11 @@ import { ExamSessionStatus } from '@/shares/constants/status.enum';
 import FraudLogTab from '../(components)/fraud-log-tab';
 import MonitoringTableTab from '../(components)/monitoring-table-tab';
 import StudentListTab from '../(components)/student-list-tab';
+
+import { useExamSSE } from "@/hooks/useExamSSE";
+import { EXAM_ATTEMPT_KEY } from "@/queries/useExamAttemptQuery";
+import { FRAUD_DETAIL_KEY } from "@/queries/useFraudDetailQuery";
+import { useQueryClient } from "@tanstack/react-query";
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -63,6 +70,39 @@ export default function ProctorDashboardPage() {
     const isLocked = currentSession?.isLocked ?? false;
     const sessionStatus = currentSession?.status ?? ExamSessionStatus.NOT_STARTED;
     const isPaused = sessionStatus === ExamSessionStatus.PAUSE;
+
+    // 3. Xử lý Realtime SSE
+    const { latestEvent, isConnected } = useExamSSE(examSessionId);
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (!latestEvent) return;
+
+        switch (latestEvent.type) {
+            case 'STUDENT_JOINED':
+                message.info(`${latestEvent.data?.studentName || "Kí danh mới"} vừa tham gia phòng/vào ca thi.`);
+                queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                break;
+            case 'STUDENT_SUBMITTED':
+                message.success(`${latestEvent.data?.studentName || "Một học sinh"} đã nộp bài.`);
+                queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                break;
+            case 'STUDENT_VIOLATION':
+                message.error(`Giám sát vi phạm: ${latestEvent.data?.studentName} (${latestEvent.data?.violationType})`);
+                queryClient.invalidateQueries({ queryKey: FRAUD_DETAIL_KEY });
+                break;
+            case 'SESSION_STATUS_CHANGED':
+            case 'ATTEMPT_PAUSED':
+            case 'ATTEMPT_RESUMED':
+            case 'RETAKE_GRANTED':
+            case 'ATTEMPT_DISCONNECTED':
+                queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                queryClient.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
+                break;
+            default:
+                break;
+        }
+    }, [latestEvent, queryClient]);
 
 
     // --- Các hàm xử lý tương tác ---
@@ -165,8 +205,14 @@ export default function ProctorDashboardPage() {
             <Header className="bg-[var(--color-navy-deep)] h-auto py-4 px-6 sticky top-0 z-10 shadow-lg">
                 <Row justify="space-between" align="middle">
                     <Col span={8}>
-                        <Title level={4} className="!text-white !m-0">
+                        <Title level={4} className="!text-white !m-0 flex items-center">
                             <TeamOutlined className="mr-2" /> Ca thi: {currentSession?.examSessionCode || "..."}
+                            {isConnected && (
+                                <span className="ml-3 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-green-500 text-white shadow-sm font-normal">
+                                    <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                    Trực tuyến
+                                </span>
+                            )}
                         </Title>
                         <Text className="text-blue-200">Phòng: {currentSession?.room} • Giám thị: {currentSession?.teacherNames?.join(', ') || "Chưa phân công"}</Text>
                     </Col>
