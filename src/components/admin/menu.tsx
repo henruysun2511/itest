@@ -83,7 +83,7 @@ export default function AdminMenu() {
                     label: 'Bộ đề thi',
                 },
                 {
-                    key: '/admin/exam',
+                    key: '/admin/exam/list',
                     icon: <FileTextOutlined />,
                     label: 'Đề thi',
                 },

@@ -9,6 +9,7 @@ import { ExamBody } from "@/shares/types/body";
 import { ExamData } from "@/shares/types/object";
 import { normalizeExamData } from "@/shares/utils/normalizeExam";
 import {
+    DeleteOutlined,
     EditOutlined,
     FilePdfOutlined,
     RobotOutlined,
@@ -21,6 +22,7 @@ import {
     Form,
     Input,
     message,
+    Modal,
     Select,
     Spin,
     Upload
@@ -86,6 +88,29 @@ export default function CreateExam() {
         } catch (error) {
             message.error("Phân tích đề thất bại");
         }
+    };
+
+    const handleReset = () => {
+        Modal.confirm({
+            title: 'Xác nhận xóa dữ liệu cũ?',
+            content: 'Hành động này sẽ xóa bản nháp hiện tại và file PDF đã upload để bạn bắt đầu lại từ đầu.',
+            okText: 'Xóa',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk() {
+                // 1. Xóa sessionStorage (nơi lưu kết quả parse từ Gemini)
+                sessionStorage.removeItem("parsedExamData");
+
+                // 2. Reset các state về null/ban đầu
+                setExamState(null);
+                setAnswersState({});
+                setObjectKey(null);
+                setSignedUrl(null);
+                form.resetFields();
+
+                message.success("Đã xóa dữ liệu cũ thành công");
+            },
+        });
     };
 
     const validateBeforeSave = () => {
@@ -191,17 +216,31 @@ export default function CreateExam() {
                         <h1 className="text-2xl font-bold text-[var(--color-navy-deep)] m-0">Tạo đề thi mới</h1>
                         <p className="text-slate-500 mt-1">Upload PDF và để AI hỗ trợ bạn phân tích câu hỏi</p>
                     </div>
+
+
                     {examState && (
-                        <Button
-                            type="primary"
-                            size="large"
-                            icon={<SaveOutlined />}
-                            loading={isSaving}
-                            onClick={handleSave}
-                            className="bg-[var(--color-navy-main)] hover:scale-105 transition-transform"
-                        >
-                            Lưu toàn bộ đề thi
-                        </Button>
+                        <div className="flex justify-end gap-3 mt-6">
+                            <Button
+                                type="primary"
+                                size="large"
+                                icon={<DeleteOutlined />}
+                                onClick={handleReset}
+                                disabled={isSaving}
+                                className="bg-[var(--color-navy-main)] hover:scale-105 transition-transform"
+                            >
+                                Xóa dữ liệu cũ
+                            </Button>
+                            <Button
+                                type="primary"
+                                size="large"
+                                icon={<SaveOutlined />}
+                                loading={isSaving}
+                                onClick={handleSave}
+                                className="bg-[var(--color-navy-main)] hover:scale-105 transition-transform"
+                            >
+                                Lưu toàn bộ đề thi
+                            </Button>
+                        </div>
                     )}
                 </div>
 

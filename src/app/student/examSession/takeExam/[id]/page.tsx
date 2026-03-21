@@ -253,6 +253,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         };
     }, [examAttemptId, sendHeartbeat]);
 
+    const [isCameraActive, setIsCameraActive] = useState(true);
+
     // 5. Submit & Timer
     const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
     const setExamResult = useExamStore((state) => state.setExamResult);
@@ -298,6 +300,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                         if (resultData) {
                             setExamResult(resultData);
                         }
+                        setIsCameraActive(false);
                         localStorage.removeItem(`exam_endtime_${examSessionId}`);
                         localStorage.removeItem(`exam_progress_${examSessionId}`);
                         router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
@@ -449,7 +452,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     return (
         <div className="bg-[var(--color-bg-main)] p-6">
             <div className="max-w-[1600px] mx-auto">
-                {examSessionRes?.data.isCameraRequired && examAttemptId && (
+                {isCameraActive && examSessionRes?.data.isCameraRequired && examAttemptId && (
                     <ExamMonitor
                         examAttemptId={examAttemptId}
                         onViolation={handleViolationDetected}

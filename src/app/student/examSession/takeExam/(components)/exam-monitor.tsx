@@ -92,11 +92,11 @@ export default function ExamMonitor({ examAttemptId, onViolation }: Props) {
       // TRƯỜNG HỢP 1: KHÔNG CÓ MẶT
       if (detectedFaces.length === 0) {
         violationFound = FraudType.NO_FACE_DETECTED;
-      } 
+      }
       // TRƯỜNG HỢP 2: NHIỀU MẶT (Phát hiện từ 2 mặt trở lên)
       else if (detectedFaces.length > 1) {
         violationFound = FraudType.MULTIPLE_FACES_DETECTED;
-      } 
+      }
       // TRƯỜNG HỢP 3: CÓ 1 MẶT NHƯNG QUAY TRÁI/PHẢI/CÚI
       else {
         const landmarks = detectedFaces[0];
@@ -123,17 +123,17 @@ export default function ExamMonitor({ examAttemptId, onViolation }: Props) {
         if (currentViolationTypeRef.current !== violationFound) {
           clearViolationTimer();
           currentViolationTypeRef.current = violationFound;
-          
+
           violationTimerRef.current = setTimeout(() => {
             const evidence = captureEvidence();
             onViolation(violationFound!, evidence);
-            
+
             // Thông báo thân thiện cho sinh viên
-            const msg = violationFound === FraudType.MULTIPLE_FACES_DETECTED 
-                ? "Phát hiện nhiều người trong khung hình!" 
-                : "Vui lòng nhìn thẳng vào camera!";
+            const msg = violationFound === FraudType.MULTIPLE_FACES_DETECTED
+              ? "Phát hiện nhiều người trong khung hình!"
+              : "Vui lòng nhìn thẳng vào camera!";
             message.warning(msg);
-            
+
             clearViolationTimer();
           }, 1000); // Ngưỡng 1 giây
         }
@@ -171,8 +171,14 @@ export default function ExamMonitor({ examAttemptId, onViolation }: Props) {
 
     return () => {
       active = false;
-      if (cameraRef.current) cameraRef.current.stop();
+      if (cameraRef.current) cameraRef.current.stop(); 
       if (faceMeshRef.current) faceMeshRef.current.close();
+
+      // Tắt luồng video trực tiếp từ trình duyệt
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
       clearViolationTimer();
     };
   }, [onViolation]);
@@ -180,20 +186,20 @@ export default function ExamMonitor({ examAttemptId, onViolation }: Props) {
   return (
     <>
       <div className="fixed bottom-4 right-4 z-50 w-48 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900">
-        <video 
-          ref={videoRef} 
-          autoPlay 
-          playsInline 
-          muted 
-          className="w-full h-full object-cover" 
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="w-full h-full object-cover"
           style={{ transform: 'scaleX(-1)' }}
         />
         {currentViolationTypeRef.current && (
-           <div className="absolute inset-0 bg-red-600/20 border-2 border-red-500 animate-pulse flex items-end justify-center pb-2">
-             <span className="text-[10px] text-white font-bold bg-red-600 px-2 py-0.5 rounded">
-                VI PHẠM: {currentViolationTypeRef.current === FraudType.MULTIPLE_FACES_DETECTED ? 'NHIỀU MẶT' : 'NHÌN THẲNG'}
-             </span>
-           </div>
+          <div className="absolute inset-0 bg-red-600/20 border-2 border-red-500 animate-pulse flex items-end justify-center pb-2">
+            <span className="text-[10px] text-white font-bold bg-red-600 px-2 py-0.5 rounded">
+              VI PHẠM: {currentViolationTypeRef.current === FraudType.MULTIPLE_FACES_DETECTED ? 'NHIỀU MẶT' : 'NHÌN THẲNG'}
+            </span>
+          </div>
         )}
       </div>
       <canvas ref={canvasRef} className="hidden" />
