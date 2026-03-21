@@ -244,9 +244,9 @@ export default function StudentExamHome() {
                                 <Pagination
                                     current={params.page}
                                     pageSize={params.limit}
-                                    total={data?.meta?.total || 0} // Giả định API trả về meta.total
+                                    total={data?.meta?.total || 0} 
                                     onChange={handlePageChange}
-                                    showSizeChanger={false} // Ẩn chọn limit nếu không cần thiết
+                                    showSizeChanger={false} 
                                     className="custom-pagination"
                                 />
                             </Card>

@@ -3,9 +3,9 @@
 import { useRegistrationList, useUpdateAccessState } from "@/queries/useExamRegistrationQuery";
 import { ExamRegistrationParam } from "@/shares/types/param";
 import { ArrowLeftOutlined, FileExcelOutlined, LockOutlined, UnlockOutlined, UserAddOutlined } from "@ant-design/icons";
-import { Button, Card, message, Space, Switch, Typography } from "antd";
+import { Button, Card, message, Space, Spin, Switch, Typography } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { RegistrationBulkModal } from "./examRegistration-bulk-modal";
 import { RegistrationFilter } from "./examRegistration-filter";
 import { RegistrationSingleModal } from "./examRegistration-single-modal";
@@ -14,11 +14,10 @@ import RegistrationTable from "./examRegistration-table";
 const { Text } = Typography;
 
 
-export default function RegistrationPage() {
+function RegistrationContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Lấy sessionId từ Path params [id] để đồng bộ với cấu trúc folder động
   const sessionId = searchParams.get("examSessionId") || "";
   const sessionCode = searchParams.get("code") || "";
   const room = searchParams.get("room") || "";
@@ -151,5 +150,17 @@ export default function RegistrationPage() {
       />
 
     </Space>
+  );
+}
+
+export default function RegistrationPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-full items-center justify-center">
+        <Spin size="large" tip="Đang tải dữ liệu..." />
+      </div>
+    }>
+      <RegistrationContent />
+    </Suspense>
   );
 }
