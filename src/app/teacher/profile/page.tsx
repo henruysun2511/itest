@@ -13,15 +13,13 @@ import { CameraOutlined, LoadingOutlined, SafetyCertificateOutlined, UserOutline
 import { Avatar, Modal, Tabs, Typography, Upload, message } from 'antd';
 import { useState } from 'react';
 
-
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 export default function TeacherProfilePage() {
     const toast = useToast();
     const [isEditing, setIsEditing] = useState(false);
     const roleName = useAuthStore((state) => state.user?.roleName);
     const roleInfo = getRoleBadge(roleName || '');
-
 
     const { data: profileRes, isLoading: isFetching } = useGetProfile();
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
@@ -34,23 +32,10 @@ export default function TeacherProfilePage() {
     const handleUploadAvatar = async (file: File) => {
         try {
             const res = await uploadCloudinary(file);
-            const uploadData = res.data?.data || res.data;
-
-            const imageUrl = uploadData?.url;
-            const publicId = uploadData?.public_id || "";
-
+            const imageUrl = res.data?.data?.url;
             if (imageUrl) {
-                const payload = {
-                    fullName: profile?.fullName,
-                    dateOfBirth: profile?.dateOfBirth,
-                    gender: profile?.gender,
-                    avatar: imageUrl,
-                    publicId: publicId
-                };
-
-                updateProfile(payload, {
-                    onSuccess: () => toast.success("Cập nhật ảnh đại diện thành công"),
-                    onError: (error: any) => handleError(error, toast)
+                updateProfile({ avatar: imageUrl }, {
+                    onSuccess: () => message.success("Cập nhật ảnh đại diện thành công"),
                 });
             }
         } catch (error) {
@@ -61,9 +46,8 @@ export default function TeacherProfilePage() {
 
     const handleUpdateProfile = (values: any) => {
         const payload = {
-            fullName: values.fullName,
+            ...values,
             dateOfBirth: values.dateOfBirth ? values.dateOfBirth.startOf('day').toISOString() : profile?.dateOfBirth,
-            gender: values.gender,
             avatar: profile?.avatar || "",
         };
 
@@ -133,27 +117,50 @@ export default function TeacherProfilePage() {
             <div className="max-w-5xl mx-auto px-6 relative -mt-45 pb-20">
                 <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8 px-4">
                     <div className="relative group">
-                        <Avatar size={160} src={profile?.avatar || undefined} className="...">
-                            {(!profile?.avatar || profile?.avatar === "") && profile?.fullName?.charAt(0).toUpperCase()}
+                        <Avatar
+                            size={160}
+                            src={profile?.avatar || undefined}
+                            className={`border-4 border-white shadow-2xl bg-white transition-opacity ${isUploading ? 'opacity-50' : 'opacity-100'}`}
+                        >
+                            {(!profile?.avatar) && profile?.fullName?.charAt(0).toUpperCase()}
                         </Avatar>
-                        <Upload showUploadList={false} beforeUpload={handleUploadAvatar}>
-                            <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                {isUploading ? <LoadingOutlined className="text-white text-2xl" /> : <CameraOutlined className="text-white text-2xl" />}
+
+                        <Upload showUploadList={false} beforeUpload={handleUploadAvatar} disabled={isUploading}>
+                            <div className={`absolute inset-0 rounded-full flex flex-col items-center justify-center transition-all cursor-pointer
+                                ${isUploading
+                                    ? 'bg-black/20 opacity-100'
+                                    : 'bg-black/40 opacity-0 group-hover:opacity-100'
+                                }`}
+                            >
+                                {isUploading ? (
+                                    <>
+                                        <LoadingOutlined className="text-white text-3xl mb-2" />
+                                        <span className="text-white text-[10px] font-bold uppercase tracking-wider">Đang tải...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <CameraOutlined className="text-white text-3xl" />
+                                        <span className="text-white text-[10px] font-bold uppercase tracking-wider mt-1">Đổi ảnh</span>
+                                    </>
+                                )}
                             </div>
                         </Upload>
                     </div>
 
                     <div className="flex-1 text-center md:text-left pb-2">
                         <Title level={1} className="!text-white !text-4xl !mb-4 drop-shadow-md">{profile?.fullName}</Title>
-                        <span className="bg-[var(--color-accent)] text-[var(--color-navy-deep)] px-3 py-1 rounded-full text-xs font-black uppercase">
+                        <span className="bg-[var(--color-accent)] text-[var(--color-navy-deep)] px-3 py-1 rounded-full text-xs font-black uppercase shadow-sm">
                             {roleInfo.label || "Giảng viên"}
                         </span>
+                      
                     </div>
-
+                      <span className="text-white/60 text-[11px] italic bg-white/10 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">
+                            ⚠️ Ảnh chân dung: Không kính, mũ, khẩu trang
+                        </span>
                 </div>
 
                 <Tabs defaultActiveKey="1" items={tabItems} className="profile-tabs custom-tabs-style" type="card" />
             </div>
-        </div >
+        </div>
     );
 }

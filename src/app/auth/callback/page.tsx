@@ -14,44 +14,40 @@ function AuthCallbackHandler() {
 
     useEffect(() => {
         const token = searchParams.get("token");
-        const isPasswordSetParam = searchParams.get("isPasswordSet");
+        const isPasswordSetParam = searchParams.get("needPasswordSet");
         
-        // Chuyển thành boolean để xử lý logic
-        const isPasswordSet = isPasswordSetParam === "true";
+        const needPasswordSet = isPasswordSetParam === "true"; 
 
         if (token) {
             try {
                 const decoded = jwtDecode(token) as UserJwtDecode;
                 const expires = new Date(new Date().getTime() + 30 * 60 * 1000);
 
-                // 1. Lưu Token vào Cookie
                 Cookies.set("accessToken", token, {
                     expires,
                     path: "/",
                     sameSite: "strict"
                 });
 
-                // 2. Cập nhật Zustand Store
                 setAuth({
                     accountId: decoded.sub,
                     roleName: decoded.roleName,
                 }, token);
 
-                // 3. XỬ LÝ FLAG VÀ ĐIỀU HƯỚNG
-                if (!isPasswordSet) {
-                    // Đánh dấu vào sessionStorage: "Người dùng này cần đặt mật khẩu ngay"
+                // XỬ LÝ ĐIỀU HƯỚNG
+                // Nếu backend báo "needPasswordSet: true" (chưa có mật khẩu)
+                if (needPasswordSet) {
                     sessionStorage.setItem("first_login_setup", "true");
-                    
-                    // Điều hướng sang trang cập nhật mật khẩu
                     router.push("/auth/updatePassword");
                 } else {
-                    // Nếu đã có mật khẩu, đảm bảo xóa flag cũ (nếu có) và về trang chủ
                     sessionStorage.removeItem("first_login_setup");
-                    router.push("/student");
+                    // Điều hướng theo role
+                    const targetPage = decoded.roleName === "STUDENT" ? "/student" : "/teacher/dashboard";
+                    router.push(targetPage);
                 }
                 
             } catch (error) {
-                console.error("Lỗi xác thực token Google:", error);
+                console.error("Lỗi xác thực:", error);
                 router.push("/auth/login");
             }
         } else {

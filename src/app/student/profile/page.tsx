@@ -1,7 +1,7 @@
 "use client";
 import { useChangePassword } from "@/queries/useAccountQuery";
 import { useLogoutDevices } from "@/queries/useAuthQuery";
-import { useUploadFileCloudinary } from "@/queries/useCloudinaryQuery";
+import { useUploadAvatarCloudinary } from "@/queries/useCloudinaryQuery";
 import { useGetProfile, useUpdateProfile } from "@/queries/useProfileQuery";
 import { handleError } from "@/shares/utils/error";
 import { getRoleBadge } from "@/shares/utils/mappingLabel";
@@ -11,7 +11,7 @@ import { Avatar, Modal, Tabs, Typography, Upload, message } from 'antd';
 import { useState } from 'react';
 import { PersonalInfoTab } from '../../../components/common/personal-info-tab';
 import { SecurityTab } from '../../../components/common/security-tab';
-import { ExamHistoryTab } from './exam-result-tab';
+import { ExamResultTab } from './exam-result-tab';
 
 const { Title } = Typography;
 
@@ -19,11 +19,11 @@ export default function StudentProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
 
     const roleName = useAuthStore((state) => state.user?.roleName);
-    const roleInfo = getRoleBadge(roleName  || '');
+    const roleInfo = getRoleBadge(roleName || '');
 
     const { data: profileRes, isLoading: isFetching } = useGetProfile();
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
-    const { mutateAsync: uploadCloudinary, isPending: isUploading } = useUploadFileCloudinary();
+    const { mutateAsync: uploadCloudinary, isPending: isUploading } = useUploadAvatarCloudinary();
     const { mutate: changePassword, isPending: isChangingPassword } = useChangePassword();
     const { mutate: logoutAllDevices, isPending: isLoggingOut } = useLogoutDevices();
 
@@ -86,7 +86,7 @@ export default function StudentProfilePage() {
         {
             key: '2',
             label: <span><HistoryOutlined /> Kết quả thi</span>,
-            children: <ExamHistoryTab />
+            children: <ExamResultTab />
         },
         {
             key: '3',
@@ -104,12 +104,34 @@ export default function StudentProfilePage() {
             <div className="max-w-5xl mx-auto px-6 relative -mt-45 pb-20">
                 <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8 px-4">
                     <div className="relative group">
-                        <Avatar size={160} src={profile?.avatar} className="border-4 border-white shadow-2xl bg-white">
-                            {!profile?.avatar && profile?.fullName?.charAt(0).toUpperCase()}
+                        <Avatar
+                            size={160}
+                            src={profile?.avatar}
+                            className={`border-4 border-white shadow-2xl bg-white transition-opacity ${isUploading ? 'opacity-50' : 'opacity-100'}`}
+                        >
+                            {/* Hiển thị chữ cái đầu nếu không có avatar và không đang loading */}
+                            {!profile?.avatar && !isUploading && profile?.fullName?.charAt(0).toUpperCase()}
                         </Avatar>
-                        <Upload showUploadList={false} beforeUpload={handleUploadAvatar}>
-                            <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                {isUploading ? <LoadingOutlined className="text-white text-2xl" /> : <CameraOutlined className="text-white text-2xl" />}
+
+                        {/* Lớp phủ Loading / Camera */}
+                        <Upload showUploadList={false} beforeUpload={handleUploadAvatar} disabled={isUploading}>
+                            <div className={`absolute inset-0 rounded-full flex flex-col items-center justify-center transition-all cursor-pointer
+            ${isUploading
+                                    ? 'bg-black/20 opacity-100' // Luôn hiện khi đang upload
+                                    : 'bg-black/40 opacity-0 group-hover:opacity-100' // Chỉ hiện khi hover lúc bình thường
+                                }`}
+                            >
+                                {isUploading ? (
+                                    <>
+                                        <LoadingOutlined className="text-white text-3xl mb-2" />
+                                        <span className="text-white text-[10px] font-bold uppercase tracking-wider">Đang tải...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <CameraOutlined className="text-white text-3xl" />
+                                        <span className="text-white text-[10px] font-bold uppercase tracking-wider mt-1">Đổi ảnh</span>
+                                    </>
+                                )}
                             </div>
                         </Upload>
                     </div>
@@ -120,9 +142,12 @@ export default function StudentProfilePage() {
                             {roleInfo.label || "Sinh viên"}
                         </span>
                     </div>
+                    <span className="text-white/60 text-[11px] italic bg-white/10 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">
+                        ⚠️ Ảnh chân dung: Không kính, mũ, khẩu trang
+                    </span>
                 </div>
 
-                <Tabs defaultActiveKey="1" items={tabItems} className="profile-tabs custom-tabs-style" type="card" />
+                <Tabs defaultActiveKey="2" items={tabItems} className="profile-tabs custom-tabs-style" type="card" />
             </div>
         </div>
     );

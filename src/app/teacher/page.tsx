@@ -3,6 +3,7 @@
 import { useTeacherExamSessions } from '@/queries/useExamSessionQuery';
 import { useMyTeacherCourses } from '@/queries/useTeacherCourse';
 import { TeacherExamSessionParam } from '@/shares/types/param';
+import { getStatusConfig } from '@/shares/utils/mappingLabel';
 import {
     BookOutlined,
     CalendarOutlined,
@@ -32,12 +33,12 @@ const { Title, Text } = Typography;
 
 export default function TeacherPage() {
     const router = useRouter();
-   
+
     // 1. Quản lý State
     const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentMenu, setCurrentMenu] = useState('exam-management');
-    
+
     // State riêng cho việc phân trang danh sách ca thi
     const [sessionParams, setSessionParams] = useState<TeacherExamSessionParam>({
         courseId: '',
@@ -108,17 +109,15 @@ export default function TeacherPage() {
                                         <Card
                                             key={tc.courseId}
                                             onClick={() => setSelectedCourse(tc.courseId)}
-                                            className={`rounded-[24px] border-none shadow-sm cursor-pointer transition-all duration-300 hover:shadow-xl ${
-                                                selectedCourse === tc.courseId
-                                                    ? 'bg-white ring-2 ring-blue-500 shadow-blue-100'
-                                                    : 'bg-white/80 backdrop-blur-md'
-                                            }`}
+                                            className={`rounded-[24px] border-none shadow-sm cursor-pointer transition-all duration-300 hover:shadow-xl ${selectedCourse === tc.courseId
+                                                ? 'bg-white ring-2 ring-blue-500 shadow-blue-100'
+                                                : 'bg-white/80 backdrop-blur-md'
+                                                }`}
                                             bodyStyle={{ padding: '20px' }}
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl transition-colors ${
-                                                    selectedCourse === tc.courseId ? 'bg-blue-600' : 'bg-slate-400'
-                                                }`}>
+                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl transition-colors ${selectedCourse === tc.courseId ? 'bg-blue-600' : 'bg-slate-400'
+                                                    }`}>
                                                     <BookOutlined />
                                                 </div>
                                                 <div className="flex-1 overflow-hidden">
@@ -157,9 +156,7 @@ export default function TeacherPage() {
                                                 {teacherCourses?.find(tc => tc.courseId === selectedCourse)?.course.name}
                                             </Title>
                                         </div>
-                                        <Button type="primary" className="bg-slate-800 rounded-xl h-10 px-6 font-bold shrink-0 border-none hover:!bg-slate-700">
-                                            Báo cáo tổng hợp
-                                        </Button>
+
                                     </div>
 
                                     {/* Danh sách ca thi có Scroll */}
@@ -168,32 +165,38 @@ export default function TeacherPage() {
                                             <div className="text-center py-20"><Spin size="large" /></div>
                                         ) : (
                                             <div className="space-y-4">
-                                                {examSessionsRes?.data?.map(session => (
-                                                    <div key={session.examSessionId} 
-                                                    onClick={() => router.push(`/teacher/examSession/monitorExam/${session.examSessionId}`)}
-                                                    className="group p-5 rounded-[20px] bg-slate-50 border border-transparent hover:border-blue-200 hover:bg-white transition-all flex items-center justify-between">
-                                                        <div className="flex items-center gap-5 overflow-hidden">
-                                                            <div className="w-12 h-12 shrink-0 rounded-full bg-white flex items-center justify-center font-bold text-blue-900 shadow-sm group-hover:bg-blue-900 group-hover:text-white transition-all">
-                                                                {session.room.slice(-2)}
-                                                            </div>
-                                                            <div className="overflow-hidden">
-                                                                <div className="font-bold text-base text-slate-800 truncate">
-                                                                    {session.examSessionCode} - Phòng {session.room}
+                                                {examSessionsRes?.data?.map(session => {
+                                                    const statusConfig = getStatusConfig(session.status);
+                                                    return (
+                                                        <div key={session.examSessionId}
+                                                            onClick={() => router.push(`/teacher/examSession/monitorExam/${session.examSessionId}`)}
+                                                            className="group p-5 rounded-[20px] bg-slate-50 border border-transparent hover:border-blue-200 hover:bg-white transition-all flex items-center justify-between">
+                                                            <div className="flex items-center gap-5 overflow-hidden">
+                                                                <div className="w-12 h-12 shrink-0 rounded-full bg-white flex items-center justify-center font-bold text-blue-900 shadow-sm group-hover:bg-blue-900 group-hover:text-white transition-all">
+                                                                    {session.room.slice(-2)}
                                                                 </div>
-                                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-slate-400 text-xs mt-1">
-                                                                    <span className="flex items-center gap-1"><CalendarOutlined /> {new Date(session.date).toLocaleDateString('vi-VN')}</span>
-                                                                    <span className="opacity-30">|</span>
-                                                                    <span className="flex items-center gap-1"><ClockCircleOutlined /> {session.duration} phút</span>
-                                                                    <span className="opacity-30">|</span>
-                                                                    <Tag color={session.status === 'NOT_STARTED' ? 'default' : 'processing'} className="m-0 border-none text-[10px] px-2 font-bold uppercase">
-                                                                        {session.status}
-                                                                    </Tag>
+                                                                <div className="overflow-hidden">
+                                                                    <div className="font-bold text-base text-slate-800 truncate">
+                                                                        {session.examSessionCode} - Phòng {session.room}
+                                                                    </div>
+                                                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-slate-400 text-xs mt-1">
+                                                                        <span className="flex items-center gap-1"><CalendarOutlined /> {new Date(session.date).toLocaleDateString('vi-VN')}</span>
+                                                                        <span className="opacity-30">|</span>
+                                                                        <span className="flex items-center gap-1"><ClockCircleOutlined /> {session.duration} phút</span>
+                                                                        <span className="opacity-30">|</span>
+                                                                        <Tag
+                                                                            color={statusConfig.color}
+                                                                            className="m-0 border-none text-[10px] px-2 font-black uppercase rounded-full shadow-sm"
+                                                                        >
+                                                                            {statusConfig.text}
+                                                                        </Tag>
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                            <Button shape="circle" icon={<RightOutlined />} className="shrink-0 border-none bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-500 hover:text-white" />
                                                         </div>
-                                                        <Button shape="circle" icon={<RightOutlined />} className="shrink-0 border-none bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-500 hover:text-white" />
-                                                    </div>
-                                                ))}
+                                                    )
+                                                })}
 
                                                 {(examSessionsRes?.data?.length === 0 || !examSessionsRes) && (
                                                     <Empty description="Chưa có ca thi nào được tạo" className="py-10" />

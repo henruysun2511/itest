@@ -1,16 +1,52 @@
 "use client";
 
+import { useDeleteExamPdf, useUploadExamPdf } from '@/queries/useStorageQuery';
 import { QuestionType } from '@/shares/constants/type.enum';
 import { getQuestionTypeLabel } from '@/shares/utils/mappingLabel';
-import { Card, Checkbox, Input, Radio, Tag } from 'antd';
+import { CloseCircleFilled, FileOutlined, PaperClipOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, Card, Checkbox, Input, List, message, Radio, Tag, Upload } from 'antd';
 import { RenderMediaList } from './media-render';
 
 
-
 export function StudentQuestion({ question, value, onChange }: any) {
-  const { questionType, questionText, options, questionIndex, groupInstruction, groupMedia, mediaPlaceholders } = question;
+  const { questionType, content, options, questionNumber, groupInstruction, groupMedia, mediaPlaceholders } = question;
   const type = questionType?.toUpperCase();
   const typeInfo = getQuestionTypeLabel(questionType);
+
+  const { mutateAsync: uploadFile, isPending: isUploading } = useUploadExamPdf();
+  const { mutateAsync: deleteFile } = useDeleteExamPdf();
+
+  const handleUpload = async (file: File) => {
+    try {
+      const response = await uploadFile(file);
+      const { objectKey, signedUrl } = response.data.data;
+
+      onChange({
+        content: value?.content || "",
+        file_metadata: [...(value?.file_metadata || []), { signedUrl, objectKey }]
+      });
+    } catch (error) {
+      message.error("Lỗi khi tải file");
+    }
+    return false;
+  };
+
+  const handleDelete = async (fileItem: any) => {
+    try {
+      // Gọi API xóa theo interface DeleteFilePdfBody { filePath: string }
+      await deleteFile({ filePath: fileItem.objectKey });
+
+      const newMetadata = value.file_metadata.filter((m: any) => m.objectKey !== fileItem.objectKey);
+
+      onChange({
+        ...value,
+        file_metadata: newMetadata
+      });
+      message.success("Đã xóa file");
+    } catch (e) {
+      message.error("Xóa file thất bại");
+    }
+  };
 
   const renderOptions = () => {
     const activeClass = "border-[var(--color-primary)] bg-[rgba(44,44,112,0.05)] shadow-sm";
@@ -66,13 +102,42 @@ export function StudentQuestion({ question, value, onChange }: any) {
 
       case QuestionType.ESSAY:
         return (
-          <Input.TextArea
-            rows={6}
-            placeholder="Viết bài làm chi tiết..."
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="rounded-xl border-2 border-gray-100 focus:border-[var(--color-primary)] p-4"
-          />
+          <div className="space-y-4">
+            <Input.TextArea
+              value={value?.content || ""}
+              onChange={(e) => onChange({
+                content: e.target.value,
+                file_metadata: value?.file_metadata || []
+              })}
+            />
+
+            <div className="bg-slate-50 p-4 rounded-xl border border-dashed">
+              <div className="flex justify-between mb-3">
+                <span className="text-xs font-bold text-slate-500"><PaperClipOutlined /> ĐÍNH KÈM PDF</span>
+                <Upload beforeUpload={handleUpload} showUploadList={false} multiple>
+                  <Button icon={<UploadOutlined />} loading={isUploading} size="small">Chọn file</Button>
+                </Upload>
+              </div>
+
+              <List
+                dataSource={value?.file_metadata || []}
+                renderItem={(item: any) => (
+                  <div className="flex items-center justify-between bg-white p-2 mb-2 rounded border">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <FileOutlined className="text-red-500" />
+                      <a href={item.signedUrl} target="_blank" rel="noreferrer" className="text-xs truncate max-w-[250px]">
+                        {item.fileName || "Tài liệu đính kèm"}
+                      </a>
+                    </div>
+                    <CloseCircleFilled
+                      className="text-red-400 hover:text-red-600 cursor-pointer"
+                      onClick={() => handleDelete(item)}
+                    />
+                  </div>
+                )}
+              />
+            </div>
+          </div>
         );
 
       default:
@@ -97,7 +162,7 @@ export function StudentQuestion({ question, value, onChange }: any) {
         <div className="flex-shrink-0 flex flex-col items-center gap-2">
           {/* Số thứ tự câu hỏi */}
           <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center font-black shadow-lg shadow-[rgba(44,44,112,0.2)]">
-            {questionIndex}
+            {questionNumber}
           </div>
         </div>
 
@@ -105,8 +170,7 @@ export function StudentQuestion({ question, value, onChange }: any) {
           <div className='flex justify-between items-center mb-4'>
             <div
               className="text-[17px] font-semibold text-[var(--color-text-primary)] leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: questionText }}
-            />
+            >{content}</div>
 
             <Tag color={typeInfo.color} className="rounded-full px-3 font-medium uppercase text-[10px] tracking-wider border-none shadow-sm">
               {typeInfo.label}

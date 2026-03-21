@@ -4,13 +4,15 @@ import { useHeartbeat, useReportFraud, useSaveDraft, useSubmitExam, useVerifyFac
 import { useExamDetail } from '@/queries/useExamQuery';
 import { useExamSessionDetail } from '@/queries/useExamSessionQuery';
 import { FraudType, QuestionType } from '@/shares/constants/type.enum';
-import { DraftAnswer, SaveDraftBody } from '@/shares/types/body';
-import { Button, Card, Col, message, Modal, Result, Row, Spin, Statistic, Tabs, Tag } from 'antd';
+import { useExamStore } from '@/stores/useExamStore';
+import { Button, Card, Col, message, Modal, Result, Row, Spin, Statistic, Tabs } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ExamMonitor from '../(components)/exam-monitor';
-import { RenderMediaList } from '../(components)/media-render';
+import { ProgressButton } from '../(components)/renderProgressButton';
 import { StudentQuestion } from '../(components)/student-question';
+
+
 
 export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
@@ -20,68 +22,307 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const examId = searchParams.get("examId");
     const examAttemptId = searchParams.get("examAttemptId");
 
-    // 1. Fetch Data
-    const { data: examDetailRes, isLoading: isExamLoading, error: examError } = useExamDetail(examId as string);
+    // Lấy data từ Zustand Store (Dữ liệu đã có từ trang Join)
+    const storeExamData = useExamStore((state) => state.examData);
+
+    // 1. Fetch Data Fallback (Chỉ dùng khi store trống - ví dụ user reload trang)
+    const { data: examDetailRes, isLoading: isExamLoading } = useExamDetail(
+        !storeExamData ? (examId as string) : ""
+    );
+    console.log(examDetailRes);
     const { data: examSessionRes, isLoading: isExamSessionLoading } = useExamSessionDetail(examSessionId);
-    // Lấy dữ liệu từ cấu trúc parsedJson 
-    const examData = examDetailRes?.data?.parsedJson;
-    console.log(examData)
-    // Giả định API Join/Detail trả về ID của lượt thi để gọi Draft/Heartbeat
 
-
+    // Xác định nguồn dữ liệu cuối cùng để render
+    const finalExamData = useMemo(() => {
+        // Ưu tiên store, nếu không có thì lấy từ API response
+        return storeExamData || examDetailRes?.data;
+    }, [storeExamData, examDetailRes?.data]);
     // 2. State quản lý câu trả lời
-    const [userAnswers, setUserAnswers] = useState<any[]>([]);
-
-    // Khởi tạo từ LocalStorage
+    // const [userAnswers, setUserAnswers] = useState<any[]>([]);
+    const setExamData = useExamStore((state) => state.setExamData);
     useEffect(() => {
-        const localData = localStorage.getItem(`exam_progress_${examSessionId}`);
-        if (localData) {
-            setUserAnswers(JSON.parse(localData).answers);
+        if (!storeExamData && examDetailRes?.data) {
+            setExamData(examDetailRes.data);
         }
-    }, [examSessionId]);
+    }, [examDetailRes?.data, storeExamData, setExamData]);
 
-    // 3. Logic xử lý thay đổi đáp án
+    const [userAnswers, setUserAnswers] = useState<{ questionId: string; answer: any }[]>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`exam_progress_${examSessionId}`);
+            return saved ? JSON.parse(saved).answers : [];
+        }
+        return [];
+    });
+
     const handleAnswerChange = (questionId: string, value: any) => {
-        setUserAnswers(prev => {
+        setUserAnswers((prev) => {
             const newAnswers = [...prev];
-            const index = newAnswers.findIndex(a => a.questionId === questionId);
-            if (index > -1) newAnswers[index].answer = value;
-            else newAnswers.push({ questionId, answer: value });
+            const index = newAnswers.findIndex((a) => a.questionId === questionId);
 
-            localStorage.setItem(`exam_progress_${examSessionId}`, JSON.stringify({ answers: newAnswers }));
+            if (index > -1) {
+                // Gán trực tiếp value (nếu là trắc nghiệm là "A", tự luận là {content, file_metadata})
+                newAnswers[index].answer = value;
+            } else {
+                newAnswers.push({ questionId, answer: value });
+            }
+
+            // Lưu vào localStorage để khi F5 không bị mất
+            localStorage.setItem(
+                `exam_progress_${examSessionId}`,
+                JSON.stringify({ answers: newAnswers })
+            );
             return newAnswers;
         });
     };
 
-    // 4. Auto-save & Heartbeat
-    const { mutate: saveDraft } = useSaveDraft();
-    const { mutate: heartbeat } = useHeartbeat();
+    const handleEnableFullScreen = () => {
+        const elem = document.documentElement; // Lấy toàn bộ trang web
+
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch((err) => {
+                console.error(`Không thể bật toàn màn hình: ${err.message}`);
+            });
+        }
+    };
 
     useEffect(() => {
-        if (!examAttemptId || Object.keys(userAnswers).length === 0) return;
-        const timer = setInterval(() => {
-            const payload: SaveDraftBody = {
-                examSessionId: examSessionId,
-                changes: Object.entries(userAnswers).map(([qId, val]) => ({
-                    questionId: qId,
-                    answer: val
-                }))
+        // Nếu chưa ở chế độ toàn màn hình, hiện Modal bắt buộc
+        Modal.warning({
+            title: 'Yêu cầu chế độ toàn màn hình',
+            content: 'Để đảm bảo tính công bằng, bài thi yêu cầu chế độ toàn màn hình. Vui lòng nhấn xác nhận để bắt đầu.',
+            okText: 'Xác nhận & Vào thi',
+            onOk: () => {
+                handleEnableFullScreen();
+            },
+        });
+
+        // Theo dõi nếu người dùng cố tình thoát Fullscreen (nhấn Esc)
+        const handleExit = () => {
+            if (!document.fullscreenElement) {
+                message.error("Cảnh báo: Bạn đã thoát chế độ toàn màn hình! Hành động này sẽ được ghi nhận.");
+                handleViolationDetected(FraudType.WINDOW_BLUR);
+            }
+        };
+
+        document.addEventListener('fullscreenchange', handleExit);
+        return () => document.removeEventListener('fullscreenchange', handleExit);
+    }, []);
+
+    // 3. Logic xử lý Tab và Câu hỏi (Dựa trên cấu trúc state bạn cung cấp)
+    const actualParts = useMemo(() => {
+        return finalExamData?.parts || finalExamData?.examDetail?.parts || [];
+    }, [finalExamData]);
+
+    const { tabItems, allQuestions } = useMemo(() => {
+        // Lưu ý: Object của bạn có cấu trúc: examDetail: { parts: [...] }
+        if (actualParts.length === 0) return { tabItems: [], allQuestions: [] };
+
+        const fullQuestionsList: any[] = [];
+        const allEssayQuestions: any[] = [];
+
+        const processedTabs = actualParts.map((part: any, pIdx: number) => {
+            // Lấy questions trực tiếp từ part theo cấu trúc JSON bạn gửi
+            const questionsInPart = part.questions || [];
+
+            fullQuestionsList.push(...questionsInPart);
+
+            const nonEssay = questionsInPart.filter((q: any) => q.questionType !== QuestionType.ESSAY);
+            const essays = questionsInPart.filter((q: any) => q.questionType === QuestionType.ESSAY);
+            allEssayQuestions.push(...essays);
+
+            return {
+                key: `part-${part.partId || pIdx}`,
+                label: `PHẦN ${part.partIndex || pIdx + 1}`,
+                children: (
+                    <div className="max-h-[75vh] overflow-y-auto pr-4 custom-scrollbar py-4">
+                        {part.content && (
+                            <div className="mb-6 p-4 bg-blue-50 rounded-2xl border border-blue-100 text-blue-800 italic">
+                                {part.content}
+                            </div>
+                        )}
+                        {nonEssay.map((q: any) => (
+                            <StudentQuestion
+                                key={q.questionId}
+                                question={q}
+                                value={userAnswers.find(a => a.questionId === q.questionId)?.answer}
+                                onChange={(val: any) => handleAnswerChange(q.questionId, val)}
+                            />
+                        ))}
+                    </div>
+                )
             };
-            saveDraft(payload);
-        }, 10000);
-        return () => clearInterval(timer);
-    }, [userAnswers, examAttemptId, examSessionId]);
+        });
+
+        // Thêm Tab tự luận nếu có
+        if (allEssayQuestions.length > 0) {
+            processedTabs.push({
+                key: `essay-tab`,
+                label: `TỰ LUẬN (${allEssayQuestions.length})`,
+                children: (
+                    <div className="max-h-[75vh] overflow-y-auto pr-4 custom-scrollbar py-4">
+                        {allEssayQuestions.map((q: any) => (
+                            <StudentQuestion
+                                key={q.questionId}
+                                question={q}
+                                value={userAnswers.find(a => a.questionId === q.questionId)?.answer}
+                                onChange={(val: any) => handleAnswerChange(q.questionId, val)}
+                            />
+                        ))}
+                    </div>
+                )
+            });
+        }
+
+        return {
+            tabItems: processedTabs,
+            allQuestions: fullQuestionsList.sort((a, b) => a.questionNumber - b.questionNumber)
+        };
+    }, [finalExamData, userAnswers]);
+
+
+    // 4. Auto-save & Heartbeat
+    const { mutate: saveDraft } = useSaveDraft();
+
+    const lastSavedAnswersRef = useRef<string>("");
+    const currentUserAnswersRef = useRef(userAnswers);
+
+    // Cập nhật ref mỗi khi userAnswers thay đổi
+    useEffect(() => {
+        currentUserAnswersRef.current = userAnswers;
+    }, [userAnswers]);
 
     useEffect(() => {
         if (!examAttemptId) return;
+
         const timer = setInterval(() => {
-            heartbeat(examAttemptId);
-        }, 30000);
+            const currentAnswers = currentUserAnswersRef.current;
+
+            // Chuyển sang string để so sánh nhanh xem có thay đổi so với lần lưu trước không
+            const answersString = JSON.stringify(currentAnswers);
+
+            // CHỈ gọi API nếu: 
+            // - Có câu trả lời (length > 0)
+            // - VÀ dữ liệu khác với lần đã lưu gần nhất
+            if (currentAnswers.length > 0 && answersString !== lastSavedAnswersRef.current) {
+                saveDraft({
+                    examSessionId: examSessionId,
+                    changes: currentAnswers
+                }, {
+                    onSuccess: () => {
+                        // Cập nhật mốc dữ liệu đã lưu thành công
+                        lastSavedAnswersRef.current = answersString;
+                    }
+                });
+            }
+        }, 10000); // Luôn chạy mỗi 10s cố định
+
         return () => clearInterval(timer);
     }, [examAttemptId]);
 
+    const { mutate: sendHeartbeat } = useHeartbeat();
 
-    //Xử lý vi phạm
+    useEffect(() => {
+        // 1. Xử lý khi mất kết nối mạng (Offline)
+        const handleOffline = () => {
+            console.log("Mất kết nối mạng, gửi heartbeat cuối...");
+            sendHeartbeat(examAttemptId as string);
+        };
+
+        // 2. Xử lý khi đóng tab, tắt trình duyệt hoặc chuyển ứng dụng
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                // Sử dụng sendBeacon hoặc mutate để báo cáo trạng thái cuối
+                // Lưu ý: Chrome ưu tiên sendBeacon khi đóng tab
+                sendHeartbeat(examAttemptId as string);
+            }
+        };
+
+        // 3. Xử lý sự kiện trước khi unload (F5, Close Tab)
+        const handleBeforeUnload = () => {
+            sendHeartbeat(examAttemptId as string);
+        };
+
+        window.addEventListener('offline', handleOffline);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('offline', handleOffline);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [examAttemptId, sendHeartbeat]);
+
+    // 5. Submit & Timer
+    const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
+    const setExamResult = useExamStore((state) => state.setExamResult);
+    const handleSubmit = () => {
+        Modal.confirm({
+            title: 'Xác nhận nộp bài?',
+            content: 'Bạn có chắc chắn muốn nộp bài thi không?',
+            onOk: () => {
+                const formattedAnswers = userAnswers.map((ans) => {
+                    // Kiểm tra nếu là câu tự luận (value là object có content)
+                    const isEssay = typeof ans.answer === 'object' && ans.answer !== null;
+
+                    if (isEssay) {
+                        return {
+                            questionId: ans.questionId,
+                            answer: ans.answer.content || "", // Nội dung văn bản
+                            file_urls: ans.answer.file_metadata?.map((m: any) => m.signedUrl) || [] // Mảng URL phẳng
+                        };
+                    }
+
+                    // Trắc nghiệm giữ nguyên
+                    return {
+                        questionId: ans.questionId,
+                        answer: ans.answer || ""
+                    };
+                });
+
+                const payload = {
+                    examAttemptId,
+                    answers: formattedAnswers
+                };
+
+                console.log("Dữ liệu chuẩn gửi đi:", payload);
+
+                submitExam({
+                    examSessionId,
+                    data: { answers: formattedAnswers }
+                }, {
+                    onSuccess: (res) => {
+                        message.success("Nộp bài thành công!");
+                        console.log(res.data.data)
+                        const resultData = res.data?.data;
+                        if (resultData) {
+                            setExamResult(resultData);
+                        }
+                        localStorage.removeItem(`exam_endtime_${examSessionId}`);
+                        localStorage.removeItem(`exam_progress_${examSessionId}`);
+                        router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
+                    }
+                });
+            }
+        });
+    };
+
+    const endTime = useMemo(() => {
+        const storageKey = `exam_endtime_${examSessionId}`;
+        const saved = localStorage.getItem(storageKey);
+        if (saved) return parseInt(saved, 10);
+
+        const duration = finalExamData?.duration || examSessionRes?.data?.duration;
+        if (duration) {
+            const time = Date.now() + duration * 60 * 1000;
+            localStorage.setItem(storageKey, time.toString());
+            return time;
+        }
+        return Date.now();
+    }, [examSessionId, finalExamData, examSessionRes]);
+
+
+    //vi phạm
     const { mutate: reportFraud } = useReportFraud();
 
     useEffect(() => {
@@ -135,108 +376,6 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             data: { fraudType: type }
         });
     };
-
-
-
-    const { tabItems, allQuestions } = useMemo(() => {
-        const actualParts = examData?.parts || [];
-        if (actualParts.length === 0) return { tabItems: [], allQuestions: [] };
-
-        const fullQuestionsList: any[] = [];
-        const allEssayQuestions: any[] = []; // Chứa toàn bộ câu tự luận của cả đề
-
-        // 1. Duyệt qua từng Part để lấy dữ liệu phẳng (Flatten)
-        const processedParts = actualParts.map((part: any) => {
-            const questionsInPart = (part.questionGroups || []).flatMap((group: any) => {
-                return (group.questions || []).map((q: any, qIdx: number) => ({
-                    ...q,
-                    groupInstruction: qIdx === 0 ? group.groupInstruction : null,
-                    groupMedia: qIdx === 0 ? group.media : null,
-                }));
-            });
-
-            const combined = [...(part.questions || []), ...questionsInPart].sort(
-                (a, b) => a.questionIndex - b.questionIndex
-            );
-
-            // Lưu vào danh sách tổng để render bảng số câu hỏi bên phải
-            fullQuestionsList.push(...combined);
-
-            // Tách câu hỏi tự luận ra
-            const nonEssay = combined.filter(q => q.questionType !== QuestionType.ESSAY);
-            const essays = combined.filter(q => q.questionType === QuestionType.ESSAY);
-
-            allEssayQuestions.push(...essays);
-
-            return {
-                ...part,
-                nonEssayQuestions: nonEssay
-            };
-        });
-
-        // 2. Tạo các Tab cho từng Part (Chỉ hiển thị câu hỏi không phải tự luận)
-        const partTabs = processedParts.map((part, pIdx) => ({
-            key: `part-${pIdx}`,
-            label: part.partTitle || `PHẦN ${pIdx + 1}`,
-            children: (
-                <div className="max-h-[75vh] overflow-y-auto pr-4 custom-scrollbar py-4">
-                    {part.partDescription && (
-                        <div className="mb-6 p-4 bg-blue-50 rounded-2xl border border-blue-100 text-blue-800 italic">
-                            <div dangerouslySetInnerHTML={{ __html: part.partDescription }} />
-                        </div>
-                    )}
-                    {part.mediaPlaceholders && (
-                        <div className="mb-6 p-4 rounded-2xl">
-                            <RenderMediaList mediaList={part.mediaPlaceholders} />
-                        </div>
-                    )}
-                    {part.nonEssayQuestions.length > 0 ? (
-                        part.nonEssayQuestions.map((q: any) => (
-                            <StudentQuestion
-                                key={q.questionIndex}
-                                question={q}
-                                value={userAnswers.find(a => a.questionId === q.questionIndex.toString())?.answer}
-                                onChange={(val: any) => handleAnswerChange(q.questionIndex.toString(), val)}
-                            />
-                        ))
-                    ) : (
-                        <div className="text-center py-10 text-gray-400 italic">
-                            Phần này không có câu hỏi trắc nghiệm.
-                        </div>
-                    )}
-                </div>
-            )
-        }));
-
-        // 3. Tạo Tab Tự luận riêng (Gom từ tất cả các Part)
-        if (allEssayQuestions.length > 0) {
-            partTabs.push({
-                key: `essay-tab`,
-                label: `TỰ LUẬN (${allEssayQuestions.length})`,
-                children: (
-                    <div className="max-h-[75vh] overflow-y-auto pr-4 custom-scrollbar py-4">
-                        <div className="mb-6 p-4 bg-orange-50 rounded-2xl border border-orange-100 text-orange-800 font-medium">
-                            Phần này tập hợp các câu hỏi tự luận của toàn bộ bài thi.
-                        </div>
-                        {allEssayQuestions.sort((a, b) => a.questionIndex - b.questionIndex).map((q: any) => (
-                            <StudentQuestion
-                                key={q.questionIndex}
-                                question={q}
-                                value={userAnswers.find(a => a.questionId === q.questionIndex.toString())?.answer}
-                                onChange={(val: any) => handleAnswerChange(q.questionIndex.toString(), val)}
-                            />
-                        ))}
-                    </div>
-                )
-            });
-        }
-
-        return {
-            tabItems: partTabs,
-            allQuestions: fullQuestionsList.sort((a, b) => a.questionIndex - b.questionIndex)
-        };
-    }, [examData, userAnswers]);
-
 
     const { mutate: verifyFace } = useVerifyFaceAttempt();
     // Hiệu ứng chụp ảnh mỗi 3 phút
@@ -298,64 +437,14 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         };
     }, [examAttemptId, examSessionRes, verifyFace]);
 
-    const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
 
-    // 2. Hàm xử lý khi nhấn nút Nộp bài
-    const handleSubmit = () => {
-        // Thu thập danh sách câu trả lời từ state draftAnswers của bạn
-        const answers: DraftAnswer[] = userAnswers.map((item) => ({
-            questionId: item.questionId,
-            answer: item.answer
-        }));
 
-        console.log(answers)
-        Modal.confirm({
-            title: 'Xác nhận nộp bài?',
-            content: 'Bạn có chắc chắn muốn kết thúc bài thi và nộp các câu trả lời này không?',
-            okText: 'Nộp bài',
-            cancelText: 'Hủy',
-            onOk: () => {
-                submitExam({
-                    examSessionId,
-                    data: { answers }
-                }, {
-                    onSuccess: (res) => {
-                        message.success("Nộp bài thi thành công!");
-                        console.log(res);
-                        localStorage.removeItem(`exam_endtime_${examSessionId}`);
-                        localStorage.removeItem(`exam_progress_${examSessionId}`);
-                        // router.replace(`/student/examSession/result/${examSessionId}?examAttemptId=${examAttemptId}`);
-                    },
-                    onError: (err: any) => {
-                        message.error(err?.response?.data?.message || "Lỗi khi nộp bài thi");
-                    }
-                });
-            }
-        });
-    };
 
-    // Thêm logic tính toán thời gian kết thúc vào trong TakeExamPage
-    const endTime = useMemo(() => {
-        const storageKey = `exam_endtime_${examSessionId}`;
-        const savedEndTime = localStorage.getItem(storageKey);
+    if (isExamSessionLoading || (isExamLoading && !storeExamData)) {
+        return <Spin fullscreen tip="Đang chuẩn bị đề thi..." />;
+    }
 
-        if (savedEndTime) {
-            return parseInt(savedEndTime, 10);
-        }
-
-        // Nếu chưa có (lần đầu vào thi), tính toán dựa trên duration từ API
-        // duration thường là phút, đổi sang miliseconds
-        if (examSessionRes?.data?.duration) {
-            const newEndTime = Date.now() + examSessionRes.data.duration * 60 * 1000;
-            localStorage.setItem(storageKey, newEndTime.toString());
-            return newEndTime;
-        }
-
-        return Date.now(); // Default fallback
-    }, [examSessionId, examSessionRes]);
-
-    if (isExamLoading || isExamSessionLoading) return <Spin fullscreen tip="Đang tải đề thi..." />;
-    if (examError || !examData) return <Result status="error" title="Lỗi tải đề" subTitle="Không tìm thấy cấu trúc đề thi." />;
+    if (!finalExamData) return <Result status="error" title="Không tìm thấy đề thi" />;
 
     return (
         <div className="bg-[var(--color-bg-main)] p-6">
@@ -366,105 +455,92 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                         onViolation={handleViolationDetected}
                     />
                 )}
-
                 <Row gutter={24}>
                     <Col span={17}>
-                        <div className="mb-6 flex items-center justify-between">
-                            <div>
-                                <h1 className="text-2xl font-black text-[var(--color-primary)] mb-1 uppercase tracking-tight">
-                                    {examSessionRes?.data.examSessionCode || "Bài thi đang diễn ra"}
-                                </h1>
-                                <div className="flex gap-4 items-center text-slate-500">
-                                    <span className="flex items-center gap-1 font-medium">
-                                        <span className="w-2 h-2 rounded-full bg-[var(--color-success)] animate-pulse"></span>
-                                        Đang làm bài
-                                    </span>
-                                </div>
-                            </div>
+                        <div className="mb-6">
+                            <h1 className="text-2xl font-black text-[var(--color-primary)] uppercase">
+                                {finalExamData?.examDetail?.title || "BÀI THI"}
+                            </h1>
                         </div>
-
-                        <Card className="shadow-xl rounded-3xl  border-none overflow-hidden bg-white">
-                            <Tabs
-                                items={tabItems}
-                                type="card"
-                                className="student-exam-tabs custom-tabs"
-                            />
+                        <Card className="shadow-xl rounded-3xl border-none bg-white">
+                            <Tabs items={tabItems} type="card" className="custom-tabs" />
                         </Card>
                     </Col>
 
                     <Col span={7}>
                         <div className="sticky top-6 flex flex-col gap-6">
-                            {/* Card Thời gian - Sử dụng Navy Deep từ globals.css */}
-                            <Card className="rounded-3xl border-none shadow-lg bg-[var(--color-navy-deep)] text-white overflow-hidden relative">
-                                <div className="relative z-10 p-2">
-                                    <p className="text-[var(--color-accent)] text-xs font-bold uppercase tracking-wider mb-2 text-center opacity-90">Thời gian còn lại</p>
-                                    <Statistic.Countdown
-                                        value={endTime}
-                                        format="HH:mm:ss"
-                                        valueStyle={{ color: '#fff', fontWeight: '900', fontSize: '42px', textAlign: 'center', fontFamily: 'monospace' }}
-                                        onFinish={() => {
-                                            message.warning("Đã hết giờ làm bài! Hệ thống đang tự động nộp...");
-                                            handleSubmit();
-                                        }}
-                                    />
-                                </div>
-                                <div className="absolute -right-4 -bottom-4 opacity-10 text-[var(--color-accent)]">
-                                    <svg width="120" height="120" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 2a8 8 0 100 16 8 8 0 000-16zm1 8h4v2h-6V7h2v5z"></path></svg>
-                                </div>
+                            <Card className="rounded-3xl border-none shadow-lg bg-[var(--color-navy-deep)] text-white">
+                                <p className="text-[var(--color-accent)] text-xs font-bold text-center uppercase">Thời gian còn lại</p>
+                                <Statistic.Countdown
+                                    value={endTime}
+                                    format="HH:mm:ss"
+                                    valueStyle={{ color: '#fff', fontWeight: '900', fontSize: '42px', textAlign: 'center' }}
+                                    onFinish={handleSubmit}
+                                />
                             </Card>
 
                             <Card
                                 className="rounded-3xl border-none shadow-lg"
-                                title={
-                                    <div className="flex justify-between items-center py-2">
-                                        <span className="font-bold text-[var(--color-primary)]">TIẾN ĐỘ</span>
-                                        <Tag color="blue" className="rounded-full px-3 border-none bg-[var(--color-primary)] text-white">
-                                            {userAnswers.length}/{allQuestions.length}
-                                        </Tag>
-                                    </div>
-                                }
+                                title={<span className="font-bold uppercase text-sm">Tiến độ làm bài</span>}
                             >
-                                <div className="grid grid-cols-6 gap-3 mb-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {allQuestions.map((q) => {
-                                        // Tìm câu trả lời tương ứng
-                                        const userAnswer = userAnswers.find(a => a.questionId === q.questionIndex.toString());
-
-                                        // Kiểm tra câu trả lời có "thực sự" tồn tại không
-                                        const isAnswered = userAnswer && (
-                                            // Nếu là mảng (Multiple Choice), phải có ít nhất 1 phần tử
-                                            (Array.isArray(userAnswer.answer) && userAnswer.answer.length > 0) ||
-                                            // Nếu là chuỗi hoặc số, không được rỗng/null/undefined
-                                            (typeof userAnswer.answer !== 'object' && userAnswer.answer !== "" && userAnswer.answer != null)
-                                        );
-
-                                        return (
-                                            <button
-                                                key={q.questionIndex}
-                                                className={`aspect-square flex items-center justify-center rounded-xl text-sm font-bold transition-all
-                                                  ${isAnswered
-                                                        ? 'bg-[var(--color-primary)] text-white shadow-md shadow-[rgba(44,44,112,0.2)]'
-                                                        : 'bg-slate-50 text-slate-400 border border-slate-200 hover:border-[var(--color-accent)]'}`}
-                                            >
-                                                {q.questionIndex}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                <div className="space-y-3 pt-4 border-t border-slate-100">
+                                <Tabs
+                                    size="small"
+                                    items={[
+                                        // Sử dụng actualParts thay vì finalExamData?.examDetail?.parts
+                                        ...(actualParts || []).map((part: any, index: number) => ({
+                                            key: `progress-part-${index}`,
+                                            label: `P.${part.partIndex || index + 1}`,
+                                            children: (
+                                                <div className="grid grid-cols-4 gap-2 max-h-[250px] overflow-y-auto py-2 px-1">
+                                                    {part.questions
+                                                        ?.filter((q: any) => q.questionType !== QuestionType.ESSAY)
+                                                        .map((q: any) => (
+                                                            <ProgressButton
+                                                                key={q.questionId}
+                                                                question={q}
+                                                                userAnswer={userAnswers.find(a => a.questionId === q.questionId)}
+                                                                size="lg"
+                                                            />
+                                                        ))}
+                                                </div>
+                                            )
+                                        })),
+                                        // Chỉ render tab Tự luận nếu thực sự có câu hỏi tự luận
+                                        ...(allQuestions.some(q => q.questionType === QuestionType.ESSAY) ? [{
+                                            key: 'essay-progress',
+                                            label: 'T.LUẬN',
+                                            children: (
+                                                <div className="grid grid-cols-4 gap-2 max-h-[250px] overflow-y-auto py-2 px-1">
+                                                    {allQuestions
+                                                        .filter((q: any) => q.questionType === QuestionType.ESSAY)
+                                                        .map((q: any) => (
+                                                            <ProgressButton
+                                                                key={q.questionId}
+                                                                question={q}
+                                                                userAnswer={userAnswers.find(a => a.questionId === q.questionId)}
+                                                                size="lg"
+                                                            />
+                                                        ))}
+                                                </div>
+                                            )
+                                        }] : [])
+                                    ]}
+                                />
+                                <div className="mt-6 space-y-3">
+                                    <div className="flex justify-between text-xs font-medium text-slate-500 px-1">
+                                        <span>Đã làm: {userAnswers.length}</span>
+                                        <span>Tổng: {allQuestions.length}</span>
+                                    </div>
                                     <Button
                                         type="primary"
                                         block
                                         size="large"
-                                        loading={isSubmitting} // Hiển thị loading khi đang gọi API
-                                        onClick={handleSubmit} // Gắn hàm xử lý nộp bài
-                                        className="h-14 rounded-2xl font-bold bg-[var(--color-primary)] hover:bg-[var(--color-navy-main)] border-none shadow-lg shadow-[rgba(44,44,112,0.1)]"
+                                        loading={isSubmitting}
+                                        onClick={handleSubmit}
+                                        className="h-12 rounded-xl font-bold bg-[var(--color-primary)] border-none"
                                     >
                                         NỘP BÀI THI
                                     </Button>
-                                    <p className="text-center text-[var(--color-text-secondary)] text-xs italic">
-                                        Tự động lưu sau 10 giây
-                                    </p>
                                 </div>
                             </Card>
                         </div>
