@@ -29,7 +29,7 @@ export default function DemoNavigationHub() {
         {
             title: "Trang Giáo viên",
             description: "Quản lý ngân hàng câu hỏi, tạo đề thi và theo dõi kết quả học tập của lớp.",
-            path: "/teacher", 
+            path: "/teacher",
             icon: <UserOutlined />,
             color: "from-blue-600 to-indigo-700",
             tag: "Management"
@@ -115,11 +115,11 @@ export default function DemoNavigationHub() {
                                             </Tag>
                                             <ArrowRightOutlined className="text-slate-300 group-hover:text-[var(--color-accent)] group-hover:translate-x-2 transition-all" />
                                         </div>
-                                        
+
                                         <Title level={4} className="!mb-3 group-hover:text-indigo-600 transition-colors">
                                             {page.title}
                                         </Title>
-                                        
+
                                         <Text className="text-slate-500 leading-relaxed mb-6 block">
                                             {page.description}
                                         </Text>

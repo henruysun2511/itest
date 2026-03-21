@@ -23,6 +23,21 @@ export const StorageService = {
         );
     },
 
+    uploadStudentAnswerFile(file: File) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        return http.post<ApiResponse<UploadExamPdf>>(
+            `/${prefix}/student-answer-file`,
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
+        );
+    },
+
     // DELETE /storage/exam-pdf
     deleteExamPdf(payload: DeleteFilePdfBody) {
         return http.delete<ApiResponse<null>>(

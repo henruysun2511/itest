@@ -4,17 +4,17 @@ import { FraudLevel, FraudType, ProctoringHandleType, QuestionType, RoleType } f
 // 1. Đồng bộ nhãn loại câu hỏi
 export const getQuestionTypeLabel = (type: string) => {
     switch (type?.toUpperCase()) {
-        case QuestionType.SINGLE_CHOICE: 
+        case QuestionType.SINGLE_CHOICE:
             return { label: 'Trắc nghiệm (1 đáp án)', color: 'blue' };
-        case QuestionType.MULTIPLE_CHOICE: 
+        case QuestionType.MULTIPLE_CHOICE:
             return { label: 'Chọn nhiều đáp án', color: 'purple' };
-        case QuestionType.TRUE_FALSE: 
+        case QuestionType.TRUE_FALSE:
             return { label: 'Đúng / Sai', color: 'cyan' };
-        case QuestionType.ESSAY: 
+        case QuestionType.ESSAY:
             return { label: 'Câu hỏi Tự luận', color: 'orange' };
-        case QuestionType.FILL_IN_THE_BLANK: 
+        case QuestionType.FILL_IN_THE_BLANK:
             return { label: 'Điền vào chỗ trống', color: 'green' };
-        default: 
+        default:
             return { label: 'Câu hỏi', color: 'default' };
     }
 };
@@ -129,6 +129,8 @@ export const getStatusConfig = (status: string) => {
             return { color: '#e6a943', text: 'Sắp diễn ra', label: 'Chưa mở', status: 'warning' };
         case ExamSessionStatus.FINISHED:
             return { color: '#6b7280', text: 'Đã đóng', label: 'Đã kết thúc', status: 'default' };
+        case ExamSessionStatus.PAUSE:
+            return { color: '#f59e0b', text: 'Tạm dừng', label: 'Tạm dừng', status: 'warning' };
         default:
             return { color: '#6b7280', text: 'Không xác định', label: 'Liên hệ GV', status: 'default' };
     }
@@ -139,7 +141,7 @@ export const getResultStatusBadge = (status: string) => {
         case ResultStatus.PUBLISHED:
             return { label: 'Đã công bố', color: 'green', status: 'success' };
         case ResultStatus.NOT_GRADED:
-            return { label: 'Chưa chấm', color: 'orange', status: 'warning' };
+            return { label: 'Chưa chấm tự luận', color: 'orange', status: 'warning' };
         default:
             return { label: 'Không xác định', color: 'default', status: 'default' };
     }

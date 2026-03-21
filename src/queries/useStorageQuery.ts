@@ -10,6 +10,12 @@ export const useUploadExamPdf = () => {
     });
 };
 
+export const useUploadStudentAnswerFile = () => {
+    return useMutation({
+        mutationFn: (file: File) => StorageService.uploadStudentAnswerFile(file),
+    });
+};
+
 export const useDeleteExamPdf = () => {
     return useMutation({
         mutationFn: (payload: DeleteFilePdfBody) =>

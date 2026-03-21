@@ -3,7 +3,7 @@
 import { useToast } from "@/hooks/useToast";
 import { useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
 import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
-import { ExamSessionStatus } from "@/shares/constants/status.enum";
+import { ExamAttemptStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
 import { ExamSessionParam } from "@/shares/types/param";
 import { handleError } from "@/shares/utils/error";
 import { getStatusConfig } from "@/shares/utils/mappingLabel";
@@ -31,11 +31,15 @@ export default function StudentExamHome() {
         page: 1,
         limit: 9,
         search: "",
+        status: undefined,
         sortBy: ExamSessionSortBy.DATE,
         sortOrder: SortOrder.DESC
     });
 
-    const { data, isLoading } = useMyExamSessions(params);
+    const { data, isLoading } = useMyExamSessions(params, {
+        refetchInterval: 5000, // Cập nhật realtime mỗi 5 giây
+        refetchOnWindowFocus: true
+    });
 
     const handlePageChange = (page: number, pageSize: number) => {
         setParams(prev => ({ ...prev, page, limit: pageSize }));
@@ -52,6 +56,10 @@ export default function StudentExamHome() {
 
     const handleOrderChange = (value: SortOrder) => {
         setParams(prev => ({ ...prev, sortOrder: value, page: 1 }));
+    };
+
+    const handleStatusChange = (value: ExamSessionStatus | undefined) => {
+        setParams(prev => ({ ...prev, status: value, page: 1 }));
     };
 
     const { mutate: joinSession, isPending: isJoining } = useExamSessionJoin();
@@ -149,6 +157,18 @@ export default function StudentExamHome() {
                                     { value: SortOrder.ASC, label: 'Tăng dần' },
                                 ]}
                             />
+                            <Select
+                                placeholder="Tất cả trạng thái"
+                                className="w-48 h-11"
+                                allowClear
+                                onChange={handleStatusChange}
+                                options={[
+                                    { value: ExamSessionStatus.NOT_STARTED, label: 'Chưa bắt đầu' },
+                                    { value: ExamSessionStatus.IN_PROGRESS, label: 'Đang diễn ra' },
+                                    { value: ExamSessionStatus.PAUSE, label: 'Tạm dừng' },
+                                    { value: ExamSessionStatus.FINISHED, label: 'Đã kết thúc' },
+                                ]}
+                            />
                         </div>
                     </div>
                 </div>
@@ -167,9 +187,17 @@ export default function StudentExamHome() {
                 ) : data?.data?.length ? (
                     <>
                         <Row gutter={[24, 24]}>
-                            {data.data.map((session) => {
+                            {data.data.map((session: any) => {
                                 const config = getStatusConfig(session.status as ExamSessionStatus);
-                                const isAvailable = session.status === ExamSessionStatus.IN_PROGRESS;
+                                const attemptStatus = session.examAttempts?.[0]?.status;
+                                const isAvailable = session.status === ExamSessionStatus.IN_PROGRESS
+                                    && attemptStatus !== ExamAttemptStatus.DISCONNECTED
+                                    && attemptStatus !== ExamAttemptStatus.COMPLETED;
+
+                                let buttonText = config.label;
+                                if (session.isLocked) buttonText = "Đã khóa";
+                                else if (attemptStatus === ExamAttemptStatus.COMPLETED) buttonText = "Đã nộp bài";
+                                else if (attemptStatus === ExamAttemptStatus.DISCONNECTED) buttonText = "Đã đình chỉ thi";
 
                                 return (
                                     <Col xs={24} sm={12} lg={8} key={session.examSessionId}>
@@ -229,7 +257,7 @@ export default function StudentExamHome() {
                                                             : 'bg-slate-100 text-slate-400'
                                                             }`}
                                                     >
-                                                        {session.isLocked ? "Đã khóa" : config.label}
+                                                        {buttonText}
                                                     </Button>
                                                 </div>
                                             </Card>
@@ -244,9 +272,9 @@ export default function StudentExamHome() {
                                 <Pagination
                                     current={params.page}
                                     pageSize={params.limit}
-                                    total={data?.meta?.total || 0} // Giả định API trả về meta.total
+                                    total={data?.meta?.total || 0}
                                     onChange={handlePageChange}
-                                    showSizeChanger={false} // Ẩn chọn limit nếu không cần thiết
+                                    showSizeChanger={false}
                                     className="custom-pagination"
                                 />
                             </Card>

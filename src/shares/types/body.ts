@@ -28,15 +28,15 @@ interface LoginResponse {
 export type { LoginResponse };
 
 interface ChangePasswordBody {
-    oldPassword?: string;
-    password: string;
-    passwordConfirm: string;
+  oldPassword?: string;
+  password: string;
+  passwordConfirm: string;
 }
 
 interface UpdateStudentPasswordBody {
-    studentAccountId: string;
-    password: string;
-    passwordConfirm: string;
+  studentAccountId: string;
+  password: string;
+  passwordConfirm: string;
 }
 
 interface LoginBody {
@@ -190,7 +190,7 @@ interface RetakePermissionBody {
 
 interface ReportFraudBody {
   fraudType: FraudType;
-} 
+}
 
 interface CreateProctoringHandleBody {
   studentId: string;
@@ -204,13 +204,32 @@ interface StudentAccessStateBody {
   studentCode: string;
 }
 
-interface VerifyFaceBody{
+interface VerifyFaceBody {
   face: File;
   examAttemptId: string;
   occurredAt: Date;
 }
+interface AssignGradersBody {
+  resultId: string;
+  teacherIds: string[];
+  role: string;
+}
+
+interface EssayScoreDetailItemBody {
+  questionId: string;
+  score: number;
+  comment?: string;
+}
+
+interface GradeEssayBody {
+  resultGradingId: string;
+  scoreDetail: EssayScoreDetailItemBody[];
+  totalScore: number;
+  comment?: string;
+}
+
 export type {
-  ChangePasswordBody, CreateProctoringHandleBody, DraftAnswer, ForceSubmitBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
+  AssignGradersBody, ChangePasswordBody, CreateProctoringHandleBody, DraftAnswer, EssayScoreDetailItemBody, ForceSubmitBody, GradeEssayBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
   SaveAnswersBody, SaveDraftBody, StudentAccessStateBody, SubmitExamBody, UpdateStudentPasswordBody, VerifyFaceBody
 };
 

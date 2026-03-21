@@ -25,7 +25,7 @@ interface StudentCardProps {
     student: ExamAttempt;
     isWarning?: boolean;
     actions: any;
-    onHandleViolation: (data: any) => void; 
+    onHandleViolation: (data: any) => void;
 }
 
 export default function StudentCard({ student, isWarning, actions, onHandleViolation }: StudentCardProps) {
@@ -46,35 +46,34 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
     };
 
     // Kiểm tra xem sinh viên có đang bị tạm dừng không
-    const isPaused = student.status === ExamAttemptStatus.PAUSE; 
+    const isPaused = student.status === ExamAttemptStatus.PAUSE;
 
     return (
         <Col xs={24} sm={12} md={8} lg={6}>
             <Card
                 hoverable
-                className={`rounded-xl border-2 transition-all duration-300 ${
-                    isWarning ? 'border-red-500 bg-red-50' : 'border-transparent'
-                }`}
+                className={`rounded-xl border-2 transition-all duration-300 ${isWarning ? 'border-red-500 bg-red-50' : 'border-transparent'
+                    }`}
                 bodyStyle={{ padding: 16 }}
                 actions={[
                     // 1. Tạm dừng / Tiếp tục (Toggle)
                     <Tooltip title={isPaused ? "Tiếp tục thi" : "Tạm dừng thi"} key="pause">
                         {isPaused ? (
-                            <CheckCircleOutlined 
-                                className="text-green-500" 
+                            <CheckCircleOutlined
+                                className="text-green-500"
                                 onClick={() => handleAction(
                                     actions.pauseAttempt,
                                     { examSessionId: actions.examSessionId, studentId: student.studentId, data: { isPaused: false } },
                                     "Tiếp tục bài thi"
-                                )} 
+                                )}
                             />
                         ) : (
-                            <PauseCircleOutlined 
+                            <PauseCircleOutlined
                                 onClick={() => handleAction(
                                     actions.pauseAttempt,
                                     { examSessionId: actions.examSessionId, studentId: student.studentId, data: { isPaused: true } },
                                     "Tạm dừng bài thi"
-                                )} 
+                                )}
                             />
                         )}
                     </Tooltip>,
@@ -85,7 +84,7 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                             className="text-red-500"
                             onClick={() => handleAction(
                                 actions.forceSubmit,
-                                { examSessionId: actions.examSessionId, data: { studentIds: [student.studentId] } },
+                                { examSessionId: actions.examSessionId, data: { studentIds: [student.studentId], studentCodes: [student.studentCode] } },
                                 "Thu bài"
                             )}
                         />
@@ -110,7 +109,7 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                             onClick={() => handleAction(
                                 actions.grantRetake,
                                 {
-                                    studentId: student.studentId,      
+                                    studentId: student.studentId,
                                     studentCode: student.studentCode,
                                     examSessionId: actions.examSessionId // Dùng từ actions cho thống nhất
                                 },
@@ -119,7 +118,7 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                         />
                     </Tooltip>,
                     <Tooltip title="Xử lý vi phạm" key="violation">
-                        <AlertOutlined 
+                        <AlertOutlined
                             className="text-red-600"
                             onClick={() => onHandleViolation({
                                 studentId: student.studentId,
@@ -138,7 +137,7 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                         </Text>
                         <Text type="secondary" className="text-xs">{student.studentCode}</Text>
                     </Space>
-                    
+
                     {/* Badge trạng thái với màu động */}
                     <Badge status={statusInfo.status as any} />
                 </div>
@@ -146,10 +145,10 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                 <div className="space-y-2 mb-3">
                     <div className="flex justify-between items-center text-xs">
                         <span className="text-slate-400">IP: {student.ip}</span>
-                        
+
                         {/* Label tiếng Việt với màu tương ứng */}
-                        <Tag 
-                            color={statusInfo.color} 
+                        <Tag
+                            color={statusInfo.color}
                             className="m-0 border-none px-2 rounded-md font-medium"
                         >
                             {statusInfo.label}

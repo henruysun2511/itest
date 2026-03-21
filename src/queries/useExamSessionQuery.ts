@@ -30,14 +30,15 @@ export const useExamSessionDetail = (id: string) => {
   });
 };
 
-export const useMyExamSessions = (param?: ExamSessionParam) => {
-  return useQuery({
+export const useMyExamSessions = (param?: ExamSessionParam, options?: any) => {
+  return useQuery<any, Error>({
     queryKey: [...MY_EXAM_SESSION_QUERY_KEY, param],
     queryFn: async () => {
       const res = await ExamSessionService.getMySessions(param);
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
+    ...options
   });
 };
 

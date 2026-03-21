@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeleteExamPdf, useUploadExamPdf } from '@/queries/useStorageQuery';
+import { useDeleteExamPdf, useUploadStudentAnswerFile } from '@/queries/useStorageQuery';
 import { QuestionType } from '@/shares/constants/type.enum';
 import { getQuestionTypeLabel } from '@/shares/utils/mappingLabel';
 import { CloseCircleFilled, FileOutlined, PaperClipOutlined, UploadOutlined } from '@ant-design/icons';
@@ -13,7 +13,7 @@ export function StudentQuestion({ question, value, onChange }: any) {
   const type = questionType?.toUpperCase();
   const typeInfo = getQuestionTypeLabel(questionType);
 
-  const { mutateAsync: uploadFile, isPending: isUploading } = useUploadExamPdf();
+  const { mutateAsync: uploadFile, isPending: isUploading } = useUploadStudentAnswerFile();
   const { mutateAsync: deleteFile } = useDeleteExamPdf();
 
   const handleUpload = async (file: File) => {
@@ -33,7 +33,6 @@ export function StudentQuestion({ question, value, onChange }: any) {
 
   const handleDelete = async (fileItem: any) => {
     try {
-      // Gọi API xóa theo interface DeleteFilePdfBody { filePath: string }
       await deleteFile({ filePath: fileItem.objectKey });
 
       const newMetadata = value.file_metadata.filter((m: any) => m.objectKey !== fileItem.objectKey);

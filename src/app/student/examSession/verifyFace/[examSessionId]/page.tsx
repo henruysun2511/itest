@@ -1,6 +1,8 @@
 "use client";
 
 import { useExamSessionJoin } from "@/queries/useExamSessionQuery";
+import { useExamSSE } from "@/hooks/useExamSSE";
+import { useExamStore } from "@/stores/useExamStore";
 import { Button, Card, message, Spin, Typography } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -33,6 +35,20 @@ export default function VerifyFacePage() {
     const [isTooDark, setIsTooDark] = useState(false); // State để hiển thị UI cảnh báo
 
     const { mutate: joinExam, isPending } = useExamSessionJoin();
+    const { latestEvent } = useExamSSE(examSessionId);
+
+    // Xử lý chặn nếu Giám thị Tạm dừng hoặc Kết thúc ca thi lúc đang soi mặt
+    useEffect(() => {
+        if (!latestEvent) return;
+        if (latestEvent.type === 'SESSION_STATUS_CHANGED') {
+            if (latestEvent.data?.status === 'PAUSE') {
+                message.warning('Ca thi đang bị tạm dừng bởi Giám thị, bạn chưa thể vào thi ngay lúc này!');
+            } else if (latestEvent.data?.status === 'FINISHED') {
+                message.error('Ca thi đã kết thúc!');
+                router.push('/student');
+            }
+        }
+    }, [latestEvent, router]);
 
     const instructions = [
         "Vui lòng xoay mặt sang TRÁI",
@@ -93,7 +109,7 @@ export default function VerifyFacePage() {
                 });
 
                 faceMesh.onResults((results: any) => {
-                  
+
                     const now = Date.now();
 
                     if (now - lastErrorTimeRef.current > 1000 && videoRef.current) {
@@ -202,19 +218,41 @@ export default function VerifyFacePage() {
         }, "image/jpeg");
     };
 
+    const setExamData = useExamStore((state) => state.setExamData);
     const handleJoinExam = () => {
         if (!capturedFile) return message.error("Chưa có ảnh xác thực");
         joinExam({ id: examSessionId, file: capturedFile }, {
             onSuccess: (res) => {
                 message.success("Tham gia ca thi thành công");
-                const examData = res.data.data;
-                const examId = examData.randomExamId;
-                const examAttemptId = examData.examAttemptId;
-                console.log(res.data.data);
+                const rawData = res?.data?.data;
 
-                router.push(
-                    `/student/examSession/takeExam/${examSessionId}?examId=${examId}&examAttemptId=${examAttemptId}`
-                );
+                if (!rawData) {
+                    console.error("API Response Data is missing:", res);
+                    message.error("Không thể lấy thông tin bài thi. Vui lòng thử lại!");
+                    return;
+                }
+
+                const {
+                    randomExamId: examId,
+                    examAttemptId,
+                    examSessionId: resSessionId
+                } = rawData;
+
+                if (!examId || !examAttemptId) {
+                    console.error("Missing IDs:", { examId, examAttemptId });
+                    message.warning("Dữ liệu bài thi chưa sẵn sàng.");
+                    return;
+                }
+
+                message.success("Tham gia ca thi thành công!");
+
+                setExamData(rawData);
+
+                const targetSessionId = resSessionId || examSessionId;
+                const url = `/student/examSession/takeExam/${targetSessionId}?examId=${examId}&examAttemptId=${examAttemptId}`;
+
+                console.log("Redirecting to:", url);
+                router.push(url);
             },
             onError: (error: any) => message.error(error?.response?.data?.message || "Lỗi tham gia ca thi")
         });

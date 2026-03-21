@@ -4,21 +4,25 @@
 interface ProgressButtonProps {
   question: any;
   userAnswer: any;
-  size?: 'sm' | 'md' | 'lg'; // Thêm option lg nếu muốn to hẳn
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export function ProgressButton({ question, userAnswer, size = 'md' }: ProgressButtonProps) {
-  const isAnswered = userAnswer && (
-    Array.isArray(userAnswer.answer)
-      ? userAnswer.answer.length > 0
-      : !!userAnswer.answer
-  );
+  const isAnswered = userAnswer && (() => {
+    const ans = userAnswer.answer;
+    if (Array.isArray(ans)) return ans.length > 0;
+    if (typeof ans === 'object' && ans !== null) {
+      const hasContent = !!ans.content?.trim();
+      const hasFiles = Array.isArray(ans.file_metadata) && ans.file_metadata.length > 0;
+      return hasContent || hasFiles;
+    }
+    return !!ans;
+  })();
 
-  // ĐIỀU CHỈNH TẠI ĐÂY:
-  // sm: ~28px, md: ~40px (như ban đầu), lg: ~48px
+
   const sizeMap = {
     sm: 'w-7 h-7 text-[10px] rounded-lg',
-    md: 'w-10 h-10 text-sm rounded-xl', // Đây là kích thước gần giống ban đầu nhất
+    md: 'w-10 h-10 text-sm rounded-xl',
     lg: 'w-20 h-20 text-base rounded-2xl'
   };
 
