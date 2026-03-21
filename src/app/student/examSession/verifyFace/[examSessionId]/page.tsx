@@ -1,6 +1,7 @@
 "use client";
 
 import { useExamSessionJoin } from "@/queries/useExamSessionQuery";
+import { useExamSSE } from "@/hooks/useExamSSE";
 import { useExamStore } from "@/stores/useExamStore";
 import { Button, Card, message, Spin, Typography } from "antd";
 import { useParams, useRouter } from "next/navigation";
@@ -34,6 +35,20 @@ export default function VerifyFacePage() {
     const [isTooDark, setIsTooDark] = useState(false); // State để hiển thị UI cảnh báo
 
     const { mutate: joinExam, isPending } = useExamSessionJoin();
+    const { latestEvent } = useExamSSE(examSessionId);
+
+    // Xử lý chặn nếu Giám thị Tạm dừng hoặc Kết thúc ca thi lúc đang soi mặt
+    useEffect(() => {
+        if (!latestEvent) return;
+        if (latestEvent.type === 'SESSION_STATUS_CHANGED') {
+            if (latestEvent.data?.status === 'PAUSE') {
+                message.warning('Ca thi đang bị tạm dừng bởi Giám thị, bạn chưa thể vào thi ngay lúc này!');
+            } else if (latestEvent.data?.status === 'FINISHED') {
+                message.error('Ca thi đã kết thúc!');
+                router.push('/student');
+            }
+        }
+    }, [latestEvent, router]);
 
     const instructions = [
         "Vui lòng xoay mặt sang TRÁI",

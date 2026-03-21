@@ -3,7 +3,7 @@
 import { useToast } from "@/hooks/useToast";
 import { useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
 import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
-import { ExamSessionStatus } from "@/shares/constants/status.enum";
+import { ExamAttemptStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
 import { ExamSessionParam } from "@/shares/types/param";
 import { handleError } from "@/shares/utils/error";
 import { getStatusConfig } from "@/shares/utils/mappingLabel";
@@ -189,7 +189,15 @@ export default function StudentExamHome() {
                         <Row gutter={[24, 24]}>
                             {data.data.map((session: any) => {
                                 const config = getStatusConfig(session.status as ExamSessionStatus);
-                                const isAvailable = session.status === ExamSessionStatus.IN_PROGRESS;
+                                const attemptStatus = session.examAttempts?.[0]?.status;
+                                const isAvailable = session.status === ExamSessionStatus.IN_PROGRESS
+                                    && attemptStatus !== ExamAttemptStatus.DISCONNECTED
+                                    && attemptStatus !== ExamAttemptStatus.COMPLETED;
+
+                                let buttonText = config.label;
+                                if (session.isLocked) buttonText = "Đã khóa";
+                                else if (attemptStatus === ExamAttemptStatus.COMPLETED) buttonText = "Đã nộp bài";
+                                else if (attemptStatus === ExamAttemptStatus.DISCONNECTED) buttonText = "Đã đình chỉ thi";
 
                                 return (
                                     <Col xs={24} sm={12} lg={8} key={session.examSessionId}>
@@ -249,7 +257,7 @@ export default function StudentExamHome() {
                                                             : 'bg-slate-100 text-slate-400'
                                                             }`}
                                                     >
-                                                        {session.isLocked ? "Đã khóa" : config.label}
+                                                        {buttonText}
                                                     </Button>
                                                 </div>
                                             </Card>
