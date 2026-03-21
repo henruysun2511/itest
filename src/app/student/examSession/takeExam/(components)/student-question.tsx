@@ -33,7 +33,6 @@ export function StudentQuestion({ question, value, onChange }: any) {
 
   const handleDelete = async (fileItem: any) => {
     try {
-      // Gọi API xóa theo interface DeleteFilePdfBody { filePath: string }
       await deleteFile({ filePath: fileItem.objectKey });
 
       const newMetadata = value.file_metadata.filter((m: any) => m.objectKey !== fileItem.objectKey);

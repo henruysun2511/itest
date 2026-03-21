@@ -6,9 +6,7 @@ import { useRouter } from "next/navigation";
 
 export function ExamResultTab() {
     const router = useRouter();
-    // Lấy danh sách kết quả của tôi (giả định dùng limit lớn hoặc có phân trang)
     const { data, isLoading } = useMyResultList({ page: 1, limit: 100 });
-    console.log(data)
 
     const columns = [
         {

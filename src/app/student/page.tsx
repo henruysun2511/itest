@@ -31,6 +31,7 @@ export default function StudentExamHome() {
         page: 1,
         limit: 9,
         search: "",
+        status: undefined,
         sortBy: ExamSessionSortBy.DATE,
         sortOrder: SortOrder.DESC
     });
@@ -52,6 +53,10 @@ export default function StudentExamHome() {
 
     const handleOrderChange = (value: SortOrder) => {
         setParams(prev => ({ ...prev, sortOrder: value, page: 1 }));
+    };
+
+    const handleStatusChange = (value: ExamSessionStatus | undefined) => {
+        setParams(prev => ({ ...prev, status: value, page: 1 }));
     };
 
     const { mutate: joinSession, isPending: isJoining } = useExamSessionJoin();
@@ -149,6 +154,18 @@ export default function StudentExamHome() {
                                     { value: SortOrder.ASC, label: 'Tăng dần' },
                                 ]}
                             />
+                            <Select
+                                placeholder="Tất cả trạng thái"
+                                className="w-48 h-11"
+                                allowClear
+                                onChange={handleStatusChange}
+                                options={[
+                                    { value: ExamSessionStatus.NOT_STARTED, label: 'Chưa bắt đầu' },
+                                    { value: ExamSessionStatus.IN_PROGRESS, label: 'Đang diễn ra' },
+                                    { value: ExamSessionStatus.PAUSE, label: 'Tạm dừng' },
+                                    { value: ExamSessionStatus.FINISHED, label: 'Đã kết thúc' },
+                                ]}
+                            />
                         </div>
                     </div>
                 </div>
@@ -244,9 +261,9 @@ export default function StudentExamHome() {
                                 <Pagination
                                     current={params.page}
                                     pageSize={params.limit}
-                                    total={data?.meta?.total || 0} 
+                                    total={data?.meta?.total || 0}
                                     onChange={handlePageChange}
-                                    showSizeChanger={false} 
+                                    showSizeChanger={false}
                                     className="custom-pagination"
                                 />
                             </Card>

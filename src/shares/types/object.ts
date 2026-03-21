@@ -6,6 +6,7 @@ interface BaseObject {
   updatedAt: string;
   deletedAt: string | null;
 }
+
 interface Account extends BaseObject {
   accountId: string;
   googleId: string | null;
@@ -83,6 +84,7 @@ interface Exam {
   parsedJson?: ExamData;
   questions: QuestionDetail[];
 }
+
 export type { Exam };
 
 interface Student {
@@ -207,53 +209,7 @@ interface FraudDetail {
 }
 export type { FraudDetail };
 
-
-
-export type MediaType = "image" | "audio" | "video";
-
-export interface MediaPlaceholder {
-  mediaType: MediaType;
-  description: string;
-  url: string;
-  publicId: string;
-}
-
-export interface Option {
-  label: string;
-  text: string;
-}
-
-export interface Question {
-  questionIndex: number;
-  questionText: string;
-  questionType: string;
-  options: Option[] | null;
-  mediaPlaceholders: MediaPlaceholder[] | null;
-}
-
-export interface QuestionGroup {
-  groupInstruction: string;
-  questionIndices: number[];
-  mediaPlaceholders: MediaPlaceholder[] | null;
-}
-
-export interface Part {
-  partIndex: number;
-  partTitle: string;
-  partDescription: string | null;
-  extraDescription?: string;
-  questionType?: string;
-  mediaPlaceholders: MediaPlaceholder[];
-  questionGroups: QuestionGroup[];
-  questions: Question[];
-}
-
-export interface ExamData {
-  hasParts: boolean;
-  parts: Part[];
-}
-
-export interface ExamSessionHandling {
+interface ExamSessionHandling {
   examSessionHandlingId: string;
   reason: string;
   studentId: string;
@@ -266,8 +222,9 @@ export interface ExamSessionHandling {
   createdAt: string;
   type: string;
 }
+export type { ExamSessionHandling };
 
-export interface Result {
+interface Result {
   resultId: string;
   examSessionId: string;
   examSessionCode: string;
@@ -277,15 +234,17 @@ export interface Result {
   status: string;
   totalScore?: number;
 }
+export type { Result };
 
-export interface ScorePart {
+interface ScorePart {
   score: number;
   correct: number;
   partIndex: number;
   totalQuestions: number;
 }
+export type { ScorePart };
 
-export interface ScoreDetail {
+interface ScoreDetail {
   parts: ScorePart[];
   percent: number;
   maxScore: number;
@@ -301,12 +260,14 @@ export interface ScoreDetail {
     parts: any[];
   };
 }
+export type { ScoreDetail };
 
-export interface ResultDetail extends Result {
+interface ResultDetail extends Result {
   scoreDetail?: ScoreDetail;
 }
+export type { ResultDetail };
 
-export interface EssayAnswerItem {
+interface EssayAnswerItem {
   questionType: string;
   questionId: string;
   partId: string;
@@ -314,11 +275,62 @@ export interface EssayAnswerItem {
   answerText: string;
   fileUrls: string[];
 }
+export type { EssayAnswerItem };
 
-export interface EssayResult {
+interface EssayResult {
   resultGradingId: string;
   currentScore: number;
   answers: EssayAnswerItem[];
 }
+export type { EssayResult };
+
+
+//Type cho câu hỏi
+export type MediaType = "image" | "audio" | "video";
+
+interface MediaPlaceholder {
+  mediaType: MediaType;
+  description: string;
+  url: string;
+  publicId: string;
+}
+
+interface Option {
+  label: string;
+  text: string;
+}
+
+interface Question {
+  questionIndex: number;
+  questionText: string;
+  questionType: string;
+  options: Option[] | null;
+  mediaPlaceholders: MediaPlaceholder[] | null;
+}
+
+interface QuestionGroup {
+  groupInstruction: string;
+  questionIndices: number[];
+  mediaPlaceholders: MediaPlaceholder[] | null;
+}
+
+interface Part {
+  partIndex: number;
+  partTitle: string;
+  partDescription: string | null;
+  extraDescription?: string;
+  questionType?: string;
+  mediaPlaceholders: MediaPlaceholder[];
+  questionGroups: QuestionGroup[];
+  questions: Question[];
+}
+
+interface ExamData {
+  hasParts: boolean;
+  parts: Part[];
+}
+
+export type { ExamData, MediaPlaceholder, Option, Part, Question, QuestionGroup };
+
 
 

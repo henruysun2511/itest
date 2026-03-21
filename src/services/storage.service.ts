@@ -28,7 +28,7 @@ export const StorageService = {
         formData.append("file", file);
 
         return http.post<ApiResponse<UploadExamPdf>>(
-            `/${prefix}/exam-pdf-exams`,
+            `/${prefix}/student-answer-file`,
             formData,
             {
                 headers: {

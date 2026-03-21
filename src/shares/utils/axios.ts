@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import axios, { InternalAxiosRequestConfig } from "axios";
+import Cookies from "js-cookie";
 import qs from "qs";
 
 // Instance này CHỈ dùng để gọi refresh token, không đính kèm Interceptor đính token cũ
@@ -20,7 +21,7 @@ const api = axios.create({
   },
   paramsSerializer: (params) =>
     qs.stringify(params, {
-      arrayFormat: "repeat", 
+      arrayFormat: "repeat",
     }),
 });
 
@@ -38,7 +39,10 @@ api.interceptors.request.use((config) => {
 
 // ===== Refresh token handling =====
 let isRefreshing = false;
-let queue: ((token: string) => void)[] = [];
+let queue: {
+  resolve: (token: string) => void;
+  reject: (err: any) => void;
+}[] = [];
 
 api.interceptors.response.use(
   (res) => res,
@@ -51,10 +55,15 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       if (isRefreshing) {
-        return new Promise((resolve) => {
-          queue.push((token: string) => {
-            originalRequest.headers!.Authorization = `Bearer ${token}`;
-            resolve(api(originalRequest));
+        return new Promise((resolve, reject) => {
+          queue.push({
+            resolve: (token: string) => {
+              originalRequest.headers!.Authorization = `Bearer ${token}`;
+              resolve(api(originalRequest));
+            },
+            reject: (err: any) => {
+              reject(err);
+            }
           });
         });
       }
@@ -63,18 +72,33 @@ api.interceptors.response.use(
 
       try {
         const res = await refreshApi.post("/auth/refresh-token");
-        const newToken = res.data.data.accessToken;
+        const newToken = res.data?.data?.accessToken;
 
+        if (!newToken) throw new Error("No token returned from refresh endpoint");
+
+        // Cập nhật Zustand
         useAuthStore.getState().setAccessToken(newToken);
 
-        queue.forEach((cb) => cb(newToken));
+        // Cập nhật Cookie cho Next.js middleware
+        const expires = new Date(new Date().getTime() + 30 * 60 * 1000); // 30 mins
+        Cookies.set("accessToken", newToken, {
+          expires: expires,
+          path: "/",
+          sameSite: "strict"
+        });
+
+        queue.forEach((cb) => cb.resolve(newToken));
         queue = [];
 
         originalRequest.headers!.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (err) {
+        queue.forEach((cb) => cb.reject(err));
         queue = [];
+
         useAuthStore.getState().logout();
+        Cookies.remove("accessToken");
+
         // window.location.href = "/auth/login";
         return Promise.reject(err);
       } finally {

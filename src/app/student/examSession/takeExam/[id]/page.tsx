@@ -1,16 +1,20 @@
 "use client";
 
-import { useHeartbeat, useReportFraud, useSaveDraft, useSubmitExam, useVerifyFaceAttempt } from '@/queries/useExamAttemptQuery';
 import { useExamDetail } from '@/queries/useExamQuery';
 import { useExamSessionDetail } from '@/queries/useExamSessionQuery';
-import { FraudType, QuestionType } from '@/shares/constants/type.enum';
+import { QuestionType } from '@/shares/constants/type.enum';
 import { useExamStore } from '@/stores/useExamStore';
-import { Button, Card, Col, message, Modal, Result, Row, Spin, Statistic, Tabs } from 'antd';
+import { Button, Card, Col, Result, Row, Spin, Statistic, Tabs } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ExamMonitor from '../(components)/exam-monitor';
 import { ProgressButton } from '../(components)/renderProgressButton';
 import { StudentQuestion } from '../(components)/student-question';
+import { useExamAutoSave } from '../(hooks)/useExamAutoSave';
+import { useExamFullscreen } from '../(hooks)/useExamFullscreen';
+import { useExamSecurity } from '../(hooks)/useExamSecurity';
+import { useExamSubmit } from '../(hooks)/useExamSubmit';
+import { useExamTimer } from '../(hooks)/useExamTimer';
 
 
 
@@ -37,8 +41,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         // Ưu tiên store, nếu không có thì lấy từ API response
         return storeExamData || examDetailRes?.data;
     }, [storeExamData, examDetailRes?.data]);
+
     // 2. State quản lý câu trả lời
-    // const [userAnswers, setUserAnswers] = useState<any[]>([]);
     const setExamData = useExamStore((state) => state.setExamData);
     useEffect(() => {
         if (!storeExamData && examDetailRes?.data) {
@@ -75,38 +79,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         });
     };
 
-    // const handleEnableFullScreen = () => {
-    //     const elem = document.documentElement; // Lấy toàn bộ trang web
-
-    //     if (elem.requestFullscreen) {
-    //         elem.requestFullscreen().catch((err) => {
-    //             console.error(`Không thể bật toàn màn hình: ${err.message}`);
-    //         });
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     // Nếu chưa ở chế độ toàn màn hình, hiện Modal bắt buộc
-    //     Modal.warning({
-    //         title: 'Yêu cầu chế độ toàn màn hình',
-    //         content: 'Để đảm bảo tính công bằng, bài thi yêu cầu chế độ toàn màn hình. Vui lòng nhấn xác nhận để bắt đầu.',
-    //         okText: 'Xác nhận & Vào thi',
-    //         onOk: () => {
-    //             handleEnableFullScreen();
-    //         },
-    //     });
-
-    //     // Theo dõi nếu người dùng cố tình thoát Fullscreen (nhấn Esc)
-    //     const handleExit = () => {
-    //         if (!document.fullscreenElement) {
-    //             message.error("Cảnh báo: Bạn đã thoát chế độ toàn màn hình! Hành động này sẽ được ghi nhận.");
-    //             handleViolationDetected(FraudType.WINDOW_BLUR);
-    //         }
-    //     };
-
-    //     document.addEventListener('fullscreenchange', handleExit);
-    //     return () => document.removeEventListener('fullscreenchange', handleExit);
-    // }, []);
+    // Logic xử lý toàn màn hình đã chuyển sang useExamFullscreen ở bên dưới
 
     // 3. Logic xử lý Tab và Câu hỏi (Dựa trên cấu trúc state bạn cung cấp)
     const actualParts = useMemo(() => {
@@ -180,275 +153,30 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     }, [finalExamData, userAnswers]);
 
 
-    // 4. Auto-save & Heartbeat
-    const { mutate: saveDraft } = useSaveDraft();
+    // 4. Các Logic Background: Auto-Save, Camera Capture, Giám sát
+    useExamAutoSave(examSessionId, examAttemptId, userAnswers);
 
-    const lastSavedAnswersRef = useRef<string>("");
-    const currentUserAnswersRef = useRef(userAnswers);
+    const { handleViolationDetected } = useExamSecurity(
+        examAttemptId,
+        examSessionRes?.data?.isCameraRequired
+    );
 
-    // Cập nhật ref mỗi khi userAnswers thay đổi
-    useEffect(() => {
-        currentUserAnswersRef.current = userAnswers;
-    }, [userAnswers]);
-
-    useEffect(() => {
-        if (!examAttemptId) return;
-
-        const timer = setInterval(() => {
-            const currentAnswers = currentUserAnswersRef.current;
-
-            // Chuyển sang string để so sánh nhanh xem có thay đổi so với lần lưu trước không
-            const answersString = JSON.stringify(currentAnswers);
-
-            // CHỈ gọi API nếu: 
-            // - Có câu trả lời (length > 0)
-            // - VÀ dữ liệu khác với lần đã lưu gần nhất
-            if (currentAnswers.length > 0 && answersString !== lastSavedAnswersRef.current) {
-                saveDraft({
-                    examSessionId: examSessionId,
-                    changes: currentAnswers
-                }, {
-                    onSuccess: () => {
-                        // Cập nhật mốc dữ liệu đã lưu thành công
-                        lastSavedAnswersRef.current = answersString;
-                    }
-                });
-            }
-        }, 10000); // Luôn chạy mỗi 10s cố định
-
-        return () => clearInterval(timer);
-    }, [examAttemptId]);
-
-    const { mutate: sendHeartbeat } = useHeartbeat();
-
-    useEffect(() => {
-        // 1. Xử lý khi mất kết nối mạng (Offline)
-        const handleOffline = () => {
-            console.log("Mất kết nối mạng, gửi heartbeat cuối...");
-            sendHeartbeat(examAttemptId as string);
-        };
-
-        // 2. Xử lý khi đóng tab, tắt trình duyệt hoặc chuyển ứng dụng
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'hidden') {
-                // Sử dụng sendBeacon hoặc mutate để báo cáo trạng thái cuối
-                // Lưu ý: Chrome ưu tiên sendBeacon khi đóng tab
-                sendHeartbeat(examAttemptId as string);
-            }
-        };
-
-        // 3. Xử lý sự kiện trước khi unload (F5, Close Tab)
-        const handleBeforeUnload = () => {
-            sendHeartbeat(examAttemptId as string);
-        };
-
-        window.addEventListener('offline', handleOffline);
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('beforeunload', handleBeforeUnload);
-
-        return () => {
-            window.removeEventListener('offline', handleOffline);
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, [examAttemptId, sendHeartbeat]);
+    useExamFullscreen(handleViolationDetected);
 
     const [isCameraActive, setIsCameraActive] = useState(true);
 
     // 5. Submit & Timer
-    const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
-    const setExamResult = useExamStore((state) => state.setExamResult);
-    const handleSubmit = () => {
-        console.log(userAnswers)
-        Modal.confirm({
-            title: 'Xác nhận nộp bài?',
-            content: 'Bạn có chắc chắn muốn nộp bài thi không?',
-            onOk: () => {
-                setIsCameraActive(false);
-                
-                const finalAnswers = userAnswers.map((ans) => {
-                    const val = ans.answer;
+    const { handleSubmit, isSubmitting } = useExamSubmit(
+        examSessionId,
+        userAnswers,
+        setIsCameraActive
+    );
 
-                    // TRƯỜNG HỢP 1: Trắc nghiệm nhiều đáp án (Mảng các string)
-                    if (Array.isArray(val)) {
-                        return {
-                            questionId: ans.questionId,
-                            answer: val, // Ghép các đáp án thành chuỗi "A,B,C" hoặc gửi nguyên mảng tùy API
-                            file_urls: [] // Trắc nghiệm không có file
-                        };
-                    }
-
-                    // TRƯỜNG HỢP 2: Tự luận (Object chứa content và file_metadata)
-                    // Kiểm tra có content hoặc file_metadata bên trong
-                    if (typeof val === 'object' && val !== null && ('content' in val || 'file_metadata' in val)) {
-                        return {
-                            questionId: ans.questionId,
-                            answer: val.content || "",
-                            file_urls: val.file_metadata?.map((f: any) => f.signedUrl) || []
-                        };
-                    }
-
-                    // TRƯỜNG HỢP 3: Trắc nghiệm đơn (String/Number) hoặc các trường hợp còn lại
-                    return {
-                        questionId: ans.questionId,
-                        answer: String(val ?? ""),
-                        file_urls: []
-                    };
-                });
+    const duration = finalExamData?.duration || examSessionRes?.data?.duration;
+    const endTime = useExamTimer(examSessionId, duration);
 
 
-                console.log(finalAnswers);
-
-                submitExam({
-                    examSessionId,
-                    data: { answers: finalAnswers }
-                }, {
-                    onSuccess: (res) => {
-                        message.success("Nộp bài thành công!");
-                        console.log(res.data.data)
-                        const resultData = res.data?.data;
-                        if (resultData) {
-                            setExamResult(resultData);
-                        }
-                        
-                        localStorage.removeItem(`exam_endtime_${examSessionId}`);
-                        localStorage.removeItem(`exam_progress_${examSessionId}`);
-                        router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
-                    }
-                });
-            }
-        });
-    };
-
-    const endTime = useMemo(() => {
-        const storageKey = `exam_endtime_${examSessionId}`;
-        const saved = localStorage.getItem(storageKey);
-        if (saved) return parseInt(saved, 10);
-
-        const duration = finalExamData?.duration || examSessionRes?.data?.duration;
-        if (duration) {
-            const time = Date.now() + duration * 60 * 1000;
-            localStorage.setItem(storageKey, time.toString());
-            return time;
-        }
-        return Date.now();
-    }, [examSessionId, finalExamData, examSessionRes]);
-
-
-    //vi phạm
-    const { mutate: reportFraud } = useReportFraud();
-
-    useEffect(() => {
-        // Hàm helper để gửi báo cáo vi phạm nhanh
-        const sendFraudReport = (type: FraudType, warningMsg: string) => {
-            if (!examAttemptId) return;
-
-            reportFraud({
-                examAttemptId,
-                data: { fraudType: type } // Chỉ truyền fraudType theo yêu cầu
-            });
-
-            if (warningMsg) {
-                message.warning(warningMsg);
-            }
-        };
-
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'hidden') {
-                sendFraudReport(FraudType.TAB_SWITCHING, "Cảnh báo: Bạn vừa rời khỏi trang thi!");
-            }
-        };
-
-        const handleWindowBlur = () => {
-            sendFraudReport(FraudType.WINDOW_BLUR, "Cảnh báo: Không được rời khỏi cửa sổ làm bài!");
-        };
-
-        const handleOffline = () => {
-            sendFraudReport(FraudType.NETWORK_DISRUPTION, "Cảnh báo: Kết nối mạng bị gián đoạn!");
-        };
-
-        // Đăng ký tất cả các sự kiện giám sát
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('blur', handleWindowBlur);
-        window.addEventListener('offline', handleOffline);
-
-        return () => {
-            // Hủy đăng ký tất cả
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('blur', handleWindowBlur);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, [examAttemptId, reportFraud]); // Thêm các dependency cần thiết
-
-    // Hàm dùng cho các component con (ví dụ: phát hiện khuôn mặt từ ExamMonitor)
-    const handleViolationDetected = (type: FraudType) => {
-        if (!examAttemptId) return;
-
-        reportFraud({
-            examAttemptId,
-            data: { fraudType: type }
-        });
-    };
-
-    const { mutate: verifyFace } = useVerifyFaceAttempt();
-    // Hiệu ứng chụp ảnh mỗi 3 phút
-    useEffect(() => {
-        // Chỉ chạy nếu ca thi yêu cầu camera và đã có lượt thi (examAttemptId)
-        if (!examAttemptId || !examSessionRes?.data.isCameraRequired) return;
-
-        const VERIFY_INTERVAL = 3 * 60 * 1000; // 3 phút
-
-        const handleAutoCapture = () => {
-            // Tìm video đang hiển thị từ ExamMonitor
-            const video = document.querySelector('video');
-            const canvas = document.createElement('canvas');
-
-            if (video && video.readyState === 4) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-
-                if (ctx) {
-                    // Lật ảnh (Mirror) cho giống thực tế
-                    ctx.translate(canvas.width, 0);
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                    // Chuyển canvas sang Blob -> File
-                    canvas.toBlob((blob) => {
-                        if (blob) {
-                            const faceFile = new File(
-                                [blob],
-                                `verify_${examAttemptId}_${Date.now()}.jpg`,
-                                { type: "image/jpeg" }
-                            );
-
-                            // Gửi ảnh về server
-                            verifyFace({
-                                examAttemptId,
-                                face: faceFile,
-                                occurredAt: new Date()
-                            }, {
-                                onError: () => {
-                                    // Cảnh báo nhẹ nhàng nếu gửi lỗi hoặc không nhận diện được
-                                    message.warning("Hệ thống giám sát không thể xác thực khuôn mặt, vui lòng điều chỉnh lại vị trí ngồi!");
-                                }
-                            });
-                        }
-                    }, "image/jpeg", 0.7); // Nén 70% để giảm tải server
-                }
-            }
-        };
-
-        // Chạy lần đầu sau 1 phút để ổn định, sau đó lặp lại mỗi 3 phút
-        const firstShot = setTimeout(handleAutoCapture, 60000);
-        const interval = setInterval(handleAutoCapture, VERIFY_INTERVAL);
-
-        return () => {
-            clearTimeout(firstShot);
-            clearInterval(interval);
-        };
-    }, [examAttemptId, examSessionRes, verifyFace]);
+    // (Logic chống vi phạm và nhận diện khuôn mặt đã chuyển sang useExamSecurity hook)
 
 
 
@@ -468,10 +196,6 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                         onViolation={handleViolationDetected}
                     />
                 )}
-                {/* <ExamMonitor
-                    examAttemptId={examAttemptId}
-                    onViolation={handleViolationDetected}
-                /> */}
                 <Row gutter={24}>
                     <Col span={17}>
                         <div className="mb-6">
@@ -492,7 +216,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                                     value={endTime}
                                     format="HH:mm:ss"
                                     valueStyle={{ color: '#fff', fontWeight: '900', fontSize: '42px', textAlign: 'center' }}
-                                    onFinish={handleSubmit}
+                                    onFinish={() => handleSubmit(true)}
                                 />
                             </Card>
 
@@ -553,7 +277,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                                         block
                                         size="large"
                                         loading={isSubmitting}
-                                        onClick={handleSubmit}
+                                        onClick={() => handleSubmit(false)}
                                         className="h-12 rounded-xl font-bold bg-[var(--color-primary)] border-none"
                                     >
                                         NỘP BÀI THI
