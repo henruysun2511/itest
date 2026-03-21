@@ -139,7 +139,7 @@ export const getResultStatusBadge = (status: string) => {
         case ResultStatus.PUBLISHED:
             return { label: 'Đã công bố', color: 'green', status: 'success' };
         case ResultStatus.NOT_GRADED:
-            return { label: 'Chưa chấm', color: 'orange', status: 'warning' };
+            return { label: 'Chưa chấm tự luận', color: 'orange', status: 'warning' };
         default:
             return { label: 'Không xác định', color: 'default', status: 'default' };
     }

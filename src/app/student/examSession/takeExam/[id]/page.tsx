@@ -75,38 +75,38 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         });
     };
 
-    const handleEnableFullScreen = () => {
-        const elem = document.documentElement; // Lấy toàn bộ trang web
+    // const handleEnableFullScreen = () => {
+    //     const elem = document.documentElement; // Lấy toàn bộ trang web
 
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen().catch((err) => {
-                console.error(`Không thể bật toàn màn hình: ${err.message}`);
-            });
-        }
-    };
+    //     if (elem.requestFullscreen) {
+    //         elem.requestFullscreen().catch((err) => {
+    //             console.error(`Không thể bật toàn màn hình: ${err.message}`);
+    //         });
+    //     }
+    // };
 
-    useEffect(() => {
-        // Nếu chưa ở chế độ toàn màn hình, hiện Modal bắt buộc
-        Modal.warning({
-            title: 'Yêu cầu chế độ toàn màn hình',
-            content: 'Để đảm bảo tính công bằng, bài thi yêu cầu chế độ toàn màn hình. Vui lòng nhấn xác nhận để bắt đầu.',
-            okText: 'Xác nhận & Vào thi',
-            onOk: () => {
-                handleEnableFullScreen();
-            },
-        });
+    // useEffect(() => {
+    //     // Nếu chưa ở chế độ toàn màn hình, hiện Modal bắt buộc
+    //     Modal.warning({
+    //         title: 'Yêu cầu chế độ toàn màn hình',
+    //         content: 'Để đảm bảo tính công bằng, bài thi yêu cầu chế độ toàn màn hình. Vui lòng nhấn xác nhận để bắt đầu.',
+    //         okText: 'Xác nhận & Vào thi',
+    //         onOk: () => {
+    //             handleEnableFullScreen();
+    //         },
+    //     });
 
-        // Theo dõi nếu người dùng cố tình thoát Fullscreen (nhấn Esc)
-        const handleExit = () => {
-            if (!document.fullscreenElement) {
-                message.error("Cảnh báo: Bạn đã thoát chế độ toàn màn hình! Hành động này sẽ được ghi nhận.");
-                handleViolationDetected(FraudType.WINDOW_BLUR);
-            }
-        };
+    //     // Theo dõi nếu người dùng cố tình thoát Fullscreen (nhấn Esc)
+    //     const handleExit = () => {
+    //         if (!document.fullscreenElement) {
+    //             message.error("Cảnh báo: Bạn đã thoát chế độ toàn màn hình! Hành động này sẽ được ghi nhận.");
+    //             handleViolationDetected(FraudType.WINDOW_BLUR);
+    //         }
+    //     };
 
-        document.addEventListener('fullscreenchange', handleExit);
-        return () => document.removeEventListener('fullscreenchange', handleExit);
-    }, []);
+    //     document.addEventListener('fullscreenchange', handleExit);
+    //     return () => document.removeEventListener('fullscreenchange', handleExit);
+    // }, []);
 
     // 3. Logic xử lý Tab và Câu hỏi (Dựa trên cấu trúc state bạn cung cấp)
     const actualParts = useMemo(() => {
@@ -259,39 +259,47 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const { mutate: submitExam, isPending: isSubmitting } = useSubmitExam();
     const setExamResult = useExamStore((state) => state.setExamResult);
     const handleSubmit = () => {
+        console.log(userAnswers)
         Modal.confirm({
             title: 'Xác nhận nộp bài?',
             content: 'Bạn có chắc chắn muốn nộp bài thi không?',
             onOk: () => {
-                const formattedAnswers = userAnswers.map((ans) => {
-                    // Kiểm tra nếu là câu tự luận (value là object có content)
-                    const isEssay = typeof ans.answer === 'object' && ans.answer !== null;
+                const finalAnswers = userAnswers.map((ans) => {
+                    const val = ans.answer;
 
-                    if (isEssay) {
+                    // TRƯỜNG HỢP 1: Trắc nghiệm nhiều đáp án (Mảng các string)
+                    if (Array.isArray(val)) {
                         return {
                             questionId: ans.questionId,
-                            answer: ans.answer.content || "", // Nội dung văn bản
-                            file_urls: ans.answer.file_metadata?.map((m: any) => m.signedUrl) || [] // Mảng URL phẳng
+                            answer: val, // Ghép các đáp án thành chuỗi "A,B,C" hoặc gửi nguyên mảng tùy API
+                            file_urls: [] // Trắc nghiệm không có file
                         };
                     }
 
-                    // Trắc nghiệm giữ nguyên
+                    // TRƯỜNG HỢP 2: Tự luận (Object chứa content và file_metadata)
+                    // Kiểm tra có content hoặc file_metadata bên trong
+                    if (typeof val === 'object' && val !== null && ('content' in val || 'file_metadata' in val)) {
+                        return {
+                            questionId: ans.questionId,
+                            answer: val.content || "",
+                            file_urls: val.file_metadata?.map((f: any) => f.signedUrl) || []
+                        };
+                    }
+
+                    // TRƯỜNG HỢP 3: Trắc nghiệm đơn (String/Number) hoặc các trường hợp còn lại
                     return {
                         questionId: ans.questionId,
-                        answer: ans.answer || ""
+                        answer: String(val ?? ""),
+                        file_urls: []
                     };
                 });
 
-                const payload = {
-                    examAttemptId,
-                    answers: formattedAnswers
-                };
 
-                console.log("Dữ liệu chuẩn gửi đi:", payload);
+                console.log(finalAnswers);
 
                 submitExam({
                     examSessionId,
-                    data: { answers: formattedAnswers }
+                    data: { answers: finalAnswers }
                 }, {
                     onSuccess: (res) => {
                         message.success("Nộp bài thành công!");
