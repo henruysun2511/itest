@@ -264,6 +264,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             title: 'Xác nhận nộp bài?',
             content: 'Bạn có chắc chắn muốn nộp bài thi không?',
             onOk: () => {
+                setIsCameraActive(false);
+                
                 const finalAnswers = userAnswers.map((ans) => {
                     const val = ans.answer;
 
@@ -308,7 +310,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                         if (resultData) {
                             setExamResult(resultData);
                         }
-                        setIsCameraActive(false);
+                        
                         localStorage.removeItem(`exam_endtime_${examSessionId}`);
                         localStorage.removeItem(`exam_progress_${examSessionId}`);
                         router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
@@ -466,6 +468,10 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                         onViolation={handleViolationDetected}
                     />
                 )}
+                {/* <ExamMonitor
+                    examAttemptId={examAttemptId}
+                    onViolation={handleViolationDetected}
+                /> */}
                 <Row gutter={24}>
                     <Col span={17}>
                         <div className="mb-6">
