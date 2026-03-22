@@ -17,6 +17,7 @@ interface Account extends BaseObject {
   status: AccountStatus;
   roleId: string;
   roleName?: string;
+  code?: string;
 }
 export type { Account };
 
@@ -146,6 +147,14 @@ interface Profile {
   dateOfBirth: string;
   avatar: string | null;
   gender: GenderType;
+  account?: {
+    student?: {
+      studentCode: string;
+    } | null;
+    teacher?: {
+      teacherCode: string;
+    } | null;
+  };
 }
 export type { Profile };
 

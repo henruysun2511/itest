@@ -125,7 +125,7 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
             )
         },
         {
-            title: 'Thời gian làm bài',
+            title: 'Thời gian làm bài còn lại',
             dataIndex: 'consumedTime',
             key: 'consumedTime',
             render: (time) => <Text code>{time}s</Text>
@@ -232,7 +232,7 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                 className="rounded-lg overflow-hidden"
             />
 
-            <ExamSessionHandlingModal 
+            <ExamSessionHandlingModal
                 open={handleModal.open}
                 student={handleModal.student}
                 onCancel={() => setHandleModal({ open: false, student: null })}

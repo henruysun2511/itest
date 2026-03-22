@@ -1,6 +1,6 @@
 "use client";
 import { InfoItem } from "@/components/common/info-item";
-import { CalendarOutlined, CloseOutlined, EditOutlined, PhoneOutlined, SaveOutlined, UserOutlined } from "@ant-design/icons";
+import { CalendarOutlined, CloseOutlined, EditOutlined, IdcardOutlined, PhoneOutlined, SaveOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Card, DatePicker, Form, Input, Select, Typography } from "antd";
 import dayjs from "dayjs";
 import { useEffect } from "react";
@@ -62,6 +62,12 @@ export function PersonalInfoTab({ profile, isEditing, setIsEditing, onUpdate, is
                     <InfoItem icon={<PhoneOutlined className="text-green-500" />} label="Số điện thoại" value={profile?.phoneNumber} />
                     <InfoItem icon={<CalendarOutlined className="text-orange-500" />} label="Ngày sinh" value={profile?.dateOfBirth ? dayjs(profile?.dateOfBirth).format("DD/MM/YYYY") : "---"} />
                     <InfoItem icon={<UserOutlined className="text-purple-500" />} label="Giới tính" value={profile?.gender === "MALE" ? "Nam" : "Nữ"} />
+                    {profile?.account?.student && (
+                        <InfoItem icon={<IdcardOutlined className="text-cyan-500" />} label="Mã sinh viên" value={profile.account.student.studentCode} />
+                    )}
+                    {profile?.account?.teacher && (
+                        <InfoItem icon={<IdcardOutlined className="text-amber-500" />} label="Mã giảng viên" value={profile.account.teacher.teacherCode} />
+                    )}
                 </div>
             )}
         </Card>

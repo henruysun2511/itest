@@ -26,7 +26,7 @@ import {
     Typography,
     message
 } from 'antd';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import MonitoringTab from '../(components)/monitoring-tab';
 
 // Import Hooks của bạn
@@ -53,6 +53,7 @@ const { Title, Text } = Typography;
 
 export default function ProctorDashboardPage() {
     const { id: examSessionId } = useParams<{ id: string }>();
+    const router = useRouter();
 
 
     // 1. Lấy thông tin ca thi hiện tại từ cache/API
@@ -90,6 +91,7 @@ export default function ProctorDashboardPage() {
             case 'STUDENT_VIOLATION':
                 message.error(`Giám sát vi phạm: ${latestEvent.data?.studentName} (${latestEvent.data?.violationType})`);
                 queryClient.invalidateQueries({ queryKey: FRAUD_DETAIL_KEY });
+                queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 break;
             case 'SESSION_STATUS_CHANGED':
             case 'ATTEMPT_PAUSED':
@@ -138,7 +140,10 @@ export default function ProctorDashboardPage() {
             cancelText: 'Hủy',
             onOk: () => {
                 closeMutation.mutate(examSessionId, {
-                    onSuccess: () => message.success("Đã kết thúc ca thi và thu bài thành công"),
+                    onSuccess: () => {
+                        message.success("Đã kết thúc ca thi và thu bài thành công");
+                        router.push('/teacher');
+                    },
                     onError: () => message.error("Lỗi khi kết thúc ca thi")
                 });
             },
