@@ -76,8 +76,8 @@ export function useExamSecurity(
             if (!video || video.readyState !== 4) return;
 
             const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            canvas.width = 320;
+            canvas.height = 240;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
 

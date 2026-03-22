@@ -1,7 +1,7 @@
 "use client";
 
-import { useExamSessionJoin } from "@/queries/useExamSessionQuery";
 import { useExamSSE } from "@/hooks/useExamSSE";
+import { useExamSessionJoin } from "@/queries/useExamSessionQuery";
 import { useExamStore } from "@/stores/useExamStore";
 import { Button, Card, message, Spin, Typography } from "antd";
 import { useParams, useRouter } from "next/navigation";
@@ -201,13 +201,13 @@ export default function VerifyFacePage() {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        canvas.width = videoRef.current.videoWidth;
-        canvas.height = videoRef.current.videoHeight;
+        canvas.width = 320;
+        canvas.height = 240;
 
         // Lưu ý: Nếu muốn ảnh lưu trữ KHÔNG bị ngược, ta lật ngược lại lúc vẽ vào canvas
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
-        ctx.drawImage(videoRef.current, 0, 0);
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
         canvas.toBlob((blob) => {
             if (blob) {
