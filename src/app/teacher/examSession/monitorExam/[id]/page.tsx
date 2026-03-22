@@ -77,6 +77,13 @@ export default function ProctorDashboardPage() {
     const queryClient = useQueryClient();
 
     useEffect(() => {
+        if (currentSession?.status === ExamSessionStatus.FINISHED) {
+            message.info("Ca thi đã kết thúc!");
+            router.push('/teacher');
+        }
+    }, [currentSession?.status, router]);
+
+    useEffect(() => {
         if (!latestEvent) return;
 
         switch (latestEvent.type) {

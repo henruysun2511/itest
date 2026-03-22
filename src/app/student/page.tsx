@@ -37,7 +37,7 @@ export default function StudentExamHome() {
     });
 
     const { data, isLoading } = useMyExamSessions(params, {
-        refetchInterval: 5000, // Cập nhật realtime mỗi 5 giây
+        // refetchInterval: 10000,
         refetchOnWindowFocus: true
     });
 

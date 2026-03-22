@@ -1,47 +1,16 @@
-"use client";
-import AdminSidebar from '@/components/admin/sidebar';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { Button, Layout, theme } from 'antd';
-import React, { useState } from 'react';
+import { Metadata } from 'next';
+import React from 'react';
+import AdminLayoutClient from './admin-layout-client';
 
-const { Header, Content } = Layout;
+export const metadata: Metadata = {
+  title: "Quản trị viên",
+  description: "Trang quản trị dành cho Quản trị viên hệ thống iTEST - Quản lý người dùng, đề thi và cấu hình hệ thống.",
+};
 
 interface AdminLayoutProps {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [collapsed, setCollapsed] = useState(false);
-  const { token: { colorBgContainer } } = theme.useToken();
-
-  return (
-    <Layout className="h-screen overflow-hidden">
-      <AdminSidebar collapsed={collapsed} />
-
-      <Layout className="flex flex-col">
-        <Header style={{ padding: 0, background: colorBgContainer }} className="shrink-0 shadow-sm z-10">
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{ fontSize: 16, width: 64, height: 64 }}
-          />
-        </Header>
-
-        <Content
-          style={{
-            margin: "16px",
-            padding: 24,
-            background: "#fff",
-            borderRadius: 8,
-          }}
-          className="flex-1 overflow-y-auto bg-slate-50"
-        >
-          <div className="min-h-full">
-            {children}
-          </div>
-        </Content>
-      </Layout>
-    </Layout>
-  );
+    return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }
