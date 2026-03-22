@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/stores/useAuthStore";
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios from "axios";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import qs from "qs";
 
 // Instance này CHỈ dùng để gọi refresh token, không đính kèm Interceptor đính token cũ
@@ -43,64 +44,75 @@ let queue: {
 }[] = [];
 
 api.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   async (error) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
+    const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
+    // 1. Kiểm tra điều kiện: Lỗi 401 VÀ không phải là API login/refresh
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/auth/refresh-token')
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           queue.push({
             resolve: (token: string) => {
-              originalRequest.headers!.Authorization = `Bearer ${token}`;
+              originalRequest.headers['Authorization'] = `Bearer ${token}`;
               resolve(api(originalRequest));
             },
-            reject: (err: any) => {
-              reject(err);
-            }
+            reject: (err: any) => reject(err),
           });
         });
       }
 
+      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
+        // Gọi refresh token
         const res = await refreshApi.post("/auth/refresh-token");
         const newToken = res.data?.data?.accessToken;
 
-        if (!newToken) throw new Error("No token returned from refresh endpoint");
+        if (!newToken) throw new Error("No token returned");
 
-        // Cập nhật Zustand
+        // Cập nhật Store và Cookie
         useAuthStore.getState().setAccessToken(newToken);
-
-        // Cập nhật Cookie cho Next.js middleware
-        const expires = new Date(new Date().getTime() + 30 * 60 * 1000); // 30 mins
+        const decoded = jwtDecode(newToken) as any;
         Cookies.set("accessToken", newToken, {
-          expires: expires,
+          expires: new Date(decoded.exp * 1000),
           path: "/",
           sameSite: "strict"
         });
 
+        // Giải tỏa hàng đợi
         queue.forEach((cb) => cb.resolve(newToken));
         queue = [];
+        isRefreshing = false;
 
-        originalRequest.headers!.Authorization = `Bearer ${newToken}`;
+        // Cập nhật header cho request hiện tại và thực hiện lại
+        // Dùng cách này để đảm bảo header được ghi đè hoàn toàn
+        originalRequest.headers = {
+          ...originalRequest.headers,
+          Authorization: `Bearer ${newToken}`,
+        };
+
         return api(originalRequest);
       } catch (err) {
+        isRefreshing = false;
         queue.forEach((cb) => cb.reject(err));
         queue = [];
 
+        // Nếu refresh thất bại -> Logout
         useAuthStore.getState().logout();
         Cookies.remove("accessToken");
 
-        // window.location.href = "/auth/login";
+        // Chỉ redirect nếu đang ở môi trường client
+        if (typeof window !== "undefined") {
+          window.location.href = "/auth/login";
+        }
         return Promise.reject(err);
-      } finally {
-        isRefreshing = false;
       }
     }
 

@@ -33,6 +33,7 @@ export default function VerifyFacePage() {
     const faceMeshRef = useRef<any>(null); // Lưu FaceMesh vào ref để cleanup
     const brightnessCanvasRef = useRef<HTMLCanvasElement | null>(null);
     const [isTooDark, setIsTooDark] = useState(false); // State để hiển thị UI cảnh báo
+    const [isSessionPaused, setIsSessionPaused] = useState(false);
 
     const { mutate: joinExam, isPending } = useExamSessionJoin();
     const { latestEvent } = useExamSSE(examSessionId);
@@ -41,14 +42,21 @@ export default function VerifyFacePage() {
     useEffect(() => {
         if (!latestEvent) return;
         if (latestEvent.type === 'SESSION_STATUS_CHANGED') {
-            if (latestEvent.data?.status === 'PAUSE') {
+            const status = latestEvent.data?.status;
+            if (status === 'PAUSE') {
+                setIsSessionPaused(true);
                 message.warning('Ca thi đang bị tạm dừng bởi Giám thị, bạn chưa thể vào thi ngay lúc này!');
-            } else if (latestEvent.data?.status === 'FINISHED') {
+            } else if (status === 'IN_PROGRESS') {
+                if (isSessionPaused) {
+                    message.success('Ca thi đã được tiếp tục, bạn có thể vào thi!');
+                }
+                setIsSessionPaused(false);
+            } else if (status === 'FINISHED') {
                 message.error('Ca thi đã kết thúc!');
                 router.push('/student');
             }
         }
-    }, [latestEvent, router]);
+    }, [latestEvent, router, isSessionPaused]);
 
     const instructions = [
         "Vui lòng xoay mặt sang TRÁI",
@@ -177,7 +185,7 @@ export default function VerifyFacePage() {
 
         return () => {
             active = false;
-            // ✅ TẮT CAMERA TUYỆT ĐỐI
+            //TẮT CAMERA TUYỆT ĐỐI
             if (videoRef.current && videoRef.current.srcObject) {
                 const stream = videoRef.current.srcObject as MediaStream;
                 stream.getTracks().forEach(track => {
@@ -310,8 +318,16 @@ export default function VerifyFacePage() {
                                 <Text className="text-slate-500">Hệ thống đã ghi nhận dữ liệu khuôn mặt của bạn.</Text>
                             </div>
                         </div>
-                        <Button type="primary" block size="large" className="mt-8 h-16 rounded-2xl text-xl font-bold bg-[var(--color-navy-main)]" loading={isPending} onClick={handleJoinExam}>
-                            XÁC NHẬN & VÀO THI
+                        <Button 
+                            type="primary" 
+                            block 
+                            size="large" 
+                            className={`mt-8 h-16 rounded-2xl text-xl font-bold ${isSessionPaused ? 'bg-gray-400' : 'bg-[var(--color-navy-main)]'}`} 
+                            loading={isPending} 
+                            onClick={handleJoinExam}
+                            disabled={isSessionPaused}
+                        >
+                            {isSessionPaused ? 'CA THI ĐANG TẠM DỪNG' : 'XÁC NHẬN & VÀO THI'}
                         </Button>
                     </div>
                 )}

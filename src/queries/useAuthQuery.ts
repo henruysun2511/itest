@@ -33,8 +33,8 @@ export function useLogin() {
         onSuccess: (res) => {
             const { accessToken } = res.data.data;
             const decoded = jwtDecode(accessToken) as UserJwtDecode;
-            
-            const expires = new Date(new Date().getTime() + 30 * 60 * 1000);
+
+            const expires = new Date(decoded.exp * 1000);
 
             Cookies.set("accessToken", accessToken, {
                 expires: expires,
@@ -62,7 +62,7 @@ export function useLogout() {
             Cookies.remove("accessToken");
             logoutStore();
             localStorage.clear();
-            window.location.href = "/auth/login"; 
+            window.location.href = "/auth/login";
         },
         onError: (error) => {
             console.error("Lỗi khi đăng xuất:", error);
@@ -77,14 +77,14 @@ export function useLogoutDevices() {
     const logoutStore = useAuthStore((s) => s.logout);
 
     return useMutation({
-        mutationFn: authService.logoutDevices, 
+        mutationFn: authService.logoutDevices,
         onSuccess: () => {
             Cookies.remove("accessToken");
             localStorage.clear(); // Xóa sạch dữ liệu nếu cần
-            
+
             logoutStore();
-            
-            window.location.href = "/auth/login"; 
+
+            window.location.href = "/auth/login";
         },
         onError: (error) => {
             console.error("Lỗi đăng xuất:", error);

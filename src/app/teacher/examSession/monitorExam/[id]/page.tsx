@@ -88,15 +88,15 @@ export default function ProctorDashboardPage() {
 
         switch (latestEvent.type) {
             case 'STUDENT_JOINED':
-                message.info(`${latestEvent.data?.studentName || "Kí danh mới"} vừa tham gia phòng/vào ca thi.`);
+                message.info(`${latestEvent.data?.studentCode || "Kí danh mới"} vừa tham gia phòng/vào ca thi.`);
                 queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 break;
             case 'STUDENT_SUBMITTED':
-                message.success(`${latestEvent.data?.studentName || "Một học sinh"} đã nộp bài.`);
+                message.success(`${latestEvent.data?.studentCode || "Một học sinh"} đã nộp bài.`);
                 queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 break;
             case 'STUDENT_VIOLATION':
-                message.error(`Giám sát vi phạm: ${latestEvent.data?.studentName} (${latestEvent.data?.violationType})`);
+                message.error(`Giám sát vi phạm: ${latestEvent.data?.studentCode} (${latestEvent.data?.violationType})`);
                 queryClient.invalidateQueries({ queryKey: FRAUD_DETAIL_KEY });
                 queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 break;
