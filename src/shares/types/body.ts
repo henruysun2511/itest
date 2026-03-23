@@ -210,7 +210,7 @@ interface VerifyFaceBody {
   occurredAt: Date;
 }
 interface AssignGradersBody {
-  resultId: string;
+  examSessionCode: string;
   teacherIds: string[];
   role: string;
 }
