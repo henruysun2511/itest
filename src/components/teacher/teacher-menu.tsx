@@ -4,23 +4,23 @@ import { Menu } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
 
 export const TEACHER_MENU_ITEMS = [
-    { 
-        key: 'exam-management', 
-        icon: <SolutionOutlined />, 
+    {
+        key: 'exam-management',
+        icon: <SolutionOutlined />,
         label: 'Quản lý thi',
-        path: '/teacher' 
+        path: '/teacher'
     },
-    { 
-        key: 'bank', 
-        icon: <DatabaseOutlined />, 
+    {
+        key: 'bank',
+        icon: <DatabaseOutlined />,
         label: 'Ngân hàng đề',
-        path: '/teacher/bank'
+        path: '/teacher/questionBank'
     },
-    { 
-        key: 'grading', 
-        icon: <FormOutlined />, 
+    {
+        key: 'grading',
+        icon: <FormOutlined />,
         label: 'Chấm tự luận',
-        path: '/teacher/grading'
+        path: '/teacher/essayGrading'
     },
 ];
 
@@ -33,8 +33,9 @@ export default function TeacherMenu() {
     return (
         <Menu
             mode="horizontal"
+            theme="dark"
             selectedKeys={[activeKey]}
-            className="bg-transparent border-none text-white w-[500px] font-medium opacity-90 teacher-top-menu"
+            className="bg-transparent border-none w-[500px] font-medium"
             onClick={({ key }) => {
                 const item = TEACHER_MENU_ITEMS.find(i => i.key === key);
                 if (item) router.push(item.path);

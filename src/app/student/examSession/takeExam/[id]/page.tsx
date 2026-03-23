@@ -4,11 +4,12 @@ import { useExamSSE } from '@/hooks/useExamSSE';
 import { EXAM_ATTEMPT_KEY, useMyExamAttempt } from '@/queries/useExamAttemptQuery';
 import { useExamDetail } from '@/queries/useExamQuery';
 import { EXAM_SESSION_QUERY_KEY, useExamSessionDetail } from '@/queries/useExamSessionQuery';
+import { ExamSessionStatus } from '@/shares/constants/status.enum';
 import { QuestionType } from '@/shares/constants/type.enum';
 import { useExamStore } from '@/stores/useExamStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Col, Result, Row, Spin, Statistic, Tabs, message } from 'antd';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import ExamMonitor from '../(components)/exam-monitor';
 import { ProgressButton } from '../(components)/renderProgressButton';
@@ -24,6 +25,7 @@ import { useExamTimer } from '../(hooks)/useExamTimer';
 export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = React.use(params);
     const examSessionId = resolvedParams.id;
+    const router = useRouter();
     const searchParams = useSearchParams();
     const examId = searchParams.get("examId");
     const examAttemptId = searchParams.get("examAttemptId");
@@ -58,6 +60,14 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             setExamData(examDetailRes.data);
         }
     }, [examDetailRes?.data, storeExamData, setExamData]);
+
+    // Redirect if finished
+    useEffect(() => {
+        if (examSessionRes?.data?.status === ExamSessionStatus.FINISHED) {
+            message.info("Ca thi đã kết thúc!");
+            router.push('/student');
+        }
+    }, [examSessionRes?.data?.status, router]);
 
     const [userAnswers, setUserAnswers] = useState<{ questionId: string; answer: any }[]>(() => {
         if (typeof window !== 'undefined') {

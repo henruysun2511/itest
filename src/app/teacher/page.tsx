@@ -2,6 +2,7 @@
 
 import { useTeacherExamSessions } from '@/queries/useExamSessionQuery';
 import { useMyTeacherCourses } from '@/queries/useTeacherCourse';
+import { ExamSessionStatus } from '@/shares/constants/status.enum';
 import { TeacherExamSessionParam } from '@/shares/types/param';
 import { getStatusConfig } from '@/shares/utils/mappingLabel';
 import {
@@ -24,7 +25,8 @@ import {
     Row,
     Spin,
     Tag,
-    Typography
+    Typography,
+    message
 } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -167,10 +169,22 @@ export default function TeacherPage() {
                                             <div className="space-y-4">
                                                 {examSessionsRes?.data?.map(session => {
                                                     const statusConfig = getStatusConfig(session.status);
+                                                    const isClickable = session.status !== ExamSessionStatus.FINISHED;
+
                                                     return (
                                                         <div key={session.examSessionId}
-                                                            onClick={() => router.push(`/teacher/examSession/monitorExam/${session.examSessionId}`)}
-                                                            className="group p-5 rounded-[20px] bg-slate-50 border border-transparent hover:border-blue-200 hover:bg-white transition-all flex items-center justify-between">
+                                                            onClick={() => {
+                                                                if (!isClickable) {
+                                                                    message.info("Ca thi đã kết thúc, không thể vào giám sát");
+                                                                    return;
+                                                                }
+                                                                router.push(`/teacher/examSession/monitorExam/${session.examSessionId}`);
+                                                            }}
+                                                            className={`group p-5 rounded-[20px] border border-transparent transition-all flex items-center justify-between ${isClickable
+                                                                    ? "bg-slate-50 hover:border-blue-200 hover:bg-white cursor-pointer"
+                                                                    : "bg-slate-100 opacity-60 cursor-not-allowed"
+                                                                }`}
+                                                        >
                                                             <div className="flex items-center gap-5 overflow-hidden">
                                                                 <div className="w-12 h-12 shrink-0 rounded-full bg-white flex items-center justify-center font-bold text-blue-900 shadow-sm group-hover:bg-blue-900 group-hover:text-white transition-all">
                                                                     {session.room.slice(-2)}

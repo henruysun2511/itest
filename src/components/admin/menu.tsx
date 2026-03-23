@@ -8,7 +8,6 @@ import {
     FileTextOutlined,
     FormOutlined,
     IdcardOutlined,
-    ReadOutlined,
     SafetyCertificateOutlined,
     ScheduleOutlined,
     SettingOutlined,
@@ -60,16 +59,16 @@ export default function AdminMenu() {
                     icon: <SolutionOutlined />,
                     label: 'Giảng viên',
                 },
-                {
-                    key: '/admin/department',
-                    icon: <BankOutlined />, 
-                    label: 'Phòng ban',
-                },
-                {
-                    key: '/admin/course',
-                    icon: <ReadOutlined />, 
-                    label: 'Bộ môn',
-                },
+                // {
+                //     key: '/admin/department',
+                //     icon: <BankOutlined />, 
+                //     label: 'Phòng ban',
+                // },
+                // {
+                //     key: '/admin/course',
+                //     icon: <ReadOutlined />, 
+                //     label: 'Bộ môn',
+                // },
             ],
         },
         {
@@ -88,7 +87,7 @@ export default function AdminMenu() {
                     label: 'Đề thi',
                 },
                 {
-                    key: '/admin/examApprove', 
+                    key: '/admin/examApprove',
                     icon: <AuditOutlined />,
                     label: 'Duyệt đề thi',
                 },
@@ -126,14 +125,14 @@ export default function AdminMenu() {
                 // },
                 {
                     key: '/admin/examSessionHandling',
-                    icon: <SafetyCertificateOutlined />, 
+                    icon: <SafetyCertificateOutlined />,
                     label: 'Xử lý coi thi',
                 },
             ],
         },
         {
             key: '/admin/grading',
-            icon: <FormOutlined />, 
+            icon: <FormOutlined />,
             label: 'Phân công chấm tự luận',
         },
         {

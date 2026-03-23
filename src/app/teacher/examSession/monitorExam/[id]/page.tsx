@@ -26,7 +26,7 @@ import {
     Typography,
     message
 } from 'antd';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import MonitoringTab from '../(components)/monitoring-tab';
 
 // Import Hooks của bạn
@@ -53,6 +53,7 @@ const { Title, Text } = Typography;
 
 export default function ProctorDashboardPage() {
     const { id: examSessionId } = useParams<{ id: string }>();
+    const router = useRouter();
 
 
     // 1. Lấy thông tin ca thi hiện tại từ cache/API
@@ -76,20 +77,28 @@ export default function ProctorDashboardPage() {
     const queryClient = useQueryClient();
 
     useEffect(() => {
+        if (currentSession?.status === ExamSessionStatus.FINISHED) {
+            message.info("Ca thi đã kết thúc!");
+            router.push('/teacher');
+        }
+    }, [currentSession?.status, router]);
+
+    useEffect(() => {
         if (!latestEvent) return;
 
         switch (latestEvent.type) {
             case 'STUDENT_JOINED':
-                message.info(`${latestEvent.data?.studentName || "Kí danh mới"} vừa tham gia phòng/vào ca thi.`);
+                message.info(`${latestEvent.data?.studentCode || "Kí danh mới"} vừa tham gia phòng/vào ca thi.`);
                 queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 break;
             case 'STUDENT_SUBMITTED':
-                message.success(`${latestEvent.data?.studentName || "Một học sinh"} đã nộp bài.`);
+                message.success(`${latestEvent.data?.studentCode || "Một học sinh"} đã nộp bài.`);
                 queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 break;
             case 'STUDENT_VIOLATION':
-                message.error(`Giám sát vi phạm: ${latestEvent.data?.studentName} (${latestEvent.data?.violationType})`);
+                message.error(`Giám sát vi phạm: ${latestEvent.data?.studentCode} (${latestEvent.data?.violationType})`);
                 queryClient.invalidateQueries({ queryKey: FRAUD_DETAIL_KEY });
+                queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 break;
             case 'SESSION_STATUS_CHANGED':
             case 'ATTEMPT_PAUSED':
@@ -138,7 +147,10 @@ export default function ProctorDashboardPage() {
             cancelText: 'Hủy',
             onOk: () => {
                 closeMutation.mutate(examSessionId, {
-                    onSuccess: () => message.success("Đã kết thúc ca thi và thu bài thành công"),
+                    onSuccess: () => {
+                        message.success("Đã kết thúc ca thi và thu bài thành công");
+                        router.push('/teacher');
+                    },
                     onError: () => message.error("Lỗi khi kết thúc ca thi")
                 });
             },

@@ -15,13 +15,13 @@ function AuthCallbackHandler() {
     useEffect(() => {
         const token = searchParams.get("token");
         const isPasswordSetParam = searchParams.get("needPasswordSet");
-        
-        const needPasswordSet = isPasswordSetParam === "true"; 
+
+        const needPasswordSet = isPasswordSetParam === "true";
 
         if (token) {
             try {
                 const decoded = jwtDecode(token) as UserJwtDecode;
-                const expires = new Date(new Date().getTime() + 30 * 60 * 1000);
+                const expires = new Date(decoded.exp * 1000);
 
                 Cookies.set("accessToken", token, {
                     expires,
@@ -45,7 +45,7 @@ function AuthCallbackHandler() {
                     const targetPage = decoded.roleName === "STUDENT" ? "/student" : "/teacher/dashboard";
                     router.push(targetPage);
                 }
-                
+
             } catch (error) {
                 console.error("Lỗi xác thực:", error);
                 router.push("/auth/login");

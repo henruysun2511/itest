@@ -135,11 +135,9 @@ body {
 
 /* Item active */
 .ant-menu-dark .ant-menu-item-selected {
-  background: linear-gradient(
-    90deg,
-    rgba(230, 169, 67, 0.25),
-    rgba(230, 169, 67, 0.05)
-  ) !important;
+  background: linear-gradient(90deg,
+      rgba(230, 169, 67, 0.25),
+      rgba(230, 169, 67, 0.05)) !important;
   border-radius: 8px;
 }
 
@@ -160,7 +158,8 @@ body {
 
 .ant-btn-primary:hover,
 .ant-btn-primary:focus {
-  background-color: #24245f; /* primary đậm hơn */
+  background-color: #24245f;
+  /* primary đậm hơn */
   border-color: #24245f;
 }
 
@@ -187,13 +186,7 @@ body {
   overflow: hidden;
 }
 
-/* ===== TABLE HEADER ===== */
-/* .ant-table-thead > tr > th {
-  background: var(--color-primary) !important;
-  color: var(--color-text-light) !important;
-  font-weight: 600 !important;
-  border-bottom: none !important;
-} */
+
 
 /* ============================= */
 /* ===== TABS - GENERAL ======== */
@@ -231,7 +224,7 @@ body {
 /* ===== CARD TABS STYLE ======= */
 /* ============================= */
 
-.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+.ant-tabs-card>.ant-tabs-nav .ant-tabs-tab {
   background: var(--color-bg-sidebar);
   border: 1px solid var(--color-bg-sidebar);
   border-radius: 10px 10px 0 0;
@@ -242,26 +235,24 @@ body {
 }
 
 /* Hover */
-.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab:hover {
+.ant-tabs-card>.ant-tabs-nav .ant-tabs-tab:hover {
   background: var(--color-navy-main);
   color: var(--color-accent);
 }
 
 /* Active tab */
-.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+.ant-tabs-card>.ant-tabs-nav .ant-tabs-tab-active {
   background: var(--color-primary);
   border-color: var(--color-primary);
 }
 
 /* Active text */
-.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active .ant-tabs-tab-btn {
+.ant-tabs-card>.ant-tabs-nav .ant-tabs-tab-active .ant-tabs-tab-btn {
   color: var(--color-text-light) !important;
   font-weight: 600;
 }
 
 /* Remove white divider line */
-.ant-tabs-card > .ant-tabs-nav::before {
+.ant-tabs-card>.ant-tabs-nav::before {
   border-bottom: none !important;
 }
-
-

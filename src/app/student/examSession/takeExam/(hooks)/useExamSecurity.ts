@@ -11,9 +11,17 @@ export function useExamSecurity(
     const { mutate: reportFraud } = useReportFraud();
     const { mutate: verifyFace } = useVerifyFaceAttempt();
 
-    // 1. Heartbeat - Giữ kết nối
+    // 1. Heartbeat - Giữ kết nối (Chạy mỗi 10s để duy trì Presence 15s trong Redis)
     useEffect(() => {
         if (!examAttemptId) return;
+
+        // Gửi heartbeat ngay lập tức
+        sendHeartbeat(examAttemptId);
+
+        // Gửi định kỳ mỗi 10 giây
+        const interval = setInterval(() => {
+            sendHeartbeat(examAttemptId);
+        }, 10000);
 
         const handleOffline = () => sendHeartbeat(examAttemptId);
         const handleVisibilityChange = () => {
@@ -26,6 +34,7 @@ export function useExamSecurity(
         window.addEventListener('beforeunload', handleBeforeUnload);
 
         return () => {
+            clearInterval(interval);
             window.removeEventListener('offline', handleOffline);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -76,8 +85,8 @@ export function useExamSecurity(
             if (!video || video.readyState !== 4) return;
 
             const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            canvas.width = 320;
+            canvas.height = 240;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
 

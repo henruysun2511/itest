@@ -5,7 +5,6 @@ import { LoginBody, UserJwtDecode } from "@/shares/types/body";
 import { handleError } from "@/shares/utils/error";
 import {
     LockOutlined,
-    SafetyOutlined,
     UserOutlined
 } from "@ant-design/icons";
 import { Button, Divider, Form, Image, Input } from "antd";
@@ -104,7 +103,7 @@ export default function LoginPage() {
                     />
                 </Form.Item>
 
-                <Form.Item
+                {/* <Form.Item
                     name="captcha"
                 // rules={[
                 //     { required: true, message: "Vui lòng nhập mã bảo mật" },
@@ -119,7 +118,7 @@ export default function LoginPage() {
                         />
                         <div className="text-2xl font-bold">251105</div>
                     </div>
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item>
                     <Button

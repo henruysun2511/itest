@@ -1,7 +1,8 @@
 "use client";
 
+import { useExamSSE } from '@/hooks/useExamSSE';
 import { useToast } from "@/hooks/useToast";
-import { useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
+import { MY_EXAM_SESSION_QUERY_KEY, useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
 import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
 import { ExamAttemptStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
 import { ExamSessionParam } from "@/shares/types/param";
@@ -16,10 +17,11 @@ import {
     SearchOutlined,
     VideoCameraOutlined
 } from '@ant-design/icons';
+import { useQueryClient } from "@tanstack/react-query";
 import { Badge, Button, Card, Col, Empty, Input, message, Pagination, Row, Select, Skeleton, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { useRouter } from "next/navigation";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const { Title, Text } = Typography;
 
@@ -36,10 +38,20 @@ export default function StudentExamHome() {
         sortOrder: SortOrder.DESC
     });
 
+    const queryClient = useQueryClient();
     const { data, isLoading } = useMyExamSessions(params, {
-        refetchInterval: 5000, // Cập nhật realtime mỗi 5 giây
+        // refetchInterval: 10000,
         refetchOnWindowFocus: true
     });
+
+    // Realtime Updates via SSE
+    const { latestEvent } = useExamSSE('me');
+    useEffect(() => {
+        if (latestEvent?.type === 'SESSION_STATUS_CHANGED') {
+            // Khi có bất kỳ ca thi nào thay đổi trạng thái, làm mới danh sách
+            queryClient.invalidateQueries({ queryKey: MY_EXAM_SESSION_QUERY_KEY });
+        }
+    }, [latestEvent, queryClient]);
 
     const handlePageChange = (page: number, pageSize: number) => {
         setParams(prev => ({ ...prev, page, limit: pageSize }));

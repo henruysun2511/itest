@@ -58,6 +58,15 @@ export function useExamSubmit(
                 localStorage.removeItem(`exam_endtime_${examSessionId}`);
                 localStorage.removeItem(`exam_progress_${examSessionId}`);
                 router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
+            },
+            onError: async (error: any) => {
+                if (error.response?.status === 401) {
+                    setTimeout(() => {
+                        submitExamAction();
+                    }, 1000);
+                } else {
+                    message.error("Lỗi nộp bài, vui lòng không thoát trang và thử lại!");
+                }
             }
         });
     };
