@@ -1,14 +1,25 @@
 import { ResultGradingService } from "@/services/resultGrading.service";
-import { AssignGradersBody, GradeEssayBody } from "@/shares/types/body";
+import { AssignGradersBody, GradeEssayBody, ReassignGraderBody } from "@/shares/types/body";
+import { ResultGradingParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const RESULT_GRADING_KEY = ["result-gradings"];
 
-export const useResultGradingListByTeacher = () => {
+export const useResultGradingListByTeacher = (params?: ResultGradingParam) => {
   return useQuery({
-    queryKey: [...RESULT_GRADING_KEY, "teacher"],
+    queryKey: [...RESULT_GRADING_KEY, "teacher", params],
     queryFn: async () => {
-      const res = await ResultGradingService.getByTeacherId();
+      const res = await ResultGradingService.getByTeacherId(params);
+      return res.data;
+    },
+  });
+};
+
+export const useMyResultGradings = () => {
+  return useQuery({
+    queryKey: [...RESULT_GRADING_KEY, "my-gradings"],
+    queryFn: async () => {
+      const res = await ResultGradingService.getMyResultGradings();
       return res.data;
     },
   });
@@ -39,6 +50,16 @@ export const useGradeEssay = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: GradeEssayBody) => ResultGradingService.gradeEssay(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: RESULT_GRADING_KEY });
+    },
+  });
+};
+
+export const useReassignGrader = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: ReassignGraderBody) => ResultGradingService.reassign(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: RESULT_GRADING_KEY });
     },

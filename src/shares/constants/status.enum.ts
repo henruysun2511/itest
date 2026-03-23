@@ -23,7 +23,7 @@ export enum ExamAttemptStatus {
   DISCONNECTED ='DISCONNECTED'
 } 
 
-export enum GradingStatus {
+export enum ResultGradingStatus {
   ASSIGNED = 'ASSIGNED',
   GRADING ='GRADING',
   COMPLETED = 'COMPLETED'

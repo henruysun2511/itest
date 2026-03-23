@@ -15,6 +15,10 @@ export function useExamSubmit(
     const submitExamAction = () => {
         setIsCameraActive(false);
 
+        // Clear local cache immediately upon submission trigger
+        localStorage.removeItem(`exam_endtime_${examSessionId}`);
+        localStorage.removeItem(`exam_progress_${examSessionId}`);
+
         const finalAnswers = userAnswers.map((ans) => {
             const val = ans.answer;
 
@@ -55,8 +59,6 @@ export function useExamSubmit(
                     setExamResult(resultData);
                 }
 
-                localStorage.removeItem(`exam_endtime_${examSessionId}`);
-                localStorage.removeItem(`exam_progress_${examSessionId}`);
                 router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
             },
             onError: async (error: any) => {

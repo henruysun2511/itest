@@ -137,12 +137,14 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
             width: 230,
             render: (_, record) => {
                 const isPaused = record.status === "PAUSE";
+                const isCompleted = record.status === "COMPLETED";
                 return (
                     <Space size="small">
                         <Tooltip title={isPaused ? "Tiếp tục" : "Tạm dừng"}>
                             <Button
                                 type="text"
-                                icon={isPaused ? <CheckCircleOutlined className="text-green-500" /> : <PauseCircleOutlined />}
+                                disabled={isCompleted}
+                                icon={isPaused ? <CheckCircleOutlined className={isCompleted ? "" : "text-green-500"} /> : <PauseCircleOutlined />}
                                 onClick={() => handleAction(
                                     pauseAttempt,
                                     { examSessionId, studentId: record.studentId, data: { isPaused: !isPaused } },
@@ -154,7 +156,8 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                         <Tooltip title="Lưu bài làm">
                             <Button
                                 type="text"
-                                icon={<SaveOutlined className="text-blue-500" />}
+                                disabled={isCompleted}
+                                icon={<SaveOutlined className={isCompleted ? "" : "text-blue-500"} />}
                                 onClick={() => handleAction(
                                     saveAnswers,
                                     { examSessionId, data: { studentId: record.studentId, studentCode: record.studentCode } },
@@ -166,7 +169,8 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                         <Tooltip title="Thu bài cưỡng chế">
                             <Button
                                 type="text"
-                                icon={<LogoutOutlined />}
+                                disabled={isCompleted}
+                                icon={<LogoutOutlined className={isCompleted ? "" : "text-red-500"} />}
                                 onClick={() => handleAction(
                                     forceSubmit,
                                     { examSessionId, data: { studentIds: [record.studentId] } },

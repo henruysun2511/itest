@@ -47,6 +47,7 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
 
     // Kiểm tra xem sinh viên có đang bị tạm dừng không
     const isPaused = student.status === ExamAttemptStatus.PAUSE;
+    const isCompleted = student.status === ExamAttemptStatus.COMPLETED;
 
     return (
         <Col xs={24} sm={12} md={8} lg={6}>
@@ -60,8 +61,8 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                     <Tooltip title={isPaused ? "Tiếp tục thi" : "Tạm dừng thi"} key="pause">
                         {isPaused ? (
                             <CheckCircleOutlined
-                                className="text-green-500"
-                                onClick={() => handleAction(
+                                className={`text-green-500 ${isCompleted ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={isCompleted ? undefined : () => handleAction(
                                     actions.pauseAttempt,
                                     { examSessionId: actions.examSessionId, studentId: student.studentId, data: { isPaused: false } },
                                     "Tiếp tục bài thi"
@@ -69,7 +70,8 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                             />
                         ) : (
                             <PauseCircleOutlined
-                                onClick={() => handleAction(
+                                className={isCompleted ? 'opacity-50 cursor-not-allowed' : ''}
+                                onClick={isCompleted ? undefined : () => handleAction(
                                     actions.pauseAttempt,
                                     { examSessionId: actions.examSessionId, studentId: student.studentId, data: { isPaused: true } },
                                     "Tạm dừng bài thi"
@@ -81,8 +83,8 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                     // 2. Thu bài cưỡng chế
                     <Tooltip title="Thu bài cưỡng chế" key="force">
                         <LogoutOutlined
-                            className="text-red-500"
-                            onClick={() => handleAction(
+                            className={`text-red-500 ${isCompleted ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            onClick={isCompleted ? undefined : () => handleAction(
                                 actions.forceSubmit,
                                 { examSessionId: actions.examSessionId, data: { studentIds: [student.studentId], studentCodes: [student.studentCode] } },
                                 "Thu bài"
@@ -92,7 +94,9 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
 
                     // 3. Lưu bài làm
                     <Tooltip title="Lưu bài làm" key="save">
-                        <SaveOutlined onClick={() => handleAction(
+                        <SaveOutlined 
+                            className={isCompleted ? 'opacity-50 cursor-not-allowed' : ''}
+                            onClick={isCompleted ? undefined : () => handleAction(
                             actions.saveAnswers,
                             {
                                 examSessionId: actions.examSessionId,
