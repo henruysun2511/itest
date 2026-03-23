@@ -192,7 +192,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     );
 
     const duration = finalExamData?.duration || examSessionRes?.data?.duration;
-    const endTime = useExamTimer(examSessionId, duration);
+    const consumedTime = myAttemptRes?.data?.consumedTime || 0;
+    const endTime = useExamTimer(examSessionId, duration, consumedTime);
 
 
     // (Logic chống vi phạm và nhận diện khuôn mặt đã chuyển sang useExamSecurity hook)

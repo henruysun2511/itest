@@ -228,8 +228,15 @@ interface GradeEssayBody {
   comment?: string;
 }
 
+interface ReassignGraderBody {
+  examSessionCode: string;
+  oldTeacherId: string;
+  newTeacherId: string;
+  role: string;
+}
+
 export type {
-  AssignGradersBody, ChangePasswordBody, CreateProctoringHandleBody, DraftAnswer, EssayScoreDetailItemBody, ForceSubmitBody, GradeEssayBody, PauseAttemptBody, ReportFraudBody, RetakePermissionBody,
+  AssignGradersBody, ChangePasswordBody, CreateProctoringHandleBody, DraftAnswer, EssayScoreDetailItemBody, ForceSubmitBody, GradeEssayBody, PauseAttemptBody, ReassignGraderBody, ReportFraudBody, RetakePermissionBody,
   SaveAnswersBody, SaveDraftBody, StudentAccessStateBody, SubmitExamBody, UpdateStudentPasswordBody, VerifyFaceBody
 };
 

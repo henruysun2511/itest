@@ -131,7 +131,7 @@ export default function AdminMenu() {
             ],
         },
         {
-            key: '/admin/grading',
+            key: '/admin/resultGrading',
             icon: <FormOutlined />,
             label: 'Phân công chấm tự luận',
         },

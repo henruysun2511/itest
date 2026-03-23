@@ -1,11 +1,17 @@
-import { ApiResponse, AssignGradersBody, GradeEssayBody } from "@/shares/types/body";
+import { ApiResponse, AssignGradersBody, GradeEssayBody, ReassignGraderBody } from "@/shares/types/body";
+import { ResultGrading } from "@/shares/types/object";
+import { ResultGradingParam } from "@/shares/types/param";
 import http from "@/shares/utils/http";
 
 const prefix = "result-gradings";
 
 export const ResultGradingService = {
-  getByTeacherId() {
-    return http.get<ApiResponse<any[]>>(`/${prefix}`);
+  getByTeacherId(params?: ResultGradingParam) {
+    return http.get<ApiResponse<ResultGrading[]>>(`/${prefix}`, { params });
+  },
+
+  getMyResultGradings() {
+    return http.get<ApiResponse<ResultGrading[]>>(`/${prefix}/me`);
   },
 
   getPublishedScoresByExamSessionCode(examSessionCode: string) {
@@ -18,5 +24,9 @@ export const ResultGradingService = {
 
   gradeEssay(data: GradeEssayBody) {
     return http.patch<ApiResponse<any>>(`/${prefix}/essay/grade`, data);
+  },
+
+  reassign(data: ReassignGraderBody) {
+    return http.post<ApiResponse<any>>(`/${prefix}/reassign`, data);
   }
 };

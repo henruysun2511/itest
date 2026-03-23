@@ -1,5 +1,5 @@
-import { AccountStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
-import { ExamRegistrationStatusType, FraudType, GenderType, QuestionType } from "@/shares/constants/type.enum";
+import { AccountStatus, ExamSessionStatus, ResultGradingStatus } from "@/shares/constants/status.enum";
+import { ExamRegistrationStatusType, FraudType, GenderType, QuestionType, ResultGradingRole } from "@/shares/constants/type.enum";
 
 interface BaseObject {
   createdAt: string;
@@ -341,5 +341,14 @@ interface ExamData {
 
 export type { ExamData, MediaPlaceholder, Option, Part, Question, QuestionGroup };
 
+interface ResultGrading {
+  resultGradingId: string;
+  role: ResultGradingRole;
+  status: ResultGradingStatus;
+  totalScore: number;
+  studentCode: string;
+  studentFullName: string;
+  examSessionCode: string;
+}
 
-
+export type { ResultGrading };
