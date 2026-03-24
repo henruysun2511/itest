@@ -13,13 +13,15 @@ export function useExamFullscreen(onViolation: (type: FraudType) => void) {
       }
     };
 
-    Modal.warning({
-      title: "Yêu cầu chế độ toàn màn hình",
-      content:
-        "Để đảm bảo tính công bằng, bài thi yêu cầu chế độ toàn màn hình. Vui lòng nhấn xác nhận để bắt đầu.",
-      okText: "Xác nhận & Vào thi",
-      onOk: handleEnableFullScreen,
-    });
+    if (!document.fullscreenElement) {
+      Modal.warning({
+        title: "Yêu cầu chế độ toàn màn hình",
+        content:
+          "Để đảm bảo tính công bằng, bài thi yêu cầu chế độ toàn màn hình. Vui lòng nhấn xác nhận để bắt đầu.",
+        okText: "Xác nhận & Vào thi",
+        onOk: handleEnableFullScreen,
+      });
+    }
 
     const handleExit = () => {
       if (!document.fullscreenElement) {
