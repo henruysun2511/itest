@@ -6,20 +6,20 @@ import qs from "qs";
 
 // Instance này CHỈ dùng để gọi refresh token, không đính kèm Interceptor đính token cũ
 export const refreshApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1",
   withCredentials: true,
   headers: {
-    "ngrok-skip-browser-warning": "true",
+    // "ngrok-skip-browser-warning": "true",
     Accept: "application/json",
   },
 });
 
 // ===== Main API =====
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1",
   withCredentials: true,
   headers: {
-    "ngrok-skip-browser-warning": "true",
+    // "ngrok-skip-browser-warning": "true",
     Accept: "application/json",
   },
   paramsSerializer: (params) =>

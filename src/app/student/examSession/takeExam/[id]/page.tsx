@@ -10,7 +10,7 @@ import { useExamStore } from '@/stores/useExamStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Col, Result, Row, Spin, Statistic, Tabs, message } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ExamMonitor from '../(components)/exam-monitor';
 import { ProgressButton } from '../(components)/renderProgressButton';
 import { StudentQuestion } from '../(components)/student-question';
@@ -37,13 +37,14 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const { latestEvent, isConnected } = useExamSSE(examSessionId);
     const queryClient = useQueryClient();
     const { data: myAttemptRes } = useMyExamAttempt(examSessionId);
-    console.log(myAttemptRes);
+    console.log(">>> [Debug] myAttemptRes:", myAttemptRes);
 
     // 1. Fetch Data Fallback (Chỉ dùng khi store trống - ví dụ user reload trang)
     const { data: examDetailRes, isLoading: isExamLoading } = useExamDetail(
         !storeExamData ? (examId as string) : ""
     );
-    console.log(examDetailRes);
+    console.log(">>> [Debug] examDetailRes:", examDetailRes);
+    console.log(">>> [Debug] SSE Connected:", isConnected);
     const { data: examSessionRes, isLoading: isExamSessionLoading } = useExamSessionDetail(examSessionId);
 
     const isAttemptPaused = examSessionRes?.data?.status === ExamSessionStatus.PAUSE || myAttemptRes?.data?.status === ExamAttemptStatus.PAUSE;
@@ -53,6 +54,10 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         // Ưu tiên store, nếu không có thì lấy từ API response
         return storeExamData || examDetailRes?.data;
     }, [storeExamData, examDetailRes?.data]);
+
+    console.log(">>> [Debug] finalExamData:", finalExamData);
+    console.log(">>> [Debug] storeExamData exists:", !!storeExamData);
+
 
     // 2. State quản lý câu trả lời
     const setExamData = useExamStore((state) => state.setExamData);
@@ -209,105 +214,112 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const lastResumedAt = myAttemptRes?.data?.lastResumedAt || myAttemptRes?.data?.startTime;
     const endTime = useExamTimer(examSessionId, duration, consumedTime, lastResumedAt);
 
-    const myStudentId = myAttemptRes?.data?.studentId || storeExamData?.studentId;
-    const currentAttemptId = myAttemptRes?.data?.examAttemptId || examAttemptId;
+    const processedEventRef = useRef<string | null>(null);
 
-    // 6. Realtime Event Handlers
+    // Lấy thông tin ID từ kết quả query
+    const myStudentId = myAttemptRes?.data?.studentId;
+    const currentAttemptId = myAttemptRes?.data?.examAttemptId;
+
     useEffect(() => {
-        if (!latestEvent) return;
+        if (!latestEvent || !myStudentId) return;
 
-        // Log chi tiết để debug luồng realtime
-        console.group('[Realtime Debug]');
-        console.log('Event Type:', latestEvent.type);
-        console.log('Event Data:', latestEvent.data);
-        console.log('My Info:', { myStudentId, currentAttemptId });
-        console.groupEnd();
+        // Tránh xử lý lặp lại cùng một sự kiện nếu component re-render
+        const eventUniqueId = `${latestEvent.type}-${latestEvent.timestamp}`;
+        if (processedEventRef.current === eventUniqueId) return;
+        processedEventRef.current = eventUniqueId;
 
+        console.log(">>> [SSE New Event]:", latestEvent.type, latestEvent.data);
+
+        // Hàm kiểm tra sự kiện có dành cho mình không
         const isMyEvent = () => {
             const data = latestEvent.data;
             if (!data) return false;
 
-            // Kiểm tra tất cả các trường có thể chứa ID (hỗ trợ cả snake_case từ backend)
             const eventStudentId = String(data.studentId || data.student_id || data.id || "");
             const eventAttemptId = String(data.examAttemptId || data.exam_attempt_id || "");
 
-            const match = (
+            return (
                 (eventStudentId && eventStudentId === String(myStudentId)) ||
                 (eventAttemptId && eventAttemptId === String(currentAttemptId))
             );
-
-            if (match) console.log('✅ Match found for event:', latestEvent.type);
-            return match;
         };
 
         switch (latestEvent.type) {
             case 'SESSION_STATUS_CHANGED':
-                if (latestEvent.data?.status === ExamSessionStatus.PAUSE) {
-                    message.warning({ content: 'Ca thi đã bị tạm dừng bởi giám thị!', key: 'session-status' });
-                } else if (latestEvent.data?.status === ExamSessionStatus.IN_PROGRESS) {
-                    message.success({ content: 'Ca thi đã được tiếp tục!', key: 'session-status' });
-                } else if (latestEvent.data?.status === ExamSessionStatus.FINISHED) {
+                const newStatus = latestEvent.data?.status || latestEvent.data?.newStatus;
+                if (newStatus === ExamSessionStatus.PAUSE) {
+                    message.warning("Ca thi đã bị tạm dừng bởi giám thị!");
+                } else if (newStatus === ExamSessionStatus.IN_PROGRESS) {
+                    message.success("Ca thi đã được tiếp tục!");
+                } else if (newStatus === ExamSessionStatus.FINISHED) {
+                    message.info("Ca thi đã kết thúc. Hệ thống đang tự động nộp bài...");
                     handleSubmit(true);
                 }
                 queryClient.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
                 break;
+
             case 'ATTEMPT_PAUSED':
                 if (isMyEvent()) {
-                    message.warning({ content: 'Bài thi của bạn đã bị tạm dừng!', key: 'attempt-status' });
+                    message.warning("Bài thi của bạn đang bị tạm dừng!");
                     queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 }
                 break;
+
             case 'ATTEMPT_RESUMED':
                 if (isMyEvent()) {
-                    message.success({ content: 'Bài thi của bạn đã được tiếp tục!', key: 'attempt-status' });
+                    message.success("Bài thi của bạn đã được tiếp tục!");
                     queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 }
                 break;
+
             case 'STUDENT_SUBMITTED':
                 if (isMyEvent()) {
-                    message.info({ content: 'Bài thi của bạn đã bị giám thị thu!', key: 'submit-status' });
+                    message.info("Bài thi của bạn đã được thu bởi giám thị!");
                     handleSubmit(true);
                 }
                 break;
-            case 'TIME_WARNING':
-                message.warning({ content: `Cảnh báo: Chỉ còn ${latestEvent.data?.remainingMinutes} phút!`, key: 'time-warning' });
-                break;
-            case 'STUDENT_VIOLATION':
+
+            case 'RETAKE_GRANTED':
                 if (isMyEvent()) {
-                    message.error({ content: 'Hệ thống ghi nhận vi phạm của bạn! Bạn có thể bị đình chỉ thi.', key: 'violation-msg' });
-                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                    message.success("Bạn đã được cấp quyền thi lại! Trang web sẽ tải lại sau 3 giây...");
+                    setTimeout(() => window.location.reload(), 3000);
                 }
                 break;
+
             case 'WARNING':
                 if (isMyEvent()) {
-                    message.warning({ content: 'Giám thị đã CẢNH CÁO vi phạm của bạn!', key: 'violation-msg' });
+                    message.error({
+                        content: `CẢNH BÁO: ${latestEvent.data?.reason || "Bạn có hành vi vi phạm quy chế thi!"}`,
+                        duration: 10,
+                        style: { marginTop: '10vh' }
+                    });
                     queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 }
                 break;
-            case 'STOP_FOR_SESSION_TRANSFER':
-                if (isMyEvent()) {
-                    message.error({ content: 'Giám thị đã ĐÌNH CHỈ thi và yêu cầu chuyển ca!', key: 'violation-msg' });
-                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
-                    handleSubmit(true);
-                }
-                break;
+
+            case 'SUSPENSION':
             case 'REPRIMAND':
                 if (isMyEvent()) {
-                    message.error({ content: 'Giám thị đã KHIỂN TRÁCH vi phạm của bạn!', key: 'violation-msg' });
-                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                    message.error("BẠN ĐÃ BỊ ĐÌNH CHỈ THI. HỆ THỐNG SẼ TỰ ĐỘNG NỘP BÀI.");
+                    setTimeout(() => handleSubmit(true), 2000);
                 }
                 break;
-            case 'SUSPENSION':
+
+            case 'STUDENT_VIOLATION':
                 if (isMyEvent()) {
-                    message.error({ content: 'Giám thị đã ĐÌNH CHỈ bài thi của bạn!', key: 'violation-msg' });
                     queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
-                    handleSubmit(true);
                 }
                 break;
+
+            case 'TIME_WARNING':
+                const mins = latestEvent.data?.remainingMinutes || latestEvent.data?.minutes;
+                message.warning(`Thời gian còn lại: ${mins} phút!`);
+                break;
+
             default:
                 break;
         }
-    }, [latestEvent, myStudentId, currentAttemptId, queryClient, handleSubmit]);
+    }, [latestEvent, myStudentId, queryClient, handleSubmit]);
 
 
 
