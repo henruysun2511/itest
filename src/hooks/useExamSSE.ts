@@ -12,7 +12,11 @@ export type ExamSessionEventType =
   | 'RETAKE_GRANTED'
   | 'ATTEMPT_PAUSED'
   | 'ATTEMPT_RESUMED'
-  | 'ATTEMPT_DISCONNECTED';
+  | 'ATTEMPT_DISCONNECTED'
+  | 'WARNING'
+  | 'STOP_FOR_SESSION_TRANSFER'
+  | 'REPRIMAND'
+  | 'SUSPENSION';
 
 export interface ExamSessionEvent {
   examSessionId: string;

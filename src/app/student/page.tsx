@@ -211,16 +211,11 @@ export default function StudentExamHome() {
                                 if (attemptStatus === ExamAttemptStatus.COMPLETED) {
                                     badgeText = "Đã hoàn thành";
                                     badgeColor = "green";
-                                } 
-                                // else if (attemptStatus === ExamAttemptStatus.DISCONNECTED) {
-                                //     badgeText = "Đình chỉ thi";
-                                //     badgeColor = "red";
-                                // }
+                                }
 
                                 let buttonText = config.label;
                                 if (session.isLocked) buttonText = "Đã khóa";
                                 else if (attemptStatus === ExamAttemptStatus.COMPLETED) buttonText = "Đã nộp bài";
-                                // else if (attemptStatus === ExamAttemptStatus.DISCONNECTED) buttonText = "Đã đình chỉ thi";
 
                                 return (
                                     <Col xs={24} sm={12} lg={8} key={session.examSessionId}>

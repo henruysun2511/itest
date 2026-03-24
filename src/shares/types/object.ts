@@ -31,7 +31,9 @@ export type { Role };
 interface ExamSet extends BaseObject {
   examSetId: string;
   name: string;
-  course?: { name: string };
+  status: string;
+  createdBy: string;
+  course?: { courseId: string; name: string };
 }
 
 export type { ExamSet };
