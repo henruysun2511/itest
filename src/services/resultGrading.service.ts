@@ -27,6 +27,6 @@ export const ResultGradingService = {
   },
 
   reassign(data: ReassignGraderBody) {
-    return http.post<ApiResponse<any>>(`/${prefix}/reassign`, data);
+    return http.patch<ApiResponse<any>>(`/${prefix}/reassign`, data);
   }
 };
