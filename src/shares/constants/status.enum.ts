@@ -28,3 +28,9 @@ export enum ResultGradingStatus {
   GRADING ='GRADING',
   COMPLETED = 'COMPLETED'
 } 
+
+export enum ExamStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED'
+} 

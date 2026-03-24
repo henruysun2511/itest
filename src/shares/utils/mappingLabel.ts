@@ -1,4 +1,4 @@
-import { ExamAttemptStatus, ExamSessionStatus, ResultStatus } from "../constants/status.enum";
+import { ExamAttemptStatus, ExamSessionStatus, ResultStatus, ExamStatus } from "../constants/status.enum";
 import { FraudLevel, FraudType, ProctoringHandleType, QuestionType, RoleType } from "../constants/type.enum";
 
 // 1. Đồng bộ nhãn loại câu hỏi
@@ -146,6 +146,20 @@ export const getResultStatusBadge = (status: string) => {
             return { label: 'Không xác định', color: 'default', status: 'default' };
     }
 };
+
+// 7. Đồng bộ trạng thái duyệt đề thi
+export const getExamStatusBadge = (status: string) => {
+    switch (status?.toUpperCase()) {
+        case ExamStatus.ACCEPTED:
+            return { label: 'Đã duyệt', color: 'green', status: 'success' };
+        case ExamStatus.REJECTED:
+            return { label: 'Từ chối', color: 'red', status: 'error' };
+        case ExamStatus.PENDING:
+        default:
+            return { label: 'Chờ duyệt', color: 'orange', status: 'warning' };
+    }
+};
+
 // --- OPTIONS CHO CÁC COMPONENT SELECT/FILTER ---
 
 export const STATUS_OPTIONS = [

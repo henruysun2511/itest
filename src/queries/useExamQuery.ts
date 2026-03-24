@@ -67,3 +67,14 @@ export const useUpdateExam = () => {
     },
   });
 };
+
+// Hook duyệt đề thi
+export const useApproveExam = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ExamService.approve,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: EXAM_QUERY_KEY });
+    },
+  });
+};

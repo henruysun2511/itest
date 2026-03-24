@@ -201,19 +201,30 @@ export default function StudentExamHome() {
                         <Row gutter={[24, 24]}>
                             {data.data.map((session: any) => {
                                 const config = getStatusConfig(session.status as ExamSessionStatus);
-                                const attemptStatus = session.examAttempts?.[0]?.status;
+                                const attemptStatus = session.attemptStatus;
                                 const isAvailable = session.status === ExamSessionStatus.IN_PROGRESS
-                                    && attemptStatus !== ExamAttemptStatus.DISCONNECTED
                                     && attemptStatus !== ExamAttemptStatus.COMPLETED;
+
+                                let badgeText = config.text;
+                                let badgeColor = config.color;
+
+                                if (attemptStatus === ExamAttemptStatus.COMPLETED) {
+                                    badgeText = "Đã hoàn thành";
+                                    badgeColor = "green";
+                                } 
+                                // else if (attemptStatus === ExamAttemptStatus.DISCONNECTED) {
+                                //     badgeText = "Đình chỉ thi";
+                                //     badgeColor = "red";
+                                // }
 
                                 let buttonText = config.label;
                                 if (session.isLocked) buttonText = "Đã khóa";
                                 else if (attemptStatus === ExamAttemptStatus.COMPLETED) buttonText = "Đã nộp bài";
-                                else if (attemptStatus === ExamAttemptStatus.DISCONNECTED) buttonText = "Đã đình chỉ thi";
+                                // else if (attemptStatus === ExamAttemptStatus.DISCONNECTED) buttonText = "Đã đình chỉ thi";
 
                                 return (
                                     <Col xs={24} sm={12} lg={8} key={session.examSessionId}>
-                                        <Badge.Ribbon text={config.text} color={config.color}>
+                                        <Badge.Ribbon text={badgeText} color={badgeColor}>
                                             <Card
                                                 hoverable
                                                 className="rounded-2xl border-none shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"

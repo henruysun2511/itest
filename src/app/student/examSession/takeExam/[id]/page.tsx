@@ -62,19 +62,30 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     }, [examDetailRes?.data, storeExamData, setExamData]);
 
     // Redirect if finished
-    useEffect(() => {
-        if (examSessionRes?.data?.status === ExamSessionStatus.FINISHED) {
-            message.info("Ca thi đã kết thúc!");
-            router.push('/student');
-        }
-    }, [examSessionRes?.data?.status, router]);
+    // useEffect(() => {
+    //     if (examSessionRes?.data?.status === ExamSessionStatus.FINISHED) {
+    //         message.info("Ca thi đã kết thúc!");
+    //         router.push('/student');
+    //     }
+    // }, [examSessionRes?.data?.status, router]);
 
     const [userAnswers, setUserAnswers] = useState<{ questionId: string; answer: any }[]>(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem(`exam_progress_${examSessionId}`);
-            return saved ? JSON.parse(saved).answers : [];
+        // "Thoát ra vào lại": store sẽ có sẵn dữ liệu từ API Join
+        if (storeExamData) {
+            const apiAnswers = storeExamData.cachedSubmission?.answers || [];
+             // Cập nhật đè luôn vào local storage để bắt đầu tính tiếp
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(`exam_progress_${examSessionId}`, JSON.stringify({ answers: apiAnswers }));
+            }
+            return apiAnswers;
+        } else {
+            // "Load lại trang (F5)": store bị reset nên sẽ bằng null -> Ưu tiên lấy từ local storage
+            if (typeof window !== 'undefined') {
+                const saved = localStorage.getItem(`exam_progress_${examSessionId}`);
+                return saved ? JSON.parse(saved).answers : [];
+            }
+            return [];
         }
-        return [];
     });
 
     const handleAnswerChange = (questionId: string, value: any) => {
@@ -97,6 +108,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             return newAnswers;
         });
     };
+
 
     // Logic xử lý toàn màn hình đã chuyển sang useExamFullscreen ở bên dưới
 
@@ -193,7 +205,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
     const duration = finalExamData?.duration || examSessionRes?.data?.duration;
     const consumedTime = myAttemptRes?.data?.consumedTime || 0;
-    const endTime = useExamTimer(examSessionId, duration, consumedTime);
+    const lastResumedAt = myAttemptRes?.data?.lastResumedAt || myAttemptRes?.data?.startTime;
+    const endTime = useExamTimer(examSessionId, duration, consumedTime, lastResumedAt);
 
 
     // (Logic chống vi phạm và nhận diện khuôn mặt đã chuyển sang useExamSecurity hook)

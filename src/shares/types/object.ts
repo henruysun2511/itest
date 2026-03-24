@@ -185,6 +185,7 @@ interface ExamAttempt {
   candidateNumber: string;
   studentCode: string;
   fullName: string;
+  cachedSubmission?: any;
 }
 export type { ExamAttempt };
 
