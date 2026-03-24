@@ -1,4 +1,4 @@
-import { ExamAttemptStatus, ExamSessionStatus, GradingStatus } from '@/shares/constants/status.enum';
+import { ExamAttemptStatus, ExamSessionStatus, ResultGradingStatus } from '@/shares/constants/status.enum';
 import { AccountType, ExamRegistrationStatusType, FraudLevel, GenderType, ProctoringHandleType } from '@/shares/constants/type.enum';
 import { BaseSortBy, CourseSortBy, ExamSessionSortBy, ExamSetSortBy, ExamSortBy, SortOrder } from '../constants/sort.enum';
 interface Pagination {
@@ -106,7 +106,7 @@ interface ResultGradingParam extends Pagination {
   sortOrder?: SortOrder;
   search?: string;
   examSessionCode?: string;
-  status?: GradingStatus;
+  status?: ResultGradingStatus;
 }
 
 export type {
