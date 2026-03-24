@@ -14,7 +14,7 @@ export const TEACHER_MENU_ITEMS = [
         key: 'bank',
         icon: <DatabaseOutlined />,
         label: 'Ngân hàng đề',
-        path: '/teacher/questionBank'
+        path: '/teacher/examSet'
     },
     {
         key: 'grading',

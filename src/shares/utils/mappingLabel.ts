@@ -1,5 +1,5 @@
-import { ExamAttemptStatus, ExamSessionStatus, ResultStatus } from "../constants/status.enum";
-import { FraudLevel, FraudType, ProctoringHandleType, QuestionType, RoleType } from "../constants/type.enum";
+import { ExamAttemptStatus, ExamSessionStatus, ResultStatus, ExamStatus, ResultGradingStatus } from "../constants/status.enum";
+import { FraudLevel, FraudType, ProctoringHandleType, QuestionType, RoleType, ResultGradingRole } from "../constants/type.enum";
 
 // 1. Đồng bộ nhãn loại câu hỏi
 export const getQuestionTypeLabel = (type: string) => {
@@ -146,6 +146,45 @@ export const getResultStatusBadge = (status: string) => {
             return { label: 'Không xác định', color: 'default', status: 'default' };
     }
 };
+
+// 7. Đồng bộ trạng thái duyệt đề thi
+export const getExamStatusBadge = (status: string) => {
+    switch (status?.toUpperCase()) {
+        case ExamStatus.ACCEPTED:
+            return { label: 'Đã duyệt', color: 'green', status: 'success' };
+        case ExamStatus.REJECTED:
+            return { label: 'Từ chối', color: 'red', status: 'error' };
+        case ExamStatus.PENDING:
+        default:
+            return { label: 'Chờ duyệt', color: 'orange', status: 'warning' };
+    }
+};
+
+// 8. Đồng bộ vai trò chấm thi
+export const getResultGradingRoleBadge = (role: string) => {
+    switch (role?.toUpperCase()) {
+        case ResultGradingRole.REVIEWER:
+            return { label: 'Người chấm', color: 'blue', status: 'processing' };
+        case ResultGradingRole.FINAL_APPROVER:
+            return { label: 'Người duyệt cuối', color: 'green', status: 'success' };
+        default:
+            return { label: 'Không xác định', color: 'default', status: 'default' };
+    }
+};
+
+export const getResultGradingStatusBadge = (status: string) => {
+    switch (status?.toUpperCase()) {
+        case ResultGradingStatus.ASSIGNED:
+            return { label: 'Đã phân công', color: 'blue' };
+        case ResultGradingStatus.GRADING:
+            return { label: 'Đang chấm', color: 'orange' };
+        case ResultGradingStatus.COMPLETED:
+            return { label: 'Đã hoàn thành', color: 'green' };
+        default:
+            return { label: 'Không xác định', color: 'default' };
+    }
+};
+
 // --- OPTIONS CHO CÁC COMPONENT SELECT/FILTER ---
 
 export const STATUS_OPTIONS = [
@@ -168,4 +207,11 @@ export const PROCTORING_OPTIONS = [
     { label: 'Khiển trách', value: ProctoringHandleType.REPRIMAND },
     { label: 'Đình chỉ thi', value: ProctoringHandleType.SUSPENSION },
     { label: 'Dừng để chuyển ca', value: ProctoringHandleType.STOP_FOR_SESSION_TRANSFER },
+];
+
+export const RESULT_GRADING_STATUS_OPTIONS = [
+    { label: 'Tất cả trạng thái', value: 'all' },
+    { label: 'Đã phân công', value: ResultGradingStatus.ASSIGNED },
+    { label: 'Đang chấm', value: ResultGradingStatus.GRADING },
+    { label: 'Đã hoàn thành', value: ResultGradingStatus.COMPLETED },
 ];

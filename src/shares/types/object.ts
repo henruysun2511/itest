@@ -31,7 +31,9 @@ export type { Role };
 interface ExamSet extends BaseObject {
   examSetId: string;
   name: string;
-  course?: { name: string };
+  status: string;
+  createdBy: string;
+  course?: { courseId: string; name: string };
 }
 
 export type { ExamSet };
@@ -185,6 +187,7 @@ interface ExamAttempt {
   candidateNumber: string;
   studentCode: string;
   fullName: string;
+  cachedSubmission?: any;
 }
 export type { ExamAttempt };
 
@@ -283,12 +286,19 @@ interface EssayAnswerItem {
   content: string;
   answerText: string;
   fileUrls: string[];
+  maxScore?: number;
 }
 export type { EssayAnswerItem };
 
 interface EssayResult {
   resultGradingId: string;
   currentScore: number;
+  fullName: string;
+  studentCode: string;
+  examSessionCode?: string;
+  role?: string;
+  comment?: string;
+  status: ResultGradingStatus;
   answers: EssayAnswerItem[];
 }
 export type { EssayResult };

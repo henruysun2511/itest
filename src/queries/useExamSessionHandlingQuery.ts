@@ -2,6 +2,7 @@ import { ExamSessionHandlingService } from "@/services/examSessionHandling.servi
 import { CreateProctoringHandleBody } from "@/shares/types/body";
 import { ExamSessionHandlingParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { EXAM_ATTEMPT_KEY } from "./useExamAttemptQuery";
 
 
 export const HANDLING_KEY = ['EXAM_SESSION_HANDLING'];
@@ -26,7 +27,7 @@ export const useCreateProctoringHandle = () => {
       ExamSessionHandlingService.create(examAttemptId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HANDLING_KEY });
-      queryClient.invalidateQueries({ queryKey: ['EXAM_ATTEMPT'] }); 
+      queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY }); 
     }
   });
 };

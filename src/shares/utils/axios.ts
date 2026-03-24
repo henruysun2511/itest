@@ -9,6 +9,7 @@ export const refreshApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
   headers: {
+    "ngrok-skip-browser-warning": "true",
     Accept: "application/json",
   },
 });
@@ -18,6 +19,7 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
   headers: {
+    "ngrok-skip-browser-warning": "true",
     Accept: "application/json",
   },
   paramsSerializer: (params) =>
@@ -52,14 +54,14 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('/auth/login') &&
-      !originalRequest.url?.includes('/auth/refresh-token')
+      !originalRequest.url?.includes("/auth/login") &&
+      !originalRequest.url?.includes("/auth/refresh-token")
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           queue.push({
             resolve: (token: string) => {
-              originalRequest.headers['Authorization'] = `Bearer ${token}`;
+              originalRequest.headers["Authorization"] = `Bearer ${token}`;
               resolve(api(originalRequest));
             },
             reject: (err: any) => reject(err),
@@ -83,7 +85,7 @@ api.interceptors.response.use(
         Cookies.set("accessToken", newToken, {
           expires: new Date(decoded.exp * 1000),
           path: "/",
-          sameSite: "strict"
+          sameSite: "strict",
         });
 
         // Giải tỏa hàng đợi
@@ -117,7 +119,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
