@@ -1,7 +1,8 @@
 "use client";
 
 import { useMyResultGradings } from "@/queries/useResultGradingQuery";
-import { getResultGradingRoleBadge } from "@/shares/utils/mappingLabel";
+import { getResultGradingRoleBadge, getResultGradingStatusBadge, RESULT_GRADING_STATUS_OPTIONS } from "@/shares/utils/mappingLabel";
+import { ResultGradingStatus } from "@/shares/constants/status.enum";
 import { AuditOutlined, EyeOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Input, Row, Select, Table, Tag, Typography } from "antd";
 import { useRouter } from "next/navigation";
@@ -26,9 +27,7 @@ export default function ResultGradingListPage() {
             item.studentCode?.toLowerCase().includes(search.toLowerCase());
         const matchSession = sessionFilter === "all" || item.examSessionCode === sessionFilter;
 
-        const matchStatus = statusFilter === "all" ||
-            (statusFilter === "pending" && item.status !== "GRADED" && item.status !== "PUBLISHED") ||
-            (statusFilter === "done" && (item.status === "GRADED" || item.status === "PUBLISHED"));
+        const matchStatus = statusFilter === "all" || item.status === statusFilter;
         return matchSearch && matchSession && matchStatus;
     });
 
@@ -72,11 +71,11 @@ export default function ResultGradingListPage() {
             key: "status",
             dataIndex: "status",
             render: (status: string) => {
-                const isDone = status === "GRADED" || status === "PUBLISHED";
-                return isDone ? (
-                    <Tag color="success" className="font-bold border-green-300">Đã hoàn thành</Tag>
-                ) : (
-                    <Tag color="warning" className="font-bold border-orange-300 text-orange-600">Chưa chấm</Tag>
+                const badge = getResultGradingStatusBadge(status);
+                return (
+                    <Tag color={badge.color} className="font-bold border-none px-3 rounded-md">
+                        {badge.label}
+                    </Tag>
                 );
             }
         },
@@ -91,16 +90,16 @@ export default function ResultGradingListPage() {
             key: "action",
             align: "center" as const,
             render: (_: any, record: any) => {
-                const isDone = record.status === "GRADED" || record.status === "PUBLISHED";
+                const isDone = record.status === ResultGradingStatus.COMPLETED;
                 return (
                     <Button
                         type="primary"
                         icon={isDone ? <EyeOutlined /> : <AuditOutlined />}
                         onClick={() => router.push(`/teacher/essayGrading/${record.resultId}`)}
-                        ghost={isDone}
-                        className={!isDone ? "bg-[var(--color-navy-main)] shadow-md" : ""}
+                        disabled={isDone}
+                        className={!isDone ? "bg-[var(--color-navy-main)] shadow-md border-none" : "bg-slate-100 border-slate-200 text-slate-400"}
                     >
-                        {isDone ? "Xem bài & Điểm" : "Chấm bài ngay"}
+                        {isDone ? "Đã hoàn thành" : "Chấm bài ngay"}
                     </Button>
                 );
             },
@@ -156,11 +155,7 @@ export default function ResultGradingListPage() {
                                     className="w-full"
                                     value={statusFilter}
                                     onChange={setStatusFilter}
-                                    options={[
-                                        { label: "Tất cả trạng thái", value: "all" },
-                                        { label: "Chưa chấm", value: "pending" },
-                                        { label: "Đã hoàn thành", value: "done" },
-                                    ]}
+                                    options={RESULT_GRADING_STATUS_OPTIONS}
                                 />
                             </Col>
                         </Row>
