@@ -1,5 +1,5 @@
-import { ExamAttemptStatus, ExamSessionStatus, ResultStatus } from "../constants/status.enum";
-import { FraudLevel, FraudType, ProctoringHandleType, QuestionType, RoleType } from "../constants/type.enum";
+import { ExamAttemptStatus, ExamSessionStatus, ResultStatus, ExamStatus } from "../constants/status.enum";
+import { FraudLevel, FraudType, ProctoringHandleType, QuestionType, RoleType, ResultGradingRole } from "../constants/type.enum";
 
 // 1. Đồng bộ nhãn loại câu hỏi
 export const getQuestionTypeLabel = (type: string) => {
@@ -146,6 +146,32 @@ export const getResultStatusBadge = (status: string) => {
             return { label: 'Không xác định', color: 'default', status: 'default' };
     }
 };
+
+// 7. Đồng bộ trạng thái duyệt đề thi
+export const getExamStatusBadge = (status: string) => {
+    switch (status?.toUpperCase()) {
+        case ExamStatus.ACCEPTED:
+            return { label: 'Đã duyệt', color: 'green', status: 'success' };
+        case ExamStatus.REJECTED:
+            return { label: 'Từ chối', color: 'red', status: 'error' };
+        case ExamStatus.PENDING:
+        default:
+            return { label: 'Chờ duyệt', color: 'orange', status: 'warning' };
+    }
+};
+
+// 8. Đồng bộ vai trò chấm thi
+export const getResultGradingRoleBadge = (role: string) => {
+    switch (role?.toUpperCase()) {
+        case ResultGradingRole.REVIEWER:
+            return { label: 'Người chấm', color: 'blue', status: 'processing' };
+        case ResultGradingRole.FINAL_APPROVER:
+            return { label: 'Người duyệt cuối', color: 'green', status: 'success' };
+        default:
+            return { label: 'Không xác định', color: 'default', status: 'default' };
+    }
+};
+
 // --- OPTIONS CHO CÁC COMPONENT SELECT/FILTER ---
 
 export const STATUS_OPTIONS = [

@@ -4,7 +4,7 @@ import { useExamSSE } from '@/hooks/useExamSSE';
 import { EXAM_ATTEMPT_KEY, useMyExamAttempt } from '@/queries/useExamAttemptQuery';
 import { useExamDetail } from '@/queries/useExamQuery';
 import { EXAM_SESSION_QUERY_KEY, useExamSessionDetail } from '@/queries/useExamSessionQuery';
-import { ExamSessionStatus } from '@/shares/constants/status.enum';
+import { ExamAttemptStatus, ExamSessionStatus } from '@/shares/constants/status.enum';
 import { QuestionType } from '@/shares/constants/type.enum';
 import { useExamStore } from '@/stores/useExamStore';
 import { useQueryClient } from '@tanstack/react-query';
@@ -45,7 +45,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     console.log(examDetailRes);
     const { data: examSessionRes, isLoading: isExamSessionLoading } = useExamSessionDetail(examSessionId);
 
-    const isAttemptPaused = examSessionRes?.data?.status === 'PAUSE' || myAttemptRes?.data?.status === 'PAUSE';
+    const isAttemptPaused = examSessionRes?.data?.status === ExamSessionStatus.PAUSE || myAttemptRes?.data?.status === ExamAttemptStatus.PAUSE;
 
     // Xác định nguồn dữ liệu cuối cùng để render
     const finalExamData = useMemo(() => {
@@ -62,19 +62,30 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     }, [examDetailRes?.data, storeExamData, setExamData]);
 
     // Redirect if finished
-    useEffect(() => {
-        if (examSessionRes?.data?.status === ExamSessionStatus.FINISHED) {
-            message.info("Ca thi đã kết thúc!");
-            router.push('/student');
-        }
-    }, [examSessionRes?.data?.status, router]);
+    // useEffect(() => {
+    //     if (examSessionRes?.data?.status === ExamSessionStatus.FINISHED) {
+    //         message.info("Ca thi đã kết thúc!");
+    //         router.push('/student');
+    //     }
+    // }, [examSessionRes?.data?.status, router]);
 
     const [userAnswers, setUserAnswers] = useState<{ questionId: string; answer: any }[]>(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem(`exam_progress_${examSessionId}`);
-            return saved ? JSON.parse(saved).answers : [];
+        // "Thoát ra vào lại": store sẽ có sẵn dữ liệu từ API Join
+        if (storeExamData) {
+            const apiAnswers = storeExamData.cachedSubmission?.answers || [];
+            // Cập nhật đè luôn vào local storage để bắt đầu tính tiếp
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(`exam_progress_${examSessionId}`, JSON.stringify({ answers: apiAnswers }));
+            }
+            return apiAnswers;
+        } else {
+            // "Load lại trang (F5)": store bị reset nên sẽ bằng null -> Ưu tiên lấy từ local storage
+            if (typeof window !== 'undefined') {
+                const saved = localStorage.getItem(`exam_progress_${examSessionId}`);
+                return saved ? JSON.parse(saved).answers : [];
+            }
+            return [];
         }
-        return [];
     });
 
     const handleAnswerChange = (questionId: string, value: any) => {
@@ -97,6 +108,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             return newAnswers;
         });
     };
+
 
     // Logic xử lý toàn màn hình đã chuyển sang useExamFullscreen ở bên dưới
 
@@ -193,14 +205,16 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
     const duration = finalExamData?.duration || examSessionRes?.data?.duration;
     const consumedTime = myAttemptRes?.data?.consumedTime || 0;
-    const endTime = useExamTimer(examSessionId, duration, consumedTime);
+    const lastResumedAt = myAttemptRes?.data?.lastResumedAt || myAttemptRes?.data?.startTime;
+    const endTime = useExamTimer(examSessionId, duration, consumedTime, lastResumedAt);
 
-
-    // (Logic chống vi phạm và nhận diện khuôn mặt đã chuyển sang useExamSecurity hook)
+    const myStudentId = myAttemptRes?.data?.studentId || storeExamData?.studentId;
 
     // 6. Realtime Event Handlers
     useEffect(() => {
         if (!latestEvent) return;
+
+        const isMyEvent = () => latestEvent.data?.studentId === myStudentId || latestEvent.data?.examAttemptId === examAttemptId;
 
         switch (latestEvent.type) {
             case 'SESSION_STATUS_CHANGED':
@@ -215,30 +229,61 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                 queryClient.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
                 break;
             case 'ATTEMPT_PAUSED':
-                // Check if the event applies to current student using examAttemptId or studentId if available
-                if (latestEvent.data?.studentId === storeExamData?.studentId || latestEvent.data?.examAttemptId === examAttemptId) {
+                if (isMyEvent()) {
                     message.warning('Bài thi của bạn đã bị tạm dừng!');
                     queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 }
                 break;
             case 'ATTEMPT_RESUMED':
-                if (latestEvent.data?.studentId === storeExamData?.studentId || latestEvent.data?.examAttemptId === examAttemptId) {
+                if (isMyEvent()) {
                     message.success('Bài thi của bạn đã được tiếp tục!');
                     queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                }
+                break;
+            case 'STUDENT_SUBMITTED':
+                if (isMyEvent()) {
+                    message.info('Bài thi của bạn đã bị giám thị thu!');
+                    handleSubmit(true);
                 }
                 break;
             case 'TIME_WARNING':
                 message.warning(`Cảnh báo: Chỉ còn ${latestEvent.data?.remainingMinutes} phút!`);
                 break;
             case 'STUDENT_VIOLATION':
-                if (latestEvent.data?.studentId === storeExamData?.studentId) {
+                if (isMyEvent()) {
                     message.error('Hệ thống ghi nhận vi phạm của bạn! Bạn có thể bị đình chỉ thi.');
+                }
+                break;
+            case 'WARNING':
+                if (isMyEvent()) {
+                    message.warning('Giám thị đã CẢNH CÁO vi phạm của bạn!');
+                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                }
+                break;
+            case 'STOP_FOR_SESSION_TRANSFER':
+                if (isMyEvent()) {
+                    message.error('Giám thị đã ĐÌNH CHỈ thi và yêu cầu chuyển ca!');
+                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                    handleSubmit(true);
+                }
+                break;
+            case 'REPRIMAND':
+                if (isMyEvent()) {
+                    message.error('Giám thị đã KHIỂN TRÁCH vi phạm của bạn!');
+                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                }
+                break;
+            case 'SUSPENSION':
+                if (isMyEvent()) {
+                    message.error('Giám thị đã ĐÌNH CHỈ bài thi của bạn!');
+                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                    handleSubmit(true);
                 }
                 break;
             default:
                 break;
         }
-    }, [latestEvent, storeExamData?.studentId, examAttemptId]);
+    }, [latestEvent, myStudentId, examAttemptId, queryClient, handleSubmit]);
 
 
 

@@ -7,6 +7,7 @@ import { useParseExam } from "@/queries/useGeminiQuery";
 import { useDeleteExamPdf, useUploadExamPdf } from "@/queries/useStorageQuery";
 import { ExamBody } from "@/shares/types/body";
 import { ExamData } from "@/shares/types/object";
+import { QuestionType } from "@/shares/constants/type.enum";
 import { normalizeExamData } from "@/shares/utils/normalizeExam";
 import {
     DeleteOutlined,
@@ -119,17 +120,17 @@ export default function CreateExam() {
         for (const part of examState.parts) {
             for (const q of part.questions) {
                 const ans = answersState[q.questionIndex];
+                const isEssay = q.questionType?.toUpperCase() === QuestionType.ESSAY;
 
                 // 1. Kiểm tra sự tồn tại của object câu trả lời
                 if (!ans) {
-                    message.error(`Câu ${q.questionIndex} chưa có thông tin đáp án và điểm`);
+                    message.error(`Câu ${q.questionIndex} chưa có điền thông tin điểm`);
                     return false;
                 }
 
-                // 2. Kiểm tra đáp án (Cho cả TN và Tự luận)
-                // Nếu là tự luận, bạn có thể quy định correctAnswer[0] là nội dung đáp án mẫu
-                if (!ans.correctAnswer || ans.correctAnswer.length === 0 || !ans.correctAnswer[0]?.trim()) {
-                    message.error(`Chưa nhập đáp án (hoặc hướng dẫn chấm) cho câu ${q.questionIndex}`);
+                // 2. Kiểm tra đáp án (Chỉ bắt buộc cho Trắc nghiệm, Tự luận thì bỏ qua)
+                if (!isEssay && (!ans.correctAnswer || ans.correctAnswer.length === 0 || !ans.correctAnswer[0]?.trim())) {
+                    message.error(`Chưa nhập đáp án cho câu ${q.questionIndex}`);
                     return false;
                 }
 
@@ -158,6 +159,10 @@ export default function CreateExam() {
             }))
         }));
 
+        const validQuestionIndices = new Set(
+            normalizedParts.flatMap(part => part.questions.map(q => q.questionIndex))
+        );
+
         return {
             title: values.title,
             examCode: values.examCode,
@@ -165,11 +170,13 @@ export default function CreateExam() {
             objectKey,
             // Sử dụng dữ liệu đã được chuẩn hóa ở trên
             parsedJson: { parts: normalizedParts },
-            answers: Object.entries(answersState).map(([questionNumber, value]: any) => ({
-                questionNumber: Number(questionNumber),
-                correctAnswer: value.correctAnswer,
-                points: value.points || 0,
-            })),
+            answers: Object.entries(answersState)
+                .filter(([questionNumber]) => validQuestionIndices.has(Number(questionNumber)))
+                .map(([questionNumber, value]: any) => ({
+                    questionNumber: Number(questionNumber),
+                    correctAnswer: value.correctAnswer,
+                    points: value.points || 0,
+                })),
             hasEssay: values.hasEssay || false,
         };
     };

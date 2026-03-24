@@ -1,5 +1,6 @@
 import { ApiResponse, ExamBody } from "@/shares/types/body";
 import { Exam, ExamPdf } from "@/shares/types/object";
+import { ExamStatus } from "@/shares/constants/status.enum";
 import { ExamParam } from "@/shares/types/param";
 import http from "@/shares/utils/http";
 
@@ -39,5 +40,11 @@ export const ExamService = {
 
   getDetail(examId: string) {
     return http.get<ApiResponse<Exam>>(`/${prefix}/${examId}/detail`);
+  },
+
+  // Duyệt đề thi
+  approve(data: { id: string; status: ExamStatus }) {
+    const { id, status } = data;
+    return http.patch<ApiResponse<any>>(`/${prefix}/${id}`, { status });
   },
 };
