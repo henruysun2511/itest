@@ -19,6 +19,7 @@ import { useExamFullscreen } from '../(hooks)/useExamFullscreen';
 import { useExamSecurity } from '../(hooks)/useExamSecurity';
 import { useExamSubmit } from '../(hooks)/useExamSubmit';
 import { useExamTimer } from '../(hooks)/useExamTimer';
+import { useExamNetwork } from '../(hooks)/useExamNetwork';
 
 
 
@@ -74,6 +75,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     //         router.push('/student');
     //     }
     // }, [examSessionRes?.data?.status, router]);
+
+    const { isOnline } = useExamNetwork();
 
     const [userAnswers, setUserAnswers] = useState<{ questionId: string; answer: any }[]>(() => {
         // "Thoát ra vào lại": store sẽ có sẵn dữ liệu từ API Join
@@ -297,6 +300,25 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                 }
                 break;
 
+            case 'TEACHER_COLLECTED':
+                if (isMyEvent()) {
+                    message.success({ content: 'Giám thị đã thu bài của bạn! Đang chuyển hướng sang trang kết quả...', key: 'collect-status' });
+                    // Lưu kết quả vào store và chuyển hướng
+                    const scoreData = latestEvent.data?.score;
+                    if (scoreData) {
+                        const setExamResult = useExamStore.getState().setExamResult;
+                        setExamResult(scoreData);
+                    }
+
+                    // Xóa cache local
+                    localStorage.removeItem(`exam_endtime_${examSessionId}`);
+                    localStorage.removeItem(`exam_progress_${examSessionId}`);
+
+                    // Chuyển hướng
+                    router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
+                }
+                break;
+
             case 'SUSPENSION':
             case 'REPRIMAND':
                 if (isMyEvent()) {
@@ -339,6 +361,20 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                         status="warning"
                         title={<span className="text-white text-4xl font-black">BÀI THI ĐANG TẠM DỪNG</span>}
                         subTitle={<span className="text-gray-300 text-xl">Giám thị đã tạm dừng bài thi của bạn. Vui lòng chờ cho đến khi được tiếp tục.</span>}
+                    />
+                </div>
+            )}
+
+            {/* Màn hình khóa khi bị mất kết nối mạng */}
+            {!isOnline && (
+                <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center backdrop-blur-md">
+                    <Result
+                        status="error"
+                        title={<span className="text-white text-4xl font-black">MẤT KẾT NỐI INTERNET</span>}
+                        subTitle={<span className="text-gray-300 text-xl">Đường truyền mạng của bạn đã bị gián đoạn. Vui lòng kết nối lại để tiếp tục làm bài thi.</span>}
+                        extra={[
+                            <Spin key="spin" size="large" className="text-white" />
+                        ]}
                     />
                 </div>
             )}
