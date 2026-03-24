@@ -1,7 +1,7 @@
 import { useHeartbeat, useReportFraud, useVerifyFaceAttempt } from '@/queries/useExamAttemptQuery';
 import { FraudType } from '@/shares/constants/type.enum';
 import { message } from 'antd';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 export function useExamSecurity(
     examAttemptId: string | null,
@@ -114,10 +114,10 @@ export function useExamSecurity(
     }, [examAttemptId, isCameraRequired, verifyFace]);
 
     // 4. Exposed function cho ExamMonitor component
-    const handleViolationDetected = (type: FraudType) => {
+    const handleViolationDetected = useCallback((type: FraudType) => {
         if (!examAttemptId) return;
         reportFraud({ examAttemptId, data: { fraudType: type } });
-    };
+    }, [examAttemptId, reportFraud]);
 
     return { handleViolationDetected };
 }
