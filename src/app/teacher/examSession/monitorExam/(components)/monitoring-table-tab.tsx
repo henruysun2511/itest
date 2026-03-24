@@ -50,11 +50,11 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
 
     const { data, isLoading } = useExamAttemptList(examSessionId, params);
 
-    // Hooks hành động
-    const { mutate: pauseAttempt } = usePauseStudentAttempt();
-    const { mutate: forceSubmit } = useForceSubmitSelected();
-    const { mutate: grantRetake } = useGrantRetake();
-    const { mutate: saveAnswers } = useSaveAnswers();
+    // Hooks hành động với trạng thái loading cho từng dòng
+    const { mutate: pauseAttempt, isPending: isPausing, variables: pauseVars } = usePauseStudentAttempt();
+    const { mutate: forceSubmit, isPending: isForcing, variables: forceVars } = useForceSubmitSelected();
+    const { mutate: grantRetake, isPending: isGranting, variables: grantVars } = useGrantRetake();
+    const { mutate: saveAnswers, isPending: isSaving, variables: saveVars } = useSaveAnswers();
 
     const handleAction = (actionFn: any, payload: any, actionName: string) => {
         actionFn(payload, {
@@ -144,6 +144,7 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                             <Button
                                 type="text"
                                 disabled={isCompleted}
+                                loading={isPausing && (pauseVars as any)?.studentId === record.studentId}
                                 icon={isPaused ? <CheckCircleOutlined className={isCompleted ? "" : "text-green-500"} /> : <PauseCircleOutlined />}
                                 onClick={() => handleAction(
                                     pauseAttempt,
@@ -157,6 +158,7 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                             <Button
                                 type="text"
                                 disabled={isCompleted}
+                                loading={isSaving && (saveVars as any)?.data?.studentId === record.studentId}
                                 icon={<SaveOutlined className={isCompleted ? "" : "text-blue-500"} />}
                                 onClick={() => handleAction(
                                     saveAnswers,
@@ -170,10 +172,11 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                             <Button
                                 type="text"
                                 disabled={isCompleted}
+                                loading={isForcing && (forceVars as any)?.data?.studentIds?.includes(record.studentId)}
                                 icon={<LogoutOutlined className={isCompleted ? "" : "text-red-500"} />}
                                 onClick={() => handleAction(
                                     forceSubmit,
-                                    { examSessionId, data: { studentIds: [record.studentId] } },
+                                    { examSessionId, data: { studentIds: [record.studentId], studentCodes: [record.studentCode] } },
                                     "Thu bài"
                                 )}
                             />
@@ -183,6 +186,7 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                             <Button
                                 type="text"
                                 className="text-amber-500"
+                                loading={isGranting && (grantVars as any)?.studentId === record.studentId}
                                 icon={<ThunderboltOutlined />}
                                 onClick={() => handleAction(
                                     grantRetake,
@@ -195,7 +199,6 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                             <Button
                                 type="text"
                                 danger
-                                className="text-white"
                                 icon={<AlertOutlined />}
                                 onClick={() => setHandleModal({
                                     open: true,

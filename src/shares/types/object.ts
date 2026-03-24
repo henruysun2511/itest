@@ -286,12 +286,19 @@ interface EssayAnswerItem {
   content: string;
   answerText: string;
   fileUrls: string[];
+  maxScore?: number;
 }
 export type { EssayAnswerItem };
 
 interface EssayResult {
   resultGradingId: string;
   currentScore: number;
+  fullName: string;
+  studentCode: string;
+  examSessionCode?: string;
+  role?: string;
+  comment?: string;
+  status: ResultGradingStatus;
   answers: EssayAnswerItem[];
 }
 export type { EssayResult };

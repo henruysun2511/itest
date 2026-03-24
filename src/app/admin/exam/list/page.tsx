@@ -22,7 +22,7 @@ export default function ExamList() {
         search: params.search,
         sortBy: params.sortBy as any,
         sortOrder: params.sortOrder,
-        examSetId: params.examSetId, 
+        examSetId: params.examSetId,
     });
 
     return (
