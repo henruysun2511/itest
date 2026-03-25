@@ -312,7 +312,6 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
             case 'STUDENT_SUBMITTED':
                 if (isMyEvent()) {
-                    message.info("Bài thi của bạn đã được thu bởi giám thị!");
                     handleSubmit(true);
                 }
                 break;
