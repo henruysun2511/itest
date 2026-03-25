@@ -21,7 +21,7 @@ export function useExamSecurity(
         // Gửi định kỳ mỗi 10 giây
         const interval = setInterval(() => {
             sendHeartbeat(examAttemptId);
-        }, 10000);
+        }, 5000);
 
         const handleOffline = () => sendHeartbeat(examAttemptId);
         const handleVisibilityChange = () => {

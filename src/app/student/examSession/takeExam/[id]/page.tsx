@@ -224,11 +224,19 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const currentAttemptId = myAttemptRes?.data?.examAttemptId;
 
     useEffect(() => {
-        if (!latestEvent || !myStudentId) return;
+        if (!latestEvent) return;
 
         // Tránh xử lý lặp lại cùng một sự kiện nếu component re-render
         const eventUniqueId = `${latestEvent.type}-${latestEvent.timestamp}`;
         if (processedEventRef.current === eventUniqueId) return;
+
+        // Kiểm tra xem sự kiện có yêu cầu thông tin sinh viên không
+        const isSessionWide = ['SESSION_STATUS_CHANGED', 'TIME_WARNING'].includes(latestEvent.type);
+        if (!isSessionWide && (!myStudentId || !currentAttemptId)) {
+            // Đợi cho đến khi có đủ thông tin định danh mới xử lý các sự kiện cá nhân
+            return;
+        }
+
         processedEventRef.current = eventUniqueId;
 
         console.log(">>> [SSE New Event]:", latestEvent.type, latestEvent.data);
@@ -270,7 +278,10 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                     // Chuyển hướng
                     router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
                 }
+
+                // Cập nhật cả session và attempt vì status session có thể ảnh hưởng đến attempt
                 queryClient.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
+                queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
                 break;
 
             case 'ATTEMPT_PAUSED':
