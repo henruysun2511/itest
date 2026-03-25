@@ -1,9 +1,30 @@
 "use client";
 
 import { useExamSetList } from "@/queries/useExamSetQuery";
-import { FolderOpenOutlined, SearchOutlined } from "@ant-design/icons";
-import { Card, Col, Input, Row, Table, Tag, Typography } from "antd";
+import { useUploadFileCloudinary } from "@/queries/useCloudinaryQuery";
+import { FolderOpenOutlined, SearchOutlined, PlusOutlined } from "@ant-design/icons";
+import { Card, Col, Input, Row, Table, Tag, Typography, Tabs, List, Button, Divider, Form } from "antd";
 import { useState } from "react";
+import EditableExam from "./editors/exam-editor";
+
+// Mock data cho câu hỏi
+const mockQuestions = [
+  {
+    id: 1,
+    content: "Câu hỏi 1: 1 + 1 = ?",
+    type: "MULTIPLE_CHOICE",
+    options: ["1", "2", "3", "4"],
+    correctAnswer: "2"
+  },
+  {
+    id: 2,
+    content: "Câu hỏi 2: Tự luận về React",
+    type: "ESSAY",
+    options: [],
+    correctAnswer: ""
+  },
+  // Thêm mock data khác
+];
 
 const { Title, Text } = Typography;
 
@@ -12,8 +33,17 @@ export default function ExamSetListPage() {
     const [limit, setLimit] = useState(10);
     const [search, setSearch] = useState("");
 
+    // State cho tạo đề thi
+    const [examData, setExamData] = useState<any>({
+      title: "",
+      parts: []
+    });
+    const [answersState, setAnswersState] = useState<Record<number, { correctAnswer: string[]; points: number }>>({});
+    const [hasEssay, setHasEssay] = useState(false);
+
+    const uploadHook = useUploadFileCloudinary();
+
     // Fetch data using the existing hook
-    // Tham số truyền vào chủ yếu là Pagination, có thể kèm theo search
     const { data, isLoading } = useExamSetList({ page, limit, ...(search ? { search } : {}) });
 
     const columns = [
@@ -47,66 +77,135 @@ export default function ExamSetListPage() {
         }
     ];
 
-    return (
-        <div className="p-4 md:p-8 max-w-[1400px] mx-auto min-h-[calc(100vh-80px)] bg-[var(--color-bg-base)] rounded-3xl m-4 border border-slate-200 shadow-sm">
-            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <Title level={2} className="!mb-2 !text-[var(--color-navy-deep)] flex items-center gap-3">
-                        <FolderOpenOutlined className="text-3xl text-[var(--color-accent)]" /> 
-                        Danh sách bộ đề
-                    </Title>
-                    <Text className="text-slate-500 text-base">
-                        Hiển thị danh sách các bộ đề thi đã được tạo trong hệ thống.
-                    </Text>
-                </div>
-            </div>
+    const handleAddQuestion = (question: any) => {
+        // Logic add question vào examData
+        // Tạm thời add vào part đầu
+        const newQuestion = {
+            questionIndex: examData.parts[0]?.questions?.length + 1 || 1,
+            questionText: question.content,
+            questionType: question.type,
+            options: question.options?.map((opt: string, index: number) => ({
+                label: String.fromCharCode(65 + index), // A, B, C, D
+                text: opt
+            })),
+            mediaPlaceholders: [],
+        };
+        const updatedParts = [...examData.parts];
+        if (updatedParts.length === 0) {
+            updatedParts.push({
+                partIndex: 1,
+                partTitle: "Part 1",
+                partDescription: "",
+                mediaPlaceholders: [],
+                questionGroups: [],
+                questions: [newQuestion],
+                questionType: "mixed",
+            });
+        } else {
+            updatedParts[0].questions.push(newQuestion);
+        }
+        setExamData({ ...examData, parts: updatedParts });
+    };
 
-            <Card className="rounded-2xl border border-slate-200 shadow-sm mb-6" bodyStyle={{ padding: 24 }}>
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} md={12}>
+    const tabItems = [
+        {
+            key: "bank",
+            label: "Ngân hàng đề thi",
+            children: (
+                <div>
+                    <Card className="mb-4">
                         <Input
-                            placeholder="Tìm kiếm theo tên bộ đề..."
-                            prefix={<SearchOutlined className="text-slate-400" />}
-                            size="large"
-                            className="rounded-xl border-slate-300 bg-slate-50 hover:bg-white focus:bg-white transition-colors"
-                            onPressEnter={(e) => {
-                                setSearch((e.target as HTMLInputElement).value);
-                                setPage(1);
-                            }}
-                            onBlur={(e) => {
-                                setSearch(e.target.value);
-                                setPage(1);
-                            }}
-                            onChange={(e) => {
-                                if (e.target.value === "") {
-                                    setSearch("");
-                                    setPage(1);
-                                }
+                            placeholder="Tìm kiếm bộ đề..."
+                            prefix={<SearchOutlined />}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            allowClear
+                        />
+                    </Card>
+                    <Card>
+                        <Table
+                            columns={columns}
+                            dataSource={data?.data || []}
+                            loading={isLoading}
+                            rowKey="examSetId"
+                            pagination={{
+                                current: page,
+                                pageSize: limit,
+                                total: data?.total || 0,
+                                onChange: (p, l) => {
+                                    setPage(p);
+                                    setLimit(l);
+                                },
+                                showSizeChanger: true,
+                                showQuickJumper: true,
+                                showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} bộ đề`
                             }}
                         />
+                    </Card>
+                </div>
+            )
+        },
+        {
+            key: "create",
+            label: "Tạo đề thi",
+            children: (
+                <Row gutter={16}>
+                    <Col span={8}>
+                        <Card title="Danh sách câu hỏi" style={{ height: '70vh', overflowY: 'auto' }}>
+                            <List
+                                dataSource={mockQuestions}
+                                renderItem={(item) => (
+                                    <List.Item
+                                        actions={[
+                                            <Button
+                                                key="add"
+                                                type="primary"
+                                                size="small"
+                                                onClick={() => handleAddQuestion(item)}
+                                            >
+                                                Thêm
+                                            </Button>
+                                        ]}
+                                    >
+                                        <List.Item.Meta
+                                            title={item.content}
+                                            description={`Loại: ${item.type}`}
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        </Card>
+                    </Col>
+                    <Col span={16}>
+                        <Card title="Tạo đề thi" style={{ height: '70vh', overflowY: 'auto' }}>
+                            <Form layout="vertical">
+                                <Form.Item label="Tên đề thi">
+                                    <Input
+                                        value={examData.title}
+                                        onChange={(e) => setExamData({ ...examData, title: e.target.value })}
+                                        placeholder="Nhập tên đề thi"
+                                    />
+                                </Form.Item>
+                                <EditableExam
+                                    value={examData}
+                                    onChange={setExamData}
+                                    answersState={answersState}
+                                    setAnswersState={setAnswersState}
+                                    uploadHook={uploadHook}
+                                    hasEssay={hasEssay}
+                                />
+                            </Form>
+                        </Card>
                     </Col>
                 </Row>
-            </Card>
+            )
+        }
+    ];
 
-            <Card className="rounded-2xl border border-slate-200 shadow-sm overflow-hidden" bodyStyle={{ padding: 0 }}>
-                <Table
-                    columns={columns}
-                    dataSource={data?.data || []}
-                    rowKey="examSetId"
-                    loading={isLoading}
-                    pagination={{ 
-                        current: page,
-                        pageSize: limit,
-                        total: data?.meta?.total || 0,
-                        onChange: (newPage, newPageSize) => {
-                            setPage(newPage);
-                            setLimit(newPageSize);
-                        },
-                        className: "p-4 mx-4 mb-0" 
-                    }}
-                    className="custom-table"
-                />
-            </Card>
+    return (
+        <div className="p-6">
+            <Title level={2} className="mb-6">Quản lý bộ đề thi</Title>
+            <Tabs defaultActiveKey="bank" items={tabItems} />
         </div>
     );
 }
