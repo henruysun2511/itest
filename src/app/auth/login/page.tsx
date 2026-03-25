@@ -103,23 +103,6 @@ export default function LoginPage() {
                     />
                 </Form.Item>
 
-                {/* <Form.Item
-                    name="captcha"
-                // rules={[
-                //     { required: true, message: "Vui lòng nhập mã bảo mật" },
-                // ]}
-                >
-                    <div className="flex gap-3 items-center">
-                        <Input
-                            size="large"
-                            prefix={<SafetyOutlined />}
-                            placeholder="Mã bảo mật"
-                            disabled={isPending}
-                        />
-                        <div className="text-2xl font-bold">251105</div>
-                    </div>
-                </Form.Item> */}
-
                 <Form.Item>
                     <Button
                         htmlType="submit"
@@ -134,7 +117,7 @@ export default function LoginPage() {
             </Form>
 
             <div className="mt-4 flex justify-between text-sm">
-                <Link
+                {/* <Link
                     href="/forgot-password"
                     className="text-gray-500 hover:text-accent"
                 >
@@ -146,7 +129,7 @@ export default function LoginPage() {
                     className="text-accent font-medium"
                 >
                     Đăng ký tài khoản thí sinh
-                </Link>
+                </Link> */}
             </div>
 
             <Divider className="my-6 text-gray-400">

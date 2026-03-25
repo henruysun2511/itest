@@ -2,13 +2,39 @@
 import { useExamStore } from '@/stores/useExamStore';
 import { CheckCircleFilled, TrophyOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Progress, Result, Row, Statistic, Tag, Typography } from 'antd';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const { Title, Text } = Typography;
 
 export default function ExamResultPage() {
     const examResult = useExamStore((state) => state.examResult);
+    const setExamResult = useExamStore((state) => state.setExamResult);
     const router = useRouter();
+    const params = useParams();
+    const examSessionId = params?.id as string;
+
+    // Khôi phục kết quả từ localStorage khi reload trang
+    useEffect(() => {
+        if (!examResult && examSessionId) {
+            const saved = localStorage.getItem(`exam_result_${examSessionId}`);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    setExamResult(parsed);
+                } catch (e) {
+                    console.error('[Result] Failed to parse saved result:', e);
+                }
+            }
+        }
+    }, [examResult, examSessionId, setExamResult]);
+
+    // Lưu kết quả vào localStorage khi có data
+    useEffect(() => {
+        if (examResult && examSessionId) {
+            localStorage.setItem(`exam_result_${examSessionId}`, JSON.stringify(examResult));
+        }
+    }, [examResult, examSessionId]);
 
     if (!examResult) {
         return (

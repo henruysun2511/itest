@@ -14,7 +14,8 @@ import {
     EditOutlined,
     FilePdfOutlined,
     RobotOutlined,
-    SaveOutlined
+    SaveOutlined,
+    SwapOutlined
 } from "@ant-design/icons";
 import {
     Button,
@@ -101,6 +102,7 @@ export default function CreateExam() {
             onOk() {
                 // 1. Xóa sessionStorage (nơi lưu kết quả parse từ Gemini)
                 sessionStorage.removeItem("parsedExamData");
+                sessionStorage.removeItem("sampleData1");
 
                 // 2. Reset các state về null/ban đầu
                 setExamState(null);
@@ -112,6 +114,104 @@ export default function CreateExam() {
                 message.success("Đã xóa dữ liệu cũ thành công");
             },
         });
+    };
+
+    // --- Shuffle Questions ---
+    const handleShuffle = () => {
+        if (!examState) return;
+
+        const shuffleArray = <T,>(arr: T[]): T[] => {
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        };
+
+        // Tạo map questionIndex cũ -> mới để remap answersState
+        const indexMapping: Record<number, number> = {};
+        let globalIndex = 1;
+
+        const newParts = examState.parts.map(part => {
+            const shuffleable: typeof part.questions = [];
+            const nonShuffleable: { originalIdx: number; question: typeof part.questions[0] }[] = [];
+
+            part.questions.forEach((q, idx) => {
+                const type = q.questionType?.toUpperCase();
+                if (type === QuestionType.SINGLE_CHOICE || type === QuestionType.MULTIPLE_CHOICE) {
+                    shuffleable.push(q);
+                } else {
+                    nonShuffleable.push({ originalIdx: idx, question: q });
+                }
+            });
+
+            // Đảo thứ tự câu trắc nghiệm
+            const shuffledMc = shuffleArray(shuffleable);
+
+            // Ghép lại: trắc nghiệm đã đảo + giữ nguyên vị trí các loại khác
+            const mergedQuestions: typeof part.questions = [];
+            let mcPointer = 0;
+
+            for (let i = 0; i < part.questions.length; i++) {
+                const isNonShuffle = nonShuffleable.find(ns => ns.originalIdx === i);
+                if (isNonShuffle) {
+                    mergedQuestions.push(isNonShuffle.question);
+                } else {
+                    mergedQuestions.push(shuffledMc[mcPointer++]);
+                }
+            }
+
+            // Re-index và tạo mapping
+            const reindexedQuestions = mergedQuestions.map(q => {
+                const oldIndex = q.questionIndex;
+                const newIndex = globalIndex++;
+                indexMapping[oldIndex] = newIndex;
+                return { ...q, questionIndex: newIndex };
+            });
+
+            return { ...part, questions: reindexedQuestions };
+        });
+
+        // Remap answersState theo index mới
+        const newAnswersState: Record<number, { correctAnswer: string[]; points: number }> = {};
+        for (const [oldIdx, value] of Object.entries(answersState)) {
+            const newIdx = indexMapping[Number(oldIdx)];
+            if (newIdx !== undefined) {
+                newAnswersState[newIdx] = value;
+            }
+        }
+
+        // Auto-gen mã đề mới (thay kí tự cuối)
+        const currentCode = form.getFieldValue('examCode') || '';
+        let newCodeSuffix = '';
+        if (currentCode) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const lastChar = currentCode.slice(-1);
+            let newChar = lastChar;
+            while (newChar === lastChar) {
+                newChar = chars[Math.floor(Math.random() * chars.length)];
+            }
+            newCodeSuffix = newChar;
+            form.setFieldValue('examCode', currentCode.slice(0, -1) + newChar);
+        }
+
+        // Auto-gen tên đề mới (thay/thêm suffix mã đề)
+        const currentTitle = form.getFieldValue('title') || '';
+        if (currentTitle && newCodeSuffix) {
+            // Nếu đã có dạng "(Mã X)" ở cuối thì thay, nếu chưa thì thêm
+            const variantRegex = /\s*\(Mã\s+\w+\)$/;
+            const newSuffix = ` (Mã ${newCodeSuffix})`;
+            const newTitle = variantRegex.test(currentTitle)
+                ? currentTitle.replace(variantRegex, newSuffix)
+                : currentTitle + newSuffix;
+            form.setFieldValue('title', newTitle);
+        }
+
+        setExamState({ ...examState, parts: newParts });
+        setAnswersState(newAnswersState);
+        sessionStorage.setItem("sampleData1", JSON.stringify({ ...examState, parts: newParts }));
+        message.success('Đã đảo thứ tự câu hỏi trắc nghiệm thành công!');
     };
 
     const validateBeforeSave = () => {
@@ -191,12 +291,8 @@ export default function CreateExam() {
             const payload = buildPayload(objectKey);
             console.log(payload)
             await createExam(payload);
-            message.success("Tạo đề thi thành công");
-            form.resetFields();
-            setExamState(null);
-            setAnswersState({});
-            setObjectKey(null);
-            setSignedUrl(null);
+            message.success("Tạo đề thi thành công! Dữ liệu đề được giữ nguyên.");
+            // Không xóa data — chỉ xóa khi ấn nút "Xóa dữ liệu cũ"
         } catch {
             message.error("Tạo đề thất bại");
         }
@@ -236,6 +332,14 @@ export default function CreateExam() {
                                 className="bg-[var(--color-navy-main)] hover:scale-105 transition-transform"
                             >
                                 Xóa dữ liệu cũ
+                            </Button>
+                            <Button
+                                size="large"
+                                icon={<SwapOutlined />}
+                                onClick={handleShuffle}
+                                className="border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-orange-50 hover:scale-105 transition-transform"
+                            >
+                                Đảo câu hỏi
                             </Button>
                             <Button
                                 type="primary"

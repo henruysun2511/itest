@@ -281,6 +281,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                     if (scoreData) {
                         const setExamResult = useExamStore.getState().setExamResult;
                         setExamResult(scoreData);
+                        localStorage.setItem(`exam_result_${examSessionId}`, JSON.stringify(scoreData));
                     }
 
                     // Xóa cache local
@@ -359,10 +360,11 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                 if (isMyEvent()) {
                     message.success({ content: 'Giám thị đã thu bài của bạn! Đang chuyển hướng sang trang kết quả...', key: 'collect-status' });
                     // Lưu kết quả vào store và chuyển hướng
-                    const scoreData = latestEvent.data?.score;
-                    if (scoreData) {
+                    const teacherScoreData = latestEvent.data?.score;
+                    if (teacherScoreData) {
                         const setExamResult = useExamStore.getState().setExamResult;
-                        setExamResult(scoreData);
+                        setExamResult(teacherScoreData);
+                        localStorage.setItem(`exam_result_${examSessionId}`, JSON.stringify(teacherScoreData));
                     }
 
                     // Xóa cache local
