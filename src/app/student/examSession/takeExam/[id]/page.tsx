@@ -296,8 +296,29 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
             case 'RETAKE_GRANTED':
                 if (isMyEvent()) {
-                    message.success("Bạn đã được cấp quyền thi lại! Trang web sẽ tải lại sau 3 giây...");
-                    setTimeout(() => window.location.reload(), 3000);
+                    message.success("Bạn đã được cấp quyền thi lại! Hệ thống đang tải lại đề thi mới...");
+
+                    // 1. Xóa dữ liệu cũ trong Zustand để buộc fetch lại
+                    setExamData(null);
+
+                    // 2. Xóa bài làm cũ và cache local
+                    setUserAnswers([]);
+                    localStorage.removeItem(`exam_progress_${examSessionId}`);
+                    localStorage.removeItem(`exam_endtime_${examSessionId}`);
+
+                    // 3. Cập nhật URL với examId và examAttemptId mới
+                    const newExamId = latestEvent.data?.examId;
+                    const newAttemptId = latestEvent.data?.examAttemptId;
+                    if (newExamId && newAttemptId) {
+                        const params = new URLSearchParams(window.location.search);
+                        params.set("examId", newExamId);
+                        params.set("examAttemptId", newAttemptId);
+                        router.replace(`${window.location.pathname}?${params.toString()}`);
+                    }
+
+                    // 4. Invalidate các query liên quan để React Query fetch data mới
+                    queryClient.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
+                    // Lưu ý: EXAM_QUERY_KEY được dùng bởi useExamDetail, nó sẽ tự fetch lại khi examId trong URL thay đổi
                 }
                 break;
 
