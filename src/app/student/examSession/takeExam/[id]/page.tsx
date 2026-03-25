@@ -255,22 +255,20 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                 } else if (newStatus === ExamSessionStatus.IN_PROGRESS) {
                     message.success("Ca thi đã được tiếp tục!");
                 } else if (newStatus === ExamSessionStatus.FINISHED) {
-                    if (isMyEvent()) {
-                        message.success({ content: 'Giám thị đã kết thúc ca thi của bạn! Đang chuyển hướng sang trang kết quả...', key: 'collect-status' });
-                        // Lưu kết quả vào store và chuyển hướng
-                        const scoreData = latestEvent.data?.score;
-                        if (scoreData) {
-                            const setExamResult = useExamStore.getState().setExamResult;
-                            setExamResult(scoreData);
-                        }
-
-                        // Xóa cache local
-                        localStorage.removeItem(`exam_endtime_${examSessionId}`);
-                        localStorage.removeItem(`exam_progress_${examSessionId}`);
-
-                        // Chuyển hướng
-                        router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
+                    message.success({ content: 'Giám thị đã kết thúc ca thi! Đang chuyển hướng sang trang kết quả...', key: 'collect-status' });
+                    // Lưu kết quả vào store và chuyển hướng
+                    const scoreData = latestEvent.data?.score;
+                    if (scoreData) {
+                        const setExamResult = useExamStore.getState().setExamResult;
+                        setExamResult(scoreData);
                     }
+
+                    // Xóa cache local
+                    localStorage.removeItem(`exam_endtime_${examSessionId}`);
+                    localStorage.removeItem(`exam_progress_${examSessionId}`);
+
+                    // Chuyển hướng
+                    router.replace(`/student/examSession/takeExam/${examSessionId}/result`);
                 }
                 queryClient.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
                 break;

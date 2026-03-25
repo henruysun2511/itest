@@ -13,8 +13,9 @@ export function useExamFullscreen(onViolation: (type: FraudType) => void) {
       }
     };
 
+    let modal: any;
     if (!document.fullscreenElement) {
-      Modal.warning({
+      modal = Modal.warning({
         title: "Yêu cầu chế độ toàn màn hình",
         content:
           "Để đảm bảo tính công bằng, bài thi yêu cầu chế độ toàn màn hình. Vui lòng nhấn xác nhận để bắt đầu.",
@@ -33,6 +34,9 @@ export function useExamFullscreen(onViolation: (type: FraudType) => void) {
     };
 
     document.addEventListener("fullscreenchange", handleExit);
-    return () => document.removeEventListener("fullscreenchange", handleExit);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleExit);
+      if (modal) modal.destroy();
+    };
   }, [onViolation]);
 }
