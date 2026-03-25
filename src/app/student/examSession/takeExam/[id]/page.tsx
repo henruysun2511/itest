@@ -79,22 +79,24 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const { isOnline } = useExamNetwork();
 
     const [userAnswers, setUserAnswers] = useState<{ questionId: string; answer: any }[]>(() => {
-        // "Thoát ra vào lại": store sẽ có sẵn dữ liệu từ API Join
-        if (storeExamData) {
-            const apiAnswers = storeExamData.cachedSubmission?.answers || [];
-            // Cập nhật đè luôn vào local storage để bắt đầu tính tiếp
-            if (typeof window !== 'undefined') {
-                localStorage.setItem(`exam_progress_${examSessionId}`, JSON.stringify({ answers: apiAnswers }));
-            }
-            return apiAnswers;
-        } else {
-            // "Load lại trang (F5)": store bị reset nên sẽ bằng null -> Ưu tiên lấy từ local storage
-            if (typeof window !== 'undefined') {
-                const saved = localStorage.getItem(`exam_progress_${examSessionId}`);
-                return saved ? JSON.parse(saved).answers : [];
-            }
-            return [];
+        if (typeof window === 'undefined') return [];
+
+        // 1. Lấy đáp án từ Local Storage
+        const saved = localStorage.getItem(`exam_progress_${examSessionId}`);
+        const localAnswers = saved ? JSON.parse(saved).answers || [] : [];
+
+        // 2. Lấy đáp án từ Store (BE trả về khi Join)
+        const apiAnswers = storeExamData?.cachedSubmission?.answers || [];
+
+        // 3. So sánh: Cái nào nhiều đáp án hơn thì lấy cái đó
+        const finalAnswers = apiAnswers.length > localAnswers.length ? apiAnswers : localAnswers;
+
+        // Cập nhật lại Local Storage để đồng bộ nếu lấy từ BE
+        if (apiAnswers.length > localAnswers.length) {
+            localStorage.setItem(`exam_progress_${examSessionId}`, JSON.stringify({ answers: apiAnswers }));
         }
+
+        return finalAnswers;
     });
 
     const handleAnswerChange = (questionId: string, value: any) => {
@@ -117,6 +119,16 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             return newAnswers;
         });
     };
+
+    // 4. Effect đồng bộ data từ BE sau khi load xong (trường hợp F5 reload store data về chậm hơn init)
+    useEffect(() => {
+        const apiAnswers = storeExamData?.cachedSubmission?.answers || [];
+        if (apiAnswers.length > userAnswers.length) {
+            console.log(">>> [Sync] Cập nhật đáp án từ BE (nhiều hơn local):", apiAnswers.length, "vs", userAnswers.length);
+            setUserAnswers(apiAnswers);
+            localStorage.setItem(`exam_progress_${examSessionId}`, JSON.stringify({ answers: apiAnswers }));
+        }
+    }, [storeExamData, examSessionId, userAnswers.length]);
 
 
     // Logic xử lý toàn màn hình đã chuyển sang useExamFullscreen ở bên dưới
