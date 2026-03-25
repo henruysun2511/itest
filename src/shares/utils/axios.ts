@@ -11,6 +11,7 @@ export const refreshApi = axios.create({
   headers: {
     // "ngrok-skip-browser-warning": "true",
     Accept: "application/json",
+    "Cache-Control": "no-cache",
   },
 });
 
@@ -21,6 +22,7 @@ const api = axios.create({
   headers: {
     // "ngrok-skip-browser-warning": "true",
     Accept: "application/json",
+    "Cache-Control": "no-cache",
   },
   paramsSerializer: (params) =>
     qs.stringify(params, {

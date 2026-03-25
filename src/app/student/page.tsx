@@ -38,20 +38,20 @@ export default function StudentExamHome() {
         sortOrder: SortOrder.DESC
     });
 
-    const queryClient = useQueryClient();
+    // const queryClient = useQueryClient();
     const { data, isLoading } = useMyExamSessions(params, {
         // refetchInterval: 10000,
         refetchOnWindowFocus: true
     });
 
     // Realtime Updates via SSE
-    const { latestEvent } = useExamSSE('me');
-    useEffect(() => {
-        if (latestEvent?.type === 'SESSION_STATUS_CHANGED') {
-            // Khi có bất kỳ ca thi nào thay đổi trạng thái, làm mới danh sách
-            queryClient.invalidateQueries({ queryKey: MY_EXAM_SESSION_QUERY_KEY });
-        }
-    }, [latestEvent, queryClient]);
+    // const { latestEvent } = useExamSSE('me');
+    // useEffect(() => {
+    //     if (latestEvent?.type === 'SESSION_STATUS_CHANGED') {
+    //         // Khi có bất kỳ ca thi nào thay đổi trạng thái, làm mới danh sách
+    //         queryClient.invalidateQueries({ queryKey: MY_EXAM_SESSION_QUERY_KEY });
+    //     }
+    // }, [latestEvent, queryClient]);
 
     const handlePageChange = (page: number, pageSize: number) => {
         setParams(prev => ({ ...prev, page, limit: pageSize }));

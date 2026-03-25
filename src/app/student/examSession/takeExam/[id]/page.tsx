@@ -40,6 +40,14 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const { data: myAttemptRes } = useMyExamAttempt(examSessionId);
     console.log(">>> [Debug] myAttemptRes:", myAttemptRes);
 
+    // Redirect if disconnected
+    useEffect(() => {
+        if (myAttemptRes?.data?.status === ExamAttemptStatus.DISCONNECTED) {
+            message.error("Bạn đã bị ngắt kết nối khỏi bài thi. Vui lòng liên hệ giáo viên để được hỗ trợ.");
+            router.push('/student');
+        }
+    }, [myAttemptRes?.data?.status, router]);
+
     // 1. Fetch Data Fallback (Chỉ dùng khi store trống - ví dụ user reload trang)
     const { data: examDetailRes, isLoading: isExamLoading } = useExamDetail(
         !storeExamData ? (examId as string) : ""

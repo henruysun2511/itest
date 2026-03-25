@@ -2,6 +2,7 @@ import { ExamSessionService } from "@/services/examSession.service";
 import { ExamSessionStatus } from "@/shares/constants/status.enum";
 import { ExamSessionParam, TeacherExamSessionParam } from "@/shares/types/param";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { EXAM_ATTEMPT_KEY } from "./useExamAttemptQuery";
 
 export const EXAM_SESSION_QUERY_KEY = ["exam-sessions"];
 export const MY_EXAM_SESSION_QUERY_KEY = ["exam-sessions", "my-sessions"];
@@ -109,6 +110,7 @@ export const useExamSessionPause = () => {
       ExamSessionService.setPauseState(id, { isPaused }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: EXAM_SESSION_QUERY_KEY });
+      qc.invalidateQueries({ queryKey: EXAM_ATTEMPT_KEY });
     },
   });
 };
