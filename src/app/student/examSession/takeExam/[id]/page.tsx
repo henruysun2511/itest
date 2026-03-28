@@ -267,6 +267,11 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             const data = latestEvent.data;
             if (!data) return false;
 
+            // Nếu dữ liệu là một mảng các thí sinh (ví dụ: bị dừng thi hàng loạt)
+            if (Array.isArray(data.updatedAttempts)) {
+                return data.updatedAttempts.some((attempt: any) => String(attempt.studentId) === String(myStudentId));
+            }
+
             const eventStudentId = String(data.studentId || data.student_id || data.id || "");
             const eventAttemptId = String(data.examAttemptId || data.exam_attempt_id || "");
 
