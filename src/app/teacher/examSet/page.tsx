@@ -9,21 +9,21 @@ import EditableExam from "./editors/exam-editor";
 
 // Mock data cho câu hỏi
 const mockQuestions = [
-  {
-    id: 1,
-    content: "Câu hỏi 1: 1 + 1 = ?",
-    type: "MULTIPLE_CHOICE",
-    options: ["1", "2", "3", "4"],
-    correctAnswer: "2"
-  },
-  {
-    id: 2,
-    content: "Câu hỏi 2: Tự luận về React",
-    type: "ESSAY",
-    options: [],
-    correctAnswer: ""
-  },
-  // Thêm mock data khác
+    {
+        id: 1,
+        content: "Câu hỏi 1: 1 + 1 = ?",
+        type: "MULTIPLE_CHOICE",
+        options: ["1", "2", "3", "4"],
+        correctAnswer: "2"
+    },
+    {
+        id: 2,
+        content: "Câu hỏi 2: Tự luận về React",
+        type: "ESSAY",
+        options: [],
+        correctAnswer: ""
+    },
+    // Thêm mock data khác
 ];
 
 const { Title, Text } = Typography;
@@ -35,8 +35,8 @@ export default function ExamSetListPage() {
 
     // State cho tạo đề thi
     const [examData, setExamData] = useState<any>({
-      title: "",
-      parts: []
+        title: "",
+        parts: []
     });
     const [answersState, setAnswersState] = useState<Record<number, { correctAnswer: string[]; points: number }>>({});
     const [hasEssay, setHasEssay] = useState(false);
@@ -123,7 +123,7 @@ export default function ExamSetListPage() {
                         />
                     </Card>
                     <Card>
-                        <Table
+                        {/* <Table
                             columns={columns}
                             dataSource={data?.data || []}
                             loading={isLoading}
@@ -140,7 +140,7 @@ export default function ExamSetListPage() {
                                 showQuickJumper: true,
                                 showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} bộ đề`
                             }}
-                        />
+                        /> */}
                     </Card>
                 </div>
             )
