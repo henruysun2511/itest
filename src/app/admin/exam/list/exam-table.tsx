@@ -48,9 +48,15 @@ export default function ExamTable({ data, loading, pagination }: any) {
     const columns = [
         {
             title: "Mã đề thi",
-            dataIndex: "examCode",
-            key: "examCode",
-            render: (text: string) => <span className="font-bold text-blue-600">{text}</span>
+            dataIndex: "examCodes",
+            key: "examCodes",
+            render: (codes: string[]) => (
+                <Space wrap size={[0, 4]} style={{ gap: '4px' }}>
+                    {codes && codes.length > 0 ? codes.map((code: string) => (
+                        <span key={code} className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded text-xs border border-blue-100">{code}</span>
+                    )) : <span className="text-gray-400 text-sm">--</span>}
+                </Space>
+            )
         },
         {
             title: "Tiêu đề",

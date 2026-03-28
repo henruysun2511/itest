@@ -9,8 +9,11 @@ import {
     ThunderboltOutlined,
     UnlockOutlined,
     UserOutlined,
-    WarningOutlined
+    WarningOutlined,
+    FileExcelOutlined
 } from '@ant-design/icons';
+import { ResultService } from '@/services/result.service';
+import * as XLSX from 'xlsx';
 import {
     Badge,
     Button,
@@ -79,9 +82,8 @@ export default function ProctorDashboardPage() {
     useEffect(() => {
         if (currentSession?.status === ExamSessionStatus.FINISHED) {
             message.info("Ca thi đã kết thúc!");
-            router.push('/teacher');
         }
-    }, [currentSession?.status, router]);
+    }, [currentSession?.status]);
 
     useEffect(() => {
         if (!latestEvent) return;
@@ -149,12 +151,43 @@ export default function ProctorDashboardPage() {
                 closeMutation.mutate(examSessionId, {
                     onSuccess: () => {
                         message.success("Đã kết thúc ca thi và thu bài thành công");
-                        router.push('/teacher');
                     },
                     onError: () => message.error("Lỗi khi kết thúc ca thi")
                 });
             },
         });
+    };
+
+    const handleExportScores = async () => {
+        if (!examSessionId) return;
+        try {
+            message.loading({ content: 'Đang tải bảng điểm...', key: 'exportScores' });
+            const res = await ResultService.search({ examSessionId: examSessionId as string, page: 1, limit: 10000 });
+            const data = res.data?.data || [];
+
+            if (data.length === 0) {
+                message.warning({ content: 'Chưa có dữ liệu điểm', key: 'exportScores' });
+                return;
+            }
+
+            const excelData = data.map((item, index) => ({
+                'STT': index + 1,
+                'Mã sinh viên': item.studentCode,
+                'Họ và tên': item.fullName,
+                'Điểm': item.totalScore || 0,
+                'Trạng thái': item.status
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Bảng Điểm");
+
+            XLSX.writeFile(wb, `Bang_Diem_${currentSession?.examSessionCode || 'CaThi'}.xlsx`);
+            message.success({ content: 'Đã xuất bảng điểm thành công', key: 'exportScores' });
+        } catch (error) {
+            console.error("Export error:", error);
+            message.error({ content: 'Lỗi khi xuất bảng điểm', key: 'exportScores' });
+        }
     };
 
     const handleStartSession = () => {
@@ -238,6 +271,18 @@ export default function ProctorDashboardPage() {
                             } className="mr-4">
                                 {sessionStatus}
                             </Tag>
+
+                            {/* NÚT XUẤT ĐIỂM: Chỉ hiển thị khi trạng thái là FINISHED */}
+                            {sessionStatus === ExamSessionStatus.FINISHED && (
+                                <Button
+                                    type="primary"
+                                    icon={<FileExcelOutlined />}
+                                    onClick={handleExportScores}
+                                    className="bg-green-600 mb-0"
+                                >
+                                    Xuất bảng điểm
+                                </Button>
+                            )}
 
                             {/* NÚT BẮT ĐẦU: Chỉ hiển thị khi trạng thái là NOT_STARTED */}
                             {sessionStatus === ExamSessionStatus.NOT_STARTED && (

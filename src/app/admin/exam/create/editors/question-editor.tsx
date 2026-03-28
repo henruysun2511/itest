@@ -61,8 +61,38 @@ export default function QuestionEditor({
         // Chèn vào vị trí index (phía trên câu hiện tại)
         newQuestions.splice(index, 0, newQuestion);
 
+        // Tự động dịch các questionIndices ở các group nếu cần
+        const insertedIndex = index + 1; // Vị trí chèn (số thứ tự thực tế 1-based)
+        const newGroups = (part.questionGroups || []).map(g => {
+            const newIndices = g.questionIndices?.map(idx => idx >= insertedIndex ? idx + 1 : idx);
+            return { ...g, questionIndices: newIndices || [] };
+        });
+
         // Cập nhật lại Part với danh sách đã reindex (để số thứ tự CÂU 1, 2, 3... luôn đúng)
-        updatePart(partIndex, { ...part, questions: reindex(newQuestions) });
+        updatePart(partIndex, { 
+            ...part, 
+            questions: reindex(newQuestions),
+            questionGroups: newGroups 
+        });
+    };
+
+    const removeQuestion = (index: number) => {
+        const deletedQuestionIndex = part.questions[index].questionIndex;
+        const newQuestions = part.questions.filter((_, i) => i !== index);
+        
+        // Tự động loại bỏ và dịch chuyển questionIndices trong các group
+        const newGroups = (part.questionGroups || []).map(g => {
+            const newIndices = g.questionIndices
+                ?.filter(idx => idx !== deletedQuestionIndex)
+                .map(idx => idx > deletedQuestionIndex ? idx - 1 : idx);
+            return { ...g, questionIndices: newIndices || [] };
+        });
+
+        updatePart(partIndex, { 
+            ...part, 
+            questions: reindex(newQuestions),
+            questionGroups: newGroups
+        });
     };
 
     const handleRemoveMedia = async (qIndex: number, mIndex: number, placeholder: MediaPlaceholder) => {
@@ -129,10 +159,7 @@ export default function QuestionEditor({
                                     type="text"
                                     danger
                                     icon={<DeleteOutlined />}
-                                    onClick={() => {
-                                        const newQuestions = part.questions.filter((_, i) => i !== index);
-                                        updatePart(partIndex, { ...part, questions: reindex(newQuestions) });
-                                    }}
+                                    onClick={() => removeQuestion(index)}
                                 />
                             </div>
                         </div>

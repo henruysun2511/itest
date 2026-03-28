@@ -4,7 +4,7 @@ import { RoleType } from '@/shares/constants/type.enum';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { BellOutlined } from '@ant-design/icons';
 import { Badge, Layout } from 'antd';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import React from 'react';
 
 const { Header, Content } = Layout;
@@ -15,13 +15,23 @@ interface StudentLayoutClientProps {
 
 export default function StudentLayoutClient({ children }: StudentLayoutClientProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const roleName = useAuthStore((state) => state.user?.roleName);
+
+    const isTakingExam = pathname?.includes('/takeExam/');
 
     return (
         <Layout className="min-h-screen bg-[#F0F2F5]">
             <Header className="bg-[var(--color-navy-deep)] h-20 flex items-center justify-between px-8 sticky top-0 z-[100] border-b border-white/10">
                 <div className="flex items-center gap-12">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/student")}>
+                    <div 
+                        className={`flex items-center gap-2 ${isTakingExam ? 'cursor-default' : 'cursor-pointer'}`} 
+                        onClick={() => {
+                            if (!isTakingExam) {
+                                router.push("/student");
+                            }
+                        }}
+                    >
                         <div className="w-9 h-9 bg-[var(--color-accent)] rounded-lg flex items-center justify-center font-black text-[var(--color-navy-deep)] shadow-lg shadow-orange-500/20">i</div>
                         <span className="text-white font-bold text-xl tracking-tighter">iTEST STUDENT</span>
                     </div>

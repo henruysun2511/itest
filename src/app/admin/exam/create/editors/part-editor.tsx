@@ -6,6 +6,7 @@ import GroupEditor from "./group-editor";
 import { renderMediaContent } from "./media-render";
 import MediaUploader from "./media-uploader";
 import QuestionEditor from "./question-editor";
+import { PlusOutlined } from "@ant-design/icons";
 
 interface Props {
     part: Part;
@@ -121,20 +122,44 @@ export default function PartEditor({
                     />
                 </div>
 
-                {/* Groups Section */}
-                {part.questionGroups.length > 0 && (
-                    <div className="space-y-4 mb-8">
-                        <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-1">Nhóm câu hỏi</h4>
-                        {part.questionGroups.map((group, gIndex) => (
+
+                <div className="space-y-4 mb-8">
+                    <div className="flex justify-between items-center mb-2 ml-1">
+                        <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest m-0">Nhóm câu hỏi</h4>
+                        <Button 
+                            type="dashed" 
+                            size="small" 
+                            icon={<PlusOutlined />} 
+                            onClick={() => {
+                                updatePart(partIndex, {
+                                    ...part,
+                                    questionGroups: [...(part.questionGroups || []), { groupInstruction: "", questionIndices: [], mediaPlaceholders: null }]
+                                })
+                            }}
+                        >
+                            Thêm nhóm
+                        </Button>
+                    </div>
+                    {part.questionGroups?.map((group, gIndex) => {
+                        const allOtherUsedIndices = part.questionGroups
+                            .filter((_, i) => i !== gIndex)
+                            .flatMap(g => g.questionIndices || []);
+                            
+                        return (
                             <GroupEditor
                                 key={gIndex}
                                 group={group}
+                                allOtherUsedIndices={allOtherUsedIndices}
                                 uploadHook={uploadHook}
                                 onChange={(updated) => updateGroup(gIndex, updated)}
+                                onDelete={() => {
+                                    const newGroups = part.questionGroups.filter((_, i) => i !== gIndex);
+                                    updatePart(partIndex, { ...part, questionGroups: newGroups });
+                                }}
                             />
-                        ))}
-                    </div>
-                )}
+                        );
+                    })}
+                </div>
 
                 {/* Questions Section */}
                 <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100">

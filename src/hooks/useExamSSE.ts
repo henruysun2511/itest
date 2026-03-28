@@ -77,14 +77,16 @@ export const useExamSSE = (examSessionId?: string) => {
           },
           onclose() {
             setIsConnected(false);
-            console.log('[SSE] Connection closed by server.');
+            console.log('[SSE] Connection closed by server. Retrying...');
+            // Ném lỗi để fetchEventSource biết là tự động kết nối lại
+            throw new Error('Connection closed - force retry');
           },
           onerror(err) {
             setIsConnected(false);
             setError(err instanceof Error ? err : new Error('SSE Error'));
             console.error('[SSE] Error:', err);
-            // Optionally throw the error to let it retry, or return to stop
-            // return; // return will stop retrying
+            // Để trống (hoặc return undefined) thì fetchEventSource sẽ MẶC ĐỊNH kết nối lại
+            // Đừng throw ở đây trừ khi muốn dừng hẳn
           }
         });
       } catch (err) {

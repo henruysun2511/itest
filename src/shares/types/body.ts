@@ -78,7 +78,8 @@ interface ExamBody {
   objectKey: string;
   parsedJson: any;
   examSetId: string;
-  examCode: string;
+  examCode?: string;
+  examCodes?: string[];
   answers: Array<{
     questionNumber: number;
     correctAnswer: string[];
