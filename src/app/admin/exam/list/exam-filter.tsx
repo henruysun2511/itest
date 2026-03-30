@@ -1,4 +1,5 @@
 import { useExamSetList } from "@/queries/useExamSetQuery";
+import { ExamStatus } from "@/shares/constants/status.enum";
 import { ExamSortBy, SortOrder } from "@/shares/constants/sort.enum"; // Đảm bảo đúng enum cho Exam
 import { ExamParam } from "@/shares/types/param";
 import { Input, Select, Space, Typography } from "antd";
@@ -9,11 +10,12 @@ const { Text } = Typography;
 interface ExamFilterProps {
     onSearch: (value: string) => void;
     onExamSetChange: (id: string) => void;
+    onStatusChange: (status: ExamStatus | undefined) => void;
     onSortChange: (sortBy: ExamSortBy, sortOrder: SortOrder) => void;
-    params: ExamParam; 
+    params: ExamParam;
 }
 
-export function ExamFilter({ onSearch, onSortChange, onExamSetChange, params }: ExamFilterProps) {
+export function ExamFilter({ onSearch, onSortChange, onExamSetChange, onStatusChange, params }: ExamFilterProps) {
     const { data: examSetRes } = useExamSetList({ page: 1, limit: 100 });
     const examSets = examSetRes?.data || [];
 
@@ -39,8 +41,23 @@ export function ExamFilter({ onSearch, onSortChange, onExamSetChange, params }: 
                         }))}
                     />
                 </div>
+                <div className="flex items-center gap-2">
+                    <Text strong>Trạng thái:</Text>
+                    <Select
+                        placeholder="Chọn trạng thái"
+                        value={params.status}
+                        style={{ width: 150 }}
+                        allowClear
+                        onChange={(val) => onStatusChange(val)}
+                        options={[
+                            { value: ExamStatus.PENDING, label: "Đang chờ" },
+                            { value: ExamStatus.ACCEPTED, label: "Đã duyệt" },
+                            { value: ExamStatus.REJECTED, label: "Bị từ chối" },
+                        ]}
+                    />
+                </div>
                 <Input.Search
-                    placeholder="Tìm kiếm mã đề, tiêu đề..."
+                    placeholder="Tìm kiếm đề thi..."
                     allowClear
                     size="large"
                     onSearch={onSearch}
@@ -71,4 +88,4 @@ export function ExamFilter({ onSearch, onSortChange, onExamSetChange, params }: 
             </Space>
         </div>
     );
-}
+}

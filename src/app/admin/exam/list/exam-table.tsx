@@ -1,12 +1,12 @@
-import { useGetExamPdf, useApproveExam } from "@/queries/useExamQuery";
-import { CheckCircleOutlined, CloseCircleOutlined, FilePdfOutlined } from "@ant-design/icons";
-import { Badge, Button, Space, Table, message } from "antd";
+import { useApproveExam, useGetExamPdf } from "@/queries/useExamQuery";
 import { ExamStatus } from "@/shares/constants/status.enum";
 import { getExamStatusBadge } from "@/shares/utils/mappingLabel";
+import { CheckCircleOutlined, CloseCircleOutlined, FilePdfOutlined } from "@ant-design/icons";
+import { Badge, Button, Space, Table, message } from "antd";
 import { useState } from "react";
 
 export default function ExamTable({ data, loading, pagination }: any) {
-    
+
     const { mutate: getPdf, isPending } = useGetExamPdf();
     const { mutate: approveExam } = useApproveExam();
     const [actionId, setActionId] = useState<string | null>(null);
@@ -14,7 +14,7 @@ export default function ExamTable({ data, loading, pagination }: any) {
     const handleApprove = (examId: string, status: ExamStatus) => {
         setActionId(examId);
         approveExam(
-            { id: examId, status }, 
+            { id: examId, status },
             {
                 onSuccess: () => {
                     message.success("Cập nhật trạng thái đề thi thành công");
@@ -32,7 +32,7 @@ export default function ExamTable({ data, loading, pagination }: any) {
         getPdf(examId, {
             onSuccess: (res) => {
                 const pdfUrl = res.data?.data?.pdfUrl;
-                
+
                 if (pdfUrl) {
                     window.open(pdfUrl, "_blank");
                 } else {
@@ -46,18 +46,6 @@ export default function ExamTable({ data, loading, pagination }: any) {
     };
 
     const columns = [
-        {
-            title: "Mã đề thi",
-            dataIndex: "examCodes",
-            key: "examCodes",
-            render: (codes: string[]) => (
-                <Space wrap size={[0, 4]} style={{ gap: '4px' }}>
-                    {codes && codes.length > 0 ? codes.map((code: string) => (
-                        <span key={code} className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded text-xs border border-blue-100">{code}</span>
-                    )) : <span className="text-gray-400 text-sm">--</span>}
-                </Space>
-            )
-        },
         {
             title: "Tiêu đề",
             dataIndex: "title",
@@ -87,13 +75,13 @@ export default function ExamTable({ data, loading, pagination }: any) {
                             icon={<FilePdfOutlined />}
                             onClick={() => handleViewPdf(record.examId)}
                         >
-                            Xem đề PDF 
+                            Xem đề PDF
                         </Button>
                         {isPendingMode && (
-                            <Button 
-                                type="primary" 
+                            <Button
+                                type="primary"
                                 className="bg-green-600 hover:bg-green-500"
-                                icon={<CheckCircleOutlined />} 
+                                icon={<CheckCircleOutlined />}
                                 onClick={() => handleApprove(record.examId, ExamStatus.ACCEPTED)}
                                 loading={actionId === record.examId}
                             >
@@ -101,10 +89,10 @@ export default function ExamTable({ data, loading, pagination }: any) {
                             </Button>
                         )}
                         {isPendingMode && (
-                            <Button 
+                            <Button
                                 danger
-                                type="primary" 
-                                icon={<CloseCircleOutlined />} 
+                                type="primary"
+                                icon={<CloseCircleOutlined />}
                                 onClick={() => handleApprove(record.examId, ExamStatus.REJECTED)}
                                 loading={actionId === record.examId}
                             >

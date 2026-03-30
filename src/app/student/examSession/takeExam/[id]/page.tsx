@@ -16,10 +16,10 @@ import { ProgressButton } from '../(components)/renderProgressButton';
 import { StudentQuestion } from '../(components)/student-question';
 import { useExamAutoSave } from '../(hooks)/useExamAutoSave';
 import { useExamFullscreen } from '../(hooks)/useExamFullscreen';
+import { useExamNetwork } from '../(hooks)/useExamNetwork';
 import { useExamSecurity } from '../(hooks)/useExamSecurity';
 import { useExamSubmit } from '../(hooks)/useExamSubmit';
 import { useExamTimer } from '../(hooks)/useExamTimer';
-import { useExamNetwork } from '../(hooks)/useExamNetwork';
 
 
 
@@ -53,8 +53,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     const { data: examDetailRes, isLoading: isExamLoading } = useExamDetail(
         !storeExamData ? (examId as string) : ""
     );
-    console.log(">>> [Debug] examDetailRes:", examDetailRes);
-    console.log(">>> [Debug] SSE Connected:", isConnected);
+
     const { data: examSessionRes, isLoading: isExamSessionLoading } = useExamSessionDetail(examSessionId);
 
     const isAttemptPaused = examSessionRes?.data?.status === ExamSessionStatus.PAUSE || myAttemptRes?.data?.status === ExamAttemptStatus.PAUSE;
@@ -140,14 +139,50 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     }, [storeExamData, examSessionId, userAnswers.length]);
 
 
-    // Logic xử lý toàn màn hình đã chuyển sang useExamFullscreen ở bên dưới
-
     // 3. Logic xử lý Tab và Câu hỏi (Dựa trên cấu trúc state bạn cung cấp)
     const actualParts = useMemo(() => {
-        return finalExamData?.parts || finalExamData?.examDetail?.parts || [];
+        const parts = finalExamData?.parts || finalExamData?.examDetail?.parts || [];
+
+        // Flatten và xử lý instructions
+        return parts.map((part: any, pIdx: number) => {
+            const groups = part.questionGroup || part.questionGroups;
+            if (groups && Array.isArray(groups)) {
+                // 1. Gom tất cả câu hỏi lại kèm groupId để nhận biết nhóm
+                const flattenedRaw = groups.flatMap((group: any) =>
+                    (group.questions || []).map((q: any) => ({
+                        ...q,
+                        _groupId: group.groupId || group.groupIndex || `group-${pIdx}`,
+                        _instruction: group.instruction,
+                        _media: group.mediaUrls || group.mediaPlaceholders
+                    }))
+                );
+
+                // 2. Sắp xếp tất cả câu hỏi theo số thứ tự (tránh lộn xộn giữa các group)
+                const sortedQuestions = flattenedRaw.sort((a, b) => a.questionNumber - b.questionNumber);
+
+                // 3. Chỉ gán instruction/media cho câu hỏi ĐẦU TIÊN của mỗi nhóm sau khi đã sắp xếp
+                let lastGroupId: string | null = null;
+                const questionsWithFixedInstructions = sortedQuestions.map((q) => {
+                    const isFirstInGroup = q._groupId !== lastGroupId;
+                    lastGroupId = q._groupId;
+                    return {
+                        ...q,
+                        groupInstruction: isFirstInGroup ? q._instruction : null,
+                        groupMedia: isFirstInGroup ? q._media : null
+                    };
+                });
+
+                return {
+                    ...part,
+                    questions: questionsWithFixedInstructions
+                };
+            }
+            return part; // Fallback
+        });
     }, [finalExamData]);
 
     const { tabItems, allQuestions } = useMemo(() => {
+        console.log(">>> [Debug] actualParts length:", actualParts.length);
         // Lưu ý: Object của bạn có cấu trúc: examDetail: { parts: [...] }
         if (actualParts.length === 0) return { tabItems: [], allQuestions: [] };
 
@@ -211,7 +246,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             tabItems: processedTabs,
             allQuestions: fullQuestionsList.sort((a, b) => a.questionNumber - b.questionNumber)
         };
-    }, [finalExamData, userAnswers]);
+    }, [actualParts, userAnswers, finalExamData]); // Add actualParts dependency for reactive updates
 
 
     // 4. Các Logic Background: Auto-Save, Camera Capture, Giám sát
@@ -461,7 +496,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                     <Col span={17}>
                         <div className="mb-6">
                             <h1 className="text-2xl font-black text-[var(--color-primary)] uppercase">
-                                {finalExamData?.examDetail?.title || "BÀI THI"}
+                                {finalExamData?.title || finalExamData?.examDetail?.title || "BÀI THI"}
                             </h1>
                         </div>
                         <Card className="shadow-xl rounded-3xl border-none bg-white">

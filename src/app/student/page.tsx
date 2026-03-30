@@ -1,8 +1,7 @@
 "use client";
 
-import { useExamSSE } from '@/hooks/useExamSSE';
 import { useToast } from "@/hooks/useToast";
-import { MY_EXAM_SESSION_QUERY_KEY, useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
+import { useExamSessionJoin, useMyExamSessions } from "@/queries/useExamSessionQuery";
 import { ExamSessionSortBy, SortOrder } from "@/shares/constants/sort.enum";
 import { ExamAttemptStatus, ExamSessionStatus } from "@/shares/constants/status.enum";
 import { ExamSessionParam } from "@/shares/types/param";
@@ -17,11 +16,10 @@ import {
     SearchOutlined,
     VideoCameraOutlined
 } from '@ant-design/icons';
-import { useQueryClient } from "@tanstack/react-query";
 import { Badge, Button, Card, Col, Empty, Input, message, Pagination, Row, Select, Skeleton, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const { Title, Text } = Typography;
 
@@ -112,6 +110,7 @@ export default function StudentExamHome() {
 
                         // 4. Cập nhật Store (Zustand)
                         setExamData(rawData);
+                        console.log(rawData);
 
                         // 5. Sử dụng ID trực tiếp từ biến đã trích xuất để push router
                         // Dùng template string sạch sẽ

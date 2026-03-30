@@ -1,6 +1,7 @@
 "use client";
 import { useExamByExamSet } from "@/queries/useExamQuery";
 import { ExamSortBy, SortOrder } from "@/shares/constants/sort.enum";
+import { ExamStatus } from "@/shares/constants/status.enum";
 import { ExamParam } from "@/shares/types/param";
 import { useState } from "react";
 import { ExamFilter } from "./exam-filter";
@@ -23,6 +24,7 @@ export default function ExamList() {
         sortBy: params.sortBy as any,
         sortOrder: params.sortOrder,
         examSetId: params.examSetId,
+        status: params.status,
     });
 
     return (
@@ -31,6 +33,7 @@ export default function ExamList() {
                 params={params}
                 onSearch={(val: string) => setParams(p => ({ ...p, search: val, page: 1 }))}
                 onExamSetChange={(id: string) => setParams(p => ({ ...p, examSetId: id, page: 1 }))}
+                onStatusChange={(status) => setParams(p => ({ ...p, status, page: 1 }))}
                 onSortChange={(sortBy, sortOrder) =>
                     setParams(p => ({ ...p, sortBy, sortOrder }))
                 }
