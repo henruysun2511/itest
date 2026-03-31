@@ -16,6 +16,7 @@ import {
 import {
     Badge,
     Card, Col,
+    Popconfirm,
     Space,
     Tag, Tooltip, Typography
 } from "antd";
@@ -59,68 +60,94 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                 actions={[
                     // 1. Tạm dừng / Tiếp tục (Toggle)
                     <Tooltip title={isPaused ? "Tiếp tục thi" : "Tạm dừng thi"} key="pause">
-                        {isPaused ? (
-                            <CheckCircleOutlined
-                                className={`text-green-500 ${isCompleted ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                onClick={isCompleted ? undefined : () => handleAction(
-                                    actions.pauseAttempt,
-                                    { examSessionId: actions.examSessionId, studentId: student.studentId, data: { isPaused: false } },
-                                    "Tiếp tục bài thi"
-                                )}
-                            />
-                        ) : (
-                            <PauseCircleOutlined
-                                className={isCompleted ? 'opacity-50 cursor-not-allowed' : ''}
-                                onClick={isCompleted ? undefined : () => handleAction(
-                                    actions.pauseAttempt,
-                                    { examSessionId: actions.examSessionId, studentId: student.studentId, data: { isPaused: true } },
-                                    "Tạm dừng bài thi"
-                                )}
-                            />
-                        )}
+                        <Popconfirm
+                            title={isPaused ? "Cho phép sinh viên tiếp tục làm bài?" : "Tạm dừng bài thi của sinh viên này?"}
+                            disabled={isCompleted}
+                            onConfirm={() => handleAction(
+                                actions.pauseAttempt,
+                                { examSessionId: actions.examSessionId, studentId: student.studentId, data: { isPaused: !isPaused } },
+                                isPaused ? "Tiếp tục bài thi" : "Tạm dừng bài thi"
+                            )}
+                            okText="Xác nhận"
+                            cancelText="Hủy"
+                        >
+                            {isPaused ? (
+                                <CheckCircleOutlined
+                                    className={`text-green-500 ${isCompleted ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                />
+                            ) : (
+                                <PauseCircleOutlined
+                                    className={isCompleted ? 'opacity-50 cursor-not-allowed' : ''}
+                                />
+                            )}
+                        </Popconfirm>
                     </Tooltip>,
 
                     // 2. Thu bài cưỡng chế
                     <Tooltip title="Thu bài cưỡng chế" key="force">
-                        <LogoutOutlined
-                            className={`text-red-500 ${isCompleted ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            onClick={isCompleted ? undefined : () => handleAction(
+                        <Popconfirm
+                            title="Xác nhận thu bài cưỡng chế?"
+                            description="Hành động này sẽ kết thúc bài thi của sinh viên ngay lập tức."
+                            disabled={isCompleted}
+                            onConfirm={() => handleAction(
                                 actions.forceSubmit,
                                 { examSessionId: actions.examSessionId, data: { studentIds: [student.studentId], studentCodes: [student.studentCode] } },
                                 "Thu bài"
                             )}
-                        />
+                            okText="Thu bài"
+                            cancelText="Hủy"
+                            okButtonProps={{ danger: true }}
+                        >
+                            <LogoutOutlined
+                                className={`text-red-500 ${isCompleted ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            />
+                        </Popconfirm>
                     </Tooltip>,
 
                     // 3. Lưu bài làm
                     <Tooltip title="Lưu bài làm" key="save">
-                        <SaveOutlined 
-                            className={isCompleted ? 'opacity-50 cursor-not-allowed' : ''}
-                            onClick={isCompleted ? undefined : () => handleAction(
-                            actions.saveAnswers,
-                            {
-                                examSessionId: actions.examSessionId,
-                                data: { studentId: student.studentId, studentCode: student.studentCode }
-                            },
-                            "Lưu bài"
-                        )} />
+                        <Popconfirm
+                            title="Lưu trạng thái bài làm?"
+                            description="Hệ thống sẽ đồng bộ dữ liệu bài làm hiện tại của sinh viên."
+                            disabled={isCompleted}
+                            onConfirm={() => handleAction(
+                                actions.saveAnswers,
+                                {
+                                    examSessionId: actions.examSessionId,
+                                    data: { studentId: student.studentId, studentCode: student.studentCode }
+                                },
+                                "Lưu bài"
+                            )}
+                            okText="Lưu"
+                            cancelText="Hủy"
+                        >
+                            <SaveOutlined
+                                className={isCompleted ? 'opacity-50 cursor-not-allowed' : ''}
+                            />
+                        </Popconfirm>
                     </Tooltip>,
 
                     // 4. Cho phép thi lại
                     <Tooltip title="Cho phép thi lại" key="retake">
-                        <ThunderboltOutlined
-                            className="text-amber-500"
-                            onClick={() => handleAction(
+                        <Popconfirm
+                            title="Xác nhận cho phép thi lại?"
+                            description="Sinh viên sẽ được cấp quyền làm lại bài thi này."
+                            onConfirm={() => handleAction(
                                 actions.grantRetake,
                                 {
                                     studentId: student.studentId,
                                     studentCode: student.studentCode,
-                                    examSessionId: actions.examSessionId // Dùng từ actions cho thống nhất
+                                    examSessionId: actions.examSessionId
                                 },
                                 "Cấp quyền thi lại"
                             )}
-                        />
+                            okText="Đồng ý"
+                            cancelText="Hủy"
+                        >
+                            <ThunderboltOutlined className="text-amber-500" />
+                        </Popconfirm>
                     </Tooltip>,
+
                     <Tooltip title="Xử lý vi phạm" key="violation">
                         <AlertOutlined
                             className="text-red-600"
@@ -174,6 +201,6 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                     </div>
                 )}
             </Card>
-        </Col>
+        </Col >
     );
 }

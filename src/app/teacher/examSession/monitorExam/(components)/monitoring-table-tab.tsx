@@ -21,7 +21,7 @@ import {
     ThunderboltOutlined,
     WarningOutlined
 } from '@ant-design/icons';
-import { Button, Space, Table, Tag, Tooltip, Typography } from "antd";
+import { Button, Popconfirm, Space, Table, Tag, Tooltip, Typography } from "antd";
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -141,60 +141,92 @@ export default function MonitoringTableTab({ examSessionId }: Props) {
                 return (
                     <Space size="small">
                         <Tooltip title={isPaused ? "Tiếp tục" : "Tạm dừng"}>
-                            <Button
-                                type="text"
-                                disabled={isCompleted}
-                                loading={isPausing && (pauseVars as any)?.studentId === record.studentId}
-                                icon={isPaused ? <CheckCircleOutlined className={isCompleted ? "" : "text-green-500"} /> : <PauseCircleOutlined />}
-                                onClick={() => handleAction(
+                            <Popconfirm
+                                title={isPaused ? "Cho phép sinh viên tiếp tục làm bài?" : "Tạm dừng bài thi của sinh viên này?"}
+                                onConfirm={() => handleAction(
                                     pauseAttempt,
                                     { examSessionId, studentId: record.studentId, data: { isPaused: !isPaused } },
                                     isPaused ? "Tiếp tục" : "Tạm dừng"
                                 )}
-                            />
+                                okText="Xác nhận"
+                                cancelText="Hủy"
+                                disabled={isCompleted}
+                            >
+                                <Button
+                                    type="text"
+                                    disabled={isCompleted}
+                                    loading={isPausing && (pauseVars as any)?.studentId === record.studentId}
+                                    icon={isPaused ? <CheckCircleOutlined className={isCompleted ? "" : "text-green-500"} /> : <PauseCircleOutlined />}
+                                />
+                            </Popconfirm>
                         </Tooltip>
 
                         <Tooltip title="Lưu bài làm">
-                            <Button
-                                type="text"
-                                disabled={isCompleted}
-                                loading={isSaving && (saveVars as any)?.data?.studentId === record.studentId}
-                                icon={<SaveOutlined className={isCompleted ? "" : "text-blue-500"} />}
-                                onClick={() => handleAction(
+                            <Popconfirm
+                                title="Xác nhận lưu trạng thái bài làm hiện tại?"
+                                onConfirm={() => handleAction(
                                     saveAnswers,
                                     { examSessionId, data: { studentId: record.studentId, studentCode: record.studentCode } },
                                     "Lưu bài"
                                 )}
-                            />
+                                okText="Lưu"
+                                cancelText="Hủy"
+                                disabled={isCompleted}
+                            >
+                                <Button
+                                    type="text"
+                                    disabled={isCompleted}
+                                    loading={isSaving && (saveVars as any)?.data?.studentId === record.studentId}
+                                    icon={<SaveOutlined className={isCompleted ? "" : "text-blue-500"} />}
+                                />
+                            </Popconfirm>
                         </Tooltip>
 
+
                         <Tooltip title="Thu bài cưỡng chế">
-                            <Button
-                                type="text"
-                                disabled={isCompleted}
-                                loading={isForcing && (forceVars as any)?.data?.studentIds?.includes(record.studentId)}
-                                icon={<LogoutOutlined className={isCompleted ? "" : "text-red-500"} />}
-                                onClick={() => handleAction(
+                            <Popconfirm
+                                title="Xác nhận thu bài bắt buộc?"
+                                description="Sinh viên sẽ không thể tiếp tục làm bài sau khi thu. Bạn chắc chắn chứ?"
+                                onConfirm={() => handleAction(
                                     forceSubmit,
                                     { examSessionId, data: { studentIds: [record.studentId], studentCodes: [record.studentCode] } },
                                     "Thu bài"
                                 )}
-                            />
+                                okText="Thu bài"
+                                cancelText="Hủy"
+                                okButtonProps={{ danger: true }}
+                                disabled={isCompleted}
+                            >
+                                <Button
+                                    type="text"
+                                    disabled={isCompleted}
+                                    loading={isForcing && (forceVars as any)?.data?.studentIds?.includes(record.studentId)}
+                                    icon={<LogoutOutlined className={isCompleted ? "" : "text-red-500"} />}
+                                />
+                            </Popconfirm>
                         </Tooltip>
 
                         <Tooltip title="Cho thi lại">
-                            <Button
-                                type="text"
-                                className="text-amber-500"
-                                loading={isGranting && (grantVars as any)?.studentId === record.studentId}
-                                icon={<ThunderboltOutlined />}
-                                onClick={() => handleAction(
+                            <Popconfirm
+                                title="Cho phép sinh viên thi lại?"
+                                description="Lưu ý: Dữ liệu bài làm cũ có thể bị ảnh hưởng. Xác nhận cấp quyền?"
+                                onConfirm={() => handleAction(
                                     grantRetake,
                                     { studentId: record.studentId, studentCode: record.studentCode, examSessionId },
                                     "Cấp quyền thi lại"
                                 )}
-                            />
+                                okText="Đồng ý"
+                                cancelText="Hủy"
+                            >
+                                <Button
+                                    type="text"
+                                    className="text-amber-500"
+                                    loading={isGranting && (grantVars as any)?.studentId === record.studentId}
+                                    icon={<ThunderboltOutlined />}
+                                />
+                            </Popconfirm>
                         </Tooltip>
+
                         <Tooltip title="Xử lý vi phạm">
                             <Button
                                 type="text"
