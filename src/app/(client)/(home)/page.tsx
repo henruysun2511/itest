@@ -104,7 +104,7 @@ export default function ITESTLandingPage() {
                     <Col lg={12} className="flex justify-center w-full relative">
                         <div className="relative p-2 bg-white/5 rounded-3xl backdrop-blur-md border border-white/20 shadow-2xl w-full max-w-lg">
                             <img
-                                src="/public/bros.png"
+                                src="/bros.png"
                                 alt="ITEST AI Proctoring"
                                 className="w-full h-auto rounded-2xl"
                             />
