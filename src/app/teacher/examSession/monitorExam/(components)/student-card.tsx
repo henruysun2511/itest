@@ -58,7 +58,6 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                     }`}
                 bodyStyle={{ padding: 16 }}
                 actions={[
-                    // 1. Tạm dừng / Tiếp tục (Toggle)
                     <Tooltip title={isPaused ? "Tiếp tục thi" : "Tạm dừng thi"} key="pause">
                         <Popconfirm
                             title={isPaused ? "Cho phép sinh viên tiếp tục làm bài?" : "Tạm dừng bài thi của sinh viên này?"}
@@ -83,7 +82,6 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                         </Popconfirm>
                     </Tooltip>,
 
-                    // 2. Thu bài cưỡng chế
                     <Tooltip title="Thu bài cưỡng chế" key="force">
                         <Popconfirm
                             title="Xác nhận thu bài cưỡng chế?"
@@ -104,7 +102,6 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                         </Popconfirm>
                     </Tooltip>,
 
-                    // 3. Lưu bài làm
                     <Tooltip title="Lưu bài làm" key="save">
                         <Popconfirm
                             title="Lưu trạng thái bài làm?"
@@ -127,7 +124,6 @@ export default function StudentCard({ student, isWarning, actions, onHandleViola
                         </Popconfirm>
                     </Tooltip>,
 
-                    // 4. Cho phép thi lại
                     <Tooltip title="Cho phép thi lại" key="retake">
                         <Popconfirm
                             title="Xác nhận cho phép thi lại?"

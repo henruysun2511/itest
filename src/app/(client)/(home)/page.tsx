@@ -1,16 +1,14 @@
 "use client";
 
-import React from 'react';
-import { Typography, Button, Card, Row, Col, Space } from 'antd';
 import {
+    BankOutlined,
+    CheckCircleOutlined,
     SafetyCertificateOutlined,
     ScanOutlined,
-    UserSwitchOutlined,
     ThunderboltOutlined,
-    CheckCircleOutlined,
-    ArrowRightOutlined,
-    BankOutlined
+    UserSwitchOutlined
 } from '@ant-design/icons';
+import { Button, Card, Col, Row, Space, Typography } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -106,7 +104,7 @@ export default function ITESTLandingPage() {
                     <Col lg={12} className="flex justify-center w-full relative">
                         <div className="relative p-2 bg-white/5 rounded-3xl backdrop-blur-md border border-white/20 shadow-2xl w-full max-w-lg">
                             <img
-                                src="https://hvnh.edu.vn/medias/hvnh/vi/04.2025/system/archivedate/a6982b15_%E1%BA%A3nh%20khoa%20CNTT.jpg"
+                                src="/public/bros.png"
                                 alt="ITEST AI Proctoring"
                                 className="w-full h-auto rounded-2xl"
                             />
