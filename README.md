@@ -402,6 +402,10 @@ Media có thể được gắn ở nhiều cấp độ:
 - Question Media
 Hệ thống hỗ trợ upload và quản lý hình ảnh, âm thanh thông qua Cloudinary.
 
+<div align="center">
+<img src="public/createexam.png" alt="Homepage" width="80%">
+</div>
+
 ### Quy trình tạo đề thi hoàn chỉnh
 
 ```
@@ -576,6 +580,7 @@ Giai đoạn làm bài thi là quá trình thí sinh tham gia ca thi, xác thự
 5. Khi đồng hồ đếm ngược về 0 thì tự động nộp
 
 **Xử lý bất đồng bộ:** Nếu server trả về `consumedTime` mới (do giám thị tạm dừng thi), đồng hồ tự động điều chỉnh.
+
 ---
 
 #### 7. Giám sát thời gian thực — Camera (Exam Monitor)
@@ -608,6 +613,10 @@ Giai đoạn làm bài thi là quá trình thí sinh tham gia ca thi, xác thự
 | `MULTIPLE_FACES_DETECTED` | Phát hiện nhiều hơn một khuôn mặt trong khung hình             |
 | `FACE_MISMATCH`           | Khuôn mặt hiện tại không khớp với dữ liệu khuôn mặt đã đăng ký |
 
+<br>
+<div align="center">
+<img src="public/teacher.png" alt="Homepage" width="70%">
+</div>
 
 **Giám thị nhận được thông báo qua SSE và có thể thực hiện các hành động:**
 
@@ -618,9 +627,11 @@ Giai đoạn làm bài thi là quá trình thí sinh tham gia ca thi, xác thự
    | `SUSPENSION` | Đình chỉ thi (tự động nộp bài) |
    | `STOP_FOR_SESSION_TRANSFER` | Dừng để chuyển ca |
 
+  <br>
 <div align="center">
-<img src="public/teacher.png" alt="Homepage" width="70%">
+<img src="public/card.jpg" alt="Homepage" width="30%">
 </div>
+
 ---
 
 #### 9. Heartbeat và phát hiện mất kết nối
