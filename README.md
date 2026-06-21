@@ -403,8 +403,24 @@ Media có thể được gắn ở nhiều cấp độ:
 Hệ thống hỗ trợ upload và quản lý hình ảnh, âm thanh thông qua Cloudinary.
 
 <div align="center">
-<img src="public/createexam.png" alt="Homepage" width="80%">
+  <img src="public/createexam4.png" alt="Homepage 1" width="45%">
+  <img src="public/createexam.png" alt="Homepage 2" width="45%" height="full>
 </div>
+
+<br>
+<div align="center">
+<img src="public/createexam2.png" alt="Homepage" width="60%">
+<br>
+Bộ editor câu hỏi
+</div>
+
+<br>
+<div align="center">
+<img src="public/createexam3.png" alt="Homepage" width="60%">
+<br>
+Nhóm câu hỏi
+</div>
+
 
 ### Quy trình tạo đề thi hoàn chỉnh
 
